@@ -3,7 +3,7 @@
 <head>
 	<title>BatleShips</title>
 	
-	<link rel="stylesheet" type="text/css" href="/static/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="/static/bootstrap2.css">
 	<link rel="stylesheet" type="text/css" href="/static/fontello.css">
 	<link rel="stylesheet" type="text/css" href="/static/animation.css">
 	<link rel="stylesheet" type="text/css" href="/static/css.css">
@@ -11,26 +11,25 @@
 <body>
 	<main class="container">
 		
+		
 		<div id = "loadingDisplay" class="row">
-			<div class="column col-md-2 col-md-offset-8 text-center alert alert-success">
-				<i class='icon-spinner animate-spin'></i>
-				<strong><span id="alertMessage">Loading</span></strong>
-			</div>
+			<button id="tetst" class="btn btn-primary btn-block">Submit</button>
 		</div>
 		
+		
 		<div id = "namePrompt" class="row">
-			<div  class="column col-md-4 col-md-offset-4 text-center ">
+			<div  class="col-md-4 col-md-offset-4 text-center ">
 				<label class="form-label" for="inptName">Username</label>
 			</div>
 			<br>
-			<div  class="column col-md-4 col-md-offset-4 centered">
+			<div  class="col-md-4 col-md-offset-4 centered">
 				<input id="inptName" class="input-lg form-control" type="text"></input>
 			</div>
-			<div  class="column col-md-12 text-center">
+			<div  class="col-md-12 text-center">
 				<!-- EMPTY -->
 				<br>
 			</div>
-			<div  class="column col-md-4 col-md-offset-4 text-center">
+			<div  class="col-md-4 col-md-offset-4 text-center">
 				<button id="btnSubmitName" class="btn btn-primary btn-block">Submit</button>
 				<label id="errorName">.</label>
 			</div>
@@ -39,18 +38,18 @@
 		</div>
 		
 		<div id = "joinGame" class="row">
-			<div  class="column col-md-4 col-md-offset-4 text-center">
+			<div  class="col-md-4 col-md-offset-4 text-center">
 				<button id = "btnJoin" class="btn btn-primary btn-block">Join Game</button>
 				<label id="errorJoin">.</label>
 			</div>
 		</div>
 
 			<div id = "choosePlacement"  class="row">
-				<div class="column col-md-6 col-md-offset-3 text-center">
+				<div class="col-md-6 col-md-offset-3 text-center">
 					<h3>Place your ships</h3>
 				</div>
 				
-				<div id="chooseBoard" class="column col-md-5 col-md-offset-1">
+				<div id="chooseBoard" class="col-md-5 col-md-offset-1">
 
 					<div class="board-row">
 						<span class="board-cell-info" data-info="/"></span>
@@ -75,66 +74,31 @@
 					</div>
 					{%- endfor %}
 				</div>
-				<div  class="column col-md-6">
-					<div  class="column col-md-12">
-						<h6>Place Starting  Point and End Point</h6>
+				<div  class="col-md-6 container">
+					<div class = "row">
+						<div  class="col-md-12">
+							<h6>Place Starting  Point and End Point</h6>
+						</div>
 					</div>
-					<div  class="column col-md-12">
-						<label>Place Carrier(5)</label>
+					{% for i in [{st:'A',name:'Carrier (5)'},{st:'B',name:'Submarine (4)'},{st:'C',name:'Carrier (5)'},{st:'D',name:'Carrier (5)'},{st:'E',name:'Patrol (2)'}] -%}
+					<div class="row">
+						<label>Place {{i.name}}</label>
 						<br>
-						<span class="column col-md-1 boardInpt"><input id='Ai' class="form-control inptXY" data-ship="A" placeholder="0"></span>
-						<span class="column col-md-1 boardInpt"><input id='Aj' class="form-control inptXY" data-ship="A" placeholder="A"></span>
-						<span class="column col-md-2 boardBtn"><button id='btnRotA' class="btn btn-default btnRot" data-ship="A">Rotate</button></span>
-						<span class="column col-md-2 boardBtn"><button class="btn btn-primary btn-block btnDrop" data-ship="A">Drop</button></span>
-						<span class="column col-md-12 boardBtn"><label id="errorPlaceShipA">.</label></span>						
+						<span class="col-md-1 boardInpt"><input id='{{i.st}}i' class="form-control inptXY" data-ship="{{i.st}}" placeholder="0"></span>
+						<span class="col-md-1 boardInpt"><input id='{{i.st}}j' class="form-control inptXY" data-ship="{{i.st}}" placeholder="A"></span>
+						<span class="col-md-2 boardBtn"><button id='btnRot{{i.st}}' class="btn btn-info btnRot" data-ship="{{i.st}}">Rotate</button></span>
+						<span class="col-md-4 boardBtn"><button id='btnRotIndic{{i.st}}' class="btn btn-block btn-default" disabled>Currently Vertical</button></span>
+						<span class="col-md-2 col-md-offset-1 boardBtn"><button class="btn btn-primary btn-block btnDrop" data-ship="{{i.st}}">Drop</button></span>
+						<span class="col-md-12 boardBtn"><label id="errorPlaceShip{{i.st}}" class="label label-default">.</label></span>												
 					</div>
-					<div  class="column col-md-12">
-						<label>Place Batleship(4)</label>
-						<br>
-						<span class="column col-md-1 boardInpt"><input id='Bi' class="form-control inptXY" data-ship="B" placeholder="0"></span>
-						<span class="column col-md-1 boardInpt"><input id='Bj' class="form-control inptXY" data-ship="B" placeholder="A"></span>
-						<span class="column col-md-2 boardBtn"><button id='btnRotB' class="btn btn-default btnRot" data-ship="B">Rotate</button></span>
-						<span class="column col-md-2 boardBtn"><button class="btn btn-primary btn-block btnDrop" data-ship="B">Drop</button></span>
-						<span class="column col-md-12 boardBtn"><label id="errorPlaceShipB">.</label></span>
-					</div>
-					<div  class="column col-md-12">
-						<label>Place Submarine(3)</label>
-						<br>
-						<span class="column col-md-1 boardInpt"><input id='Ci' class="form-control inptXY" data-ship="C" placeholder="0"></span>
-						<span class="column col-md-1 boardInpt"><input id='Cj' class="form-control inptXY" data-ship="C" placeholder="A"></span>
-						<span class="column col-md-2 boardBtn"><button id='btnRotB' class="btn btn-default btnRot" data-ship="C">Rotate</button></span>
-						<span class="column col-md-2 boardBtn"><button class="btn btn-primary btn-block btnDrop" data-ship="C">Drop</button></span>
-						<span class="column col-md-12 boardBtn"><label id="errorPlaceShipC">.</label></span>
-					</div>
-					<div  class="column col-md-12">
-						<label>Place Cruiser(3)</label>
-						<br>
-						<span class="column col-md-1 boardInpt"><input id='Di' class="form-control inptXY" data-ship="D" placeholder="0"></span>
-						<span class="column col-md-1 boardInpt"><input id='Dj' class="form-control inptXY" data-ship="D" placeholder="A"></span>
-						<span class="column col-md-2 boardBtn"><button id='btnRotB' class="btn btn-default btnRot" data-ship="D">Rotate</button></span>
-						<span class="column col-md-2 boardBtn"><button class="btn btn-primary btn-block btnDrop" data-ship="D">Drop</button></span>
-						<span class="column col-md-12 boardBtn"><label id="errorPlaceShipD">.</label></span>
-					</div>
-					<div  class="column col-md-12">
-						<label>Place Patrol(2)</label>
-						<br>
-						<span class="column col-md-1 boardInpt"><input id='Ei' class="form-control inptXY" data-ship="E" placeholder="0"></span>
-						<span class="column col-md-1 boardInpt"><input id='Ej' class="form-control inptXY" data-ship="E" placeholder="A"></span>
-						<span class="column col-md-2 boardBtn"><button id='btnRotB' class="btn btn-default btnRot" data-ship="E">Rotate</button></span>
-						<span class="column col-md-2 boardBtn"><button class="btn btn-primary btn-block btnDrop" data-ship="E">Drop</button></span>
-						<span class="column col-md-12 boardBtn"><label id="errorPlaceShipE">.</label></span>
-
-					</div>
+					{%- endfor %}
 				</div>
-				<div  class="column col-md-4 col-md-offset-4 text-center">
-					<label id="errPlace">.</label>
-				</div>
-				<div  class="column col-md-4 col-md-offset-4 text-center">
+				<div  class="col-md-4 col-md-offset-4 text-center">
 					<button id = "btnReady" class="btn btn-primary btn-block">Ready</button>
 					<label id="errorReady">.</label>
 				</div>
 			</div>
-		<div class="columns">
+		<div class="">
 			<div id = "battleBoard">
 				<div id="playerBoard"></div>
 				<div id="opponentBoard"></div>
@@ -144,7 +108,7 @@
 	</main>
 	<script src="/static/jquery.js"></script>
 	<script src="/static/jquery-migrate.js"></script>
-	<script src="/static/socket.js"></script>  
+	<script src="/static/socket.js"></script>
 	<script src="/static/client.js"></script>
 </body>
 </html>

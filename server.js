@@ -128,10 +128,12 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('boardMade' , function(data){
-		if(playerIsIn[player]){
+		//console.log(data);
+		if(playerIsIn[data.player]){
 			var player = data.player;
-			var shipPlacement = data.ships;
+			var shipPlacement = data.shipPlacement;
 			var res = Games[playerIsIn[player]].playerReady(player,shipPlacement);
+			console.log(res);
 			socket.emit('readyResponse', res );
 		}
 	});

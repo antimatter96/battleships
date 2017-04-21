@@ -20,28 +20,22 @@ function Game(player1,player2) {
 		this.playerTwoBoardForOne = new Array(0,0,0,0,0,0,0,0,0); 
 	}
 
-	this.playerOneShipA = new Set();
-	this.playerOneShipB = new Set();
-	this.playerOneShipC = new Set();
-	this.playerOneShipD = new Set();
-	this.playerOneShipE = new Set();
-	
-	this.playerTwoShipA = new Set();
-	this.playerTwoShipB = new Set();
-	this.playerTwoShipC = new Set();
-	this.playerTwoShipD = new Set();
-	this.playerTwoShipE = new Set();
+	this.playerOneShip = { A:new Set(), B:new Set(), C:new Set(), D:new Set(), E:new Set()};
+	this.playerTwoShip = { A:new Set(), B:new Set(), C:new Set(), D:new Set(), E:new Set()};
 	
 	/*
 	5ships
 	
-	shipA = 2
-	shipB = 3
+	shipA = 5
+	shipB = 4
 	shipC = 3
-	shipD = 4
-	shipE = 5
+	shipD = 3
+	shipE = 2
 	
 	*/
+	this.lengthOfType = { A:5 , B:4, C:3, D:3, E:2};
+	this.arrOfI = ['1','2','3','4','5','6','7','8','9','10'];
+	this.arrOfJ = ['A','B','C','D','E','F','G','H','I','J'];
 	
 };
 
@@ -51,22 +45,27 @@ Game.prototype.playerReady = function(player,shipPlacement) {
 			return { status:"Error", msg:"Already Choosen" };
 		}
 		else{
+			console.log(shipPlacement['A']);
+			for( var shipType in shipPlacement){
+				var length = this.lengthOfType[shipType];
+				for(var i=0;i<length;i++){
+					console.log(shipPlacement[shipType][i]);
+				}
+			}
 			this.p1BoardDone = true;
+			
 			return { status:"OK", msg:"Done" };
 		}
-		
-		
 	}
 	else if(this.p2 === player){
 		if(this.p2BoardDone){
 			return { status:"Error", msg:"Already Choosen" };
 		}
 		else{
+			console.log(shipPlacement['A']);
 			this.p2BoardDone = true;
 			return { status:"OK", msg:"Done" };
 		}
-		
-		
 	}
 };
 
