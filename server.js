@@ -15,7 +15,7 @@ nunjucks.configure(app.get('views'), {
 });
 
 var server = require('http').Server(app);
-server.listen(8080);
+server.listen(process.env.PORT || 8080);
 
 var io = require('socket.io')(server);
 
