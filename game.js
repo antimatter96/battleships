@@ -8,66 +8,80 @@ function Game(player1,player2) {
 	this.p2BoardDone = false;
 	this.turnOf = this.p1;
 	
-	this.playerOneBoard = [null,null,null,null,null,null,null,null,null];
-	this.playerTwoBoard = [null,null,null,null,null,null,null,null,null];
-	this.playerOneBoardForTwo = [null,null,null,null,null,null,null,null,null];
-	this.playerTwoBoardForOne = [null,null,null,null,null,null,null,null,null];
+	this.playerOneBoard = [null,null,null,null,null,null,null,null,null,null];
+	this.playerTwoBoard = [null,null,null,null,null,null,null,null,null,null];
+	this.playerOneBoardForTwo = [null,null,null,null,null,null,null,null,null,null];
+	this.playerTwoBoardForOne = [null,null,null,null,null,null,null,null,null,null];
 	
-	for(var i = 0; i<9; i++){
-		this.playerOneBoard = new Array(0,0,0,0,0,0,0,0,0);
-		this.playerOneBoardForTwo = new Array(0,0,0,0,0,0,0,0,0); 
-		this.playerTwoBoard = new Array(0,0,0,0,0,0,0,0,0); 
-		this.playerTwoBoardForOne = new Array(0,0,0,0,0,0,0,0,0); 
+	for(var i = 0; i<10; i++){
+		this.playerOneBoard[i] = new Array(0,0,0,0,0,0,0,0,0,0,0);
+		this.playerOneBoardForTwo[i] = new Array(0,0,0,0,0,0,0,0,0,0,0); 
+		this.playerTwoBoard[i] = new Array(0,0,0,0,0,0,0,0,0,0,0); 
+		this.playerTwoBoardForOne[i] = new Array(0,0,0,0,0,0,0,0,0,0,0); 
 	}
 
-	this.playerOneShipA = new Set();
-	this.playerOneShipB = new Set();
-	this.playerOneShipC = new Set();
-	this.playerOneShipD = new Set();
-	this.playerOneShipE = new Set();
-	
-	this.playerTwoShipA = new Set();
-	this.playerTwoShipB = new Set();
-	this.playerTwoShipC = new Set();
-	this.playerTwoShipD = new Set();
-	this.playerTwoShipE = new Set();
+	this.playerOneShip = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
+	this.playerTwoShip = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
 	
 	/*
 	5ships
 	
-	shipA = 2
-	shipB = 3
+	shipA = 5
+	shipB = 4
 	shipC = 3
-	shipD = 4
-	shipE = 5
+	shipD = 3
+	shipE = 2
 	
 	*/
+	
+	this.lengthOfType = { A: 5 , B: 4, C: 3, D: 3, E: 2 };
+	this.arrOfI = ['1','2','3','4','5','6','7','8','9','10'];
+	this.arrOfJ = ['A','B','C','D','E','F','G','H','I','J'];
 	
 };
 
 Game.prototype.playerReady = function(player,shipPlacement) {
 	if(this.p1 === player){
 		if(this.p1BoardDone){
-			return { status:"Error", msg:"Already Choosen" };
+			return { status: "Error", msg: "Already Choosen" };
 		}
 		else{
+			for( let shipType in shipPlacement){
+				let length = this.lengthOfType[shipType];
+				for(let i=0;i<length;i++){
+					let point = shipPlacement[shipType][i];
+					this.playerOneShip[shipType].add(JSON.stringify(point));
+					this.playerOneBoard[point.x][point.y] = 1;
+					this.playerOneBoardForTwo[point.x][point.y] = 0;
+				}
+			}
 			this.p1BoardDone = true;
-			return { status:"OK", msg:"Done" };
+			return { status: "OK", msg: "Done" };
 		}
-		
-		
 	}
 	else if(this.p2 === player){
 		if(this.p2BoardDone){
-			return { status:"Error", msg:"Already Choosen" };
+			return { status: "Error", msg: "Already Choosen" };
 		}
 		else{
+			for( var shipType in shipPlacement){
+				var length = this.lengthOfType[shipType];
+				for(var i=0;i<length;i++){
+					let point = shipPlacement[shipType][i];
+					this.playerTwoShip[shipType].add(JSON.stringify(point));
+					this.playerTwoBoard[point.x][point.y] = 1;
+					this.playerTwoBoardForOne[point.x][point.y] = 0;
+				}
+			}
 			this.p2BoardDone = true;
-			return { status:"OK", msg:"Done" };
+			return { status: "OK", msg: "Done" };
 		}
-		
-		
 	}
+	
+	/* TO DO
+		REDUCE SIZE BY SAME LOGIC AS IN MAKEMOVE
+	*/
+	
 };
 
 Game.prototype.init = function(player1,player2){
@@ -75,13 +89,82 @@ Game.prototype.init = function(player1,player2){
 	this.p2 = player2;
 }
 
-Game.prototype.makeMove = function(data){
-	var moveMaked = data.move;
-	var by = data.move;
-}
-
 Game.prototype.bothReady = function() {
-	return p1BoardDone && p2BoardDone;
+	return this.p1BoardDone && this.p2BoardDone;
+};
+
+Game.prototype.otherPlayer = function(player) {
+	if(player === this.p1){
+		return this.p2;
+	}
+	else{
+		return this.p1;
+	}
+};
+
+Game.prototype.startGame = function(player) {
+	this.turnOf = player;
+};
+
+Game.prototype.makeMove = function(player,data) {
+	if(this.turnOf === player){
+		let x = data.x;
+		let y = data.y;
+		let point = {x:x,y:y};
+		
+		var otherPlayerBoard;
+		var otherPlayerBoardForThis;
+		var otherPlayerShip;
+		
+		if(this.p1 === player){
+			otherPlayerBoard = this.playerTwoBoard;
+			otherPlayerBoardForThis = this.playerTwoBoardForOne;
+			otherPlayerShip = this.playerTwoShip;
+		}
+		else{
+			otherPlayerBoard = this.playerOneBoard;
+			otherPlayerBoardForThis = this.playerOneBoardForTwo;
+			otherPlayerShip = this.playerOneShip;
+		}
+		
+		if(otherPlayerBoard[x][y] === 1){
+			otherPlayerBoard[x][y] = -1;
+			otherPlayerBoardForThis[x][y] = 1;
+			let tempPoint = JSON.stringify(point);
+			let countZero = 0;
+			let extra = {};
+			for( var shipType in otherPlayerShip){
+				if(otherPlayerShip[shipType].has(tempPoint)){
+					otherPlayerShip[shipType].delete(tempPoint);
+					extra.partOf = shipType;
+					if(otherPlayerShip[shipType].size === 0){
+						extra.shipDown = true;
+						countZero++;
+					}
+				}
+				else if(otherPlayerShip[shipType].size === 0){
+					countZero++;
+				}
+				if(countZero === 5){
+					console.log("Over");
+					extra.gameOver = true;
+				}
+			}
+			this.turnOf = this.otherPlayer(player);
+			return { status: "OK" , forShooter: { status: "OK", result: "Hit", extra: extra } , forTarget: { status: "OK", result: "Hit", point: data, extra: extra } };
+		}
+		else if(otherPlayerBoard[x][y] === 0){
+			otherPlayerBoard[x][y] = -1;
+			this.turnOf = this.otherPlayer(player);
+			return { status: "OK" , forShooter: { status: "OK", result: "Miss" } , forTarget: { status: "OK", result: "Miss", point: data } };
+		}
+		else{
+			return { status: "Rep" , forShooter: { status: "OK", result: "Repeat" } };
+		}
+	}
+	else{
+		return { status: "Error", msg: "Not your turn" };
+	}
 };
 
 module.exports = Game;

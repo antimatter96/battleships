@@ -1,20 +1,34 @@
 $(document).ready(function() {
-	
 	//
 	//HIDE ALL
 	//
 	
-	var socket = io.connect('127.0.0.1:8080');
+	var hostname = window.location.hostname;
+	if(hostname === "localhost"){
+		hostname = "127.0.0.1" + ":" + window.location.port;
+	}
+
+	var socket = io.connect(hostname);
 	var username = 'Not Choosen';
 	
+	$('#globalLoading').hide();
 	$('#namePrompt').hide();
 	$('#joinGame').hide();
+	$('#choosePlacement').hide();
+	$('#board').hide();
+	
+	function deleteElement(id){
+		let toDelete = document.getElementById(id);
+		let iskaParent = toDelete.parentNode;
+		iskaParent.removeChild(toDelete);
+	}
 	
 	//===== NAME
 	
 	if(window.localStorage.getItem('username')){
 		username = window.localStorage.getItem('username');
 		socket.emit('updatePlayerSocket', { player: username});
+		deleteElement('namePrompt');
 		$('#joinGame').show();
 	}
 	else{
@@ -26,7 +40,6 @@ $(document).ready(function() {
 	
 	$('#btnSubmitName').on('click',function(){
 		$('#errorName').text('.');
-		console.log("ESS");
 		if(lockName){
 			$('#errorName').text("Please Wait");
 		}
@@ -47,17 +60,14 @@ $(document).ready(function() {
 		lockName = false;
 		$('#btnSubmitName').removeClass('loading');
 		if(data.msg === 'OK'){
-			$('#errorName').text('.');
-			$('#namePrompt').hide();
+			deleteElement('namePrompt');
 			$('#joinGame').show();
 			window.localStorage.setItem('username', data.name);
 		}
 		else{
 			$('#errorName').text( data.msg );
 		}
-		console.log(data);
 	});
-	
 	
 	function validateName(name){
 		if(name.length < 5){
@@ -74,8 +84,6 @@ $(document).ready(function() {
 		}
 	}
 	
-	//
-	
 	//========= JOIN
 	
 	var lockJoin = false;
@@ -88,23 +96,24 @@ $(document).ready(function() {
 		else{
 			lockJoin = true;
 			socket.emit('join' , { player: username });
+			$('#globalLoading').show();
 		}
 	});
 	
 	socket.on('lockJoin',function(data){
 		$('#errorJoin').text('Wait');
 		lockJoin = true;
-	})
+	});
+	
 	socket.on('startGame',function(data){
 		lockJoin = false;
-		$('#errorJoin').text('.');
-		$('#joinGame').hide();
-		console.log('Player2' + data.otherPlayer);
+		deleteElement('joinGame');
+		$('#globalLoading').hide();
+		$('#choosePlacement').show();
+		console.log('Player2 is' + data.otherPlayer);
 	})
 	
 	//========== BOARD INITIALIZATION
-	
-	$('#joinGame').hide();
 	
 	var lockReady = false;
 	var boardValid = false;
@@ -115,43 +124,70 @@ $(document).ready(function() {
 			$('#errorReady').text("Wait");
 		}
 		else{
-			lockReady = true;
-			socket.emit('boardMade' , { player: username, shipPlacement: "asdds"});
+			boardValid = boardIsValid();
+			if(boardValid){
+				lockReady = true;
+				for(var shipType in locked){
+					locked[shipType] = true;
+				}
+				var toSend = makeToSend();
+				socket.emit('boardMade' , { player: username, shipPlacement: toSend });
+			}
+			else{
+				$('#errorReady').text('Invlid Board');
+			}
 		}
 	});
 	
-	socket.on('readyResponse',function(data){
-		if(data.status === "Error"){
-			$('#errorReady').text(data.msg);
-		}
-	})
-	
-	/*
-	var clearBoard = function(){
-		for(var i=0;i<9;i++){
-			for(var j=0;j<9;j++){
-				$("cell-" + i + j).removeClass('selected');
+	function makeToSend(){
+		var arrToSend = {};
+		for(var shipType in pointsOfShip){
+			arrToSend[shipType] = {}
+			var points = pointsOfShip[shipType];
+			var z = points.keys();
+			var i = 0;
+			while(!z.done){
+				var point = z.next();
+				var point = point.value;
+				if(point){
+					point = JSON.parse(point);
+					arrToSend[shipType][i] = point;
+					i++;
+				}
+				else{
+					break;
+				}
 			}
 		}
+		return arrToSend;
 	}
-	*/
+	
+	function boardIsValid(){
+		for(var shipType in pointsOfShip){
+			if(pointsOfShip[shipType].size !== lengthOfType[shipType]) {
+				return false;
+			}
+			if(!placedBefore[shipType]){
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	var lengthOfType = { A:5 , B:4, C:3, D:3, E:2};
 	var arrOfI = ['1','2','3','4','5','6','7','8','9','10'];
 	var arrOfJ = ['A','B','C','D','E','F','G','H','I','J'];
 	
 	function addShipClass(type,i,j,horizontal){
-		console.log('i : ' + i + "   j : "   + j);
+
 		if(horizontal){
 			for(var y = j;y<j+lengthOfType[type];y++){
 				$('#cell-' + i + y).addClass('ship' + type);
-				//console.log('#cell-' + i + y);
 			}
 		}
 		else{
 			for(var x = i; x < i + lengthOfType[type] ; x++){
 				$('#cell-' + x + j).addClass('ship' + type);
-				//console.log('#cell-' + x + j);
 			}
 		}
 	}
@@ -165,6 +201,7 @@ $(document).ready(function() {
 	
 	var hor = { A:false, B:false, C:false, D:false, E:false};
 	var placedBefore = { A:false, B:false, C:false, D:false, E:false};
+	var locked = { A:false, B:false, C:false, D:false, E:false};
 	
 	function addPointsToShip(type,i,j,horizontal){
 		var points = pointsOfShip[type];
@@ -181,7 +218,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	function removeShipCLass(type){
+	function removeShip(type){
 		var points = pointsOfShip[type];
 		var z = points.keys();
 		while(!z.done){
@@ -190,38 +227,47 @@ $(document).ready(function() {
 			if(points){
 				points = JSON.parse(points);
 				$('#cell-' + points.x + points.y).removeClass('ship' + type);
-				//console.log(points);
 			}
 			else{
 				break;
 			}
 		}
-	}
-	
-	function removePoints(type){
 		pointsOfShip[type] = new Set();
 	}
 	
 	function choicesChanged(ship){
 		var valI = $('#' + ship + 'i').val();
 		var valJ = $('#' + ship + 'j').val();
+		classInverser(ship,false);
 		$('#errorPlaceShip' + ship).text(".");
-		var possible = true;
+		var possibleBounds = true;
+		var possibleOverlap = true;
 		if(valI && valJ){
 			if(arrOfI.indexOf(valI) >-1 && arrOfJ.indexOf(valJ) >-1 ){
-				possible = checkBounds(valI,valJ,ship,hor[ship]);
-				if(possible){
-					if(placedBefore[ship]){
-						removeShipCLass(ship);
-						removePoints(ship);
+				possibleBounds = checkBounds(valI,valJ,ship,hor[ship]);
+				if(possibleBounds){
+					possibleOverlap = checkOverlap(valI,valJ,ship,hor[ship]);
+					if(possibleOverlap){
+						if(placedBefore[ship]){
+							removeShip(ship);
+						}
+						placedBefore[ship] = true;
+						addPointsToShip(ship,arrOfI.indexOf(valI),arrOfJ.indexOf(valJ),hor[ship]);
+						addShipClass(ship,arrOfI.indexOf(valI),arrOfJ.indexOf(valJ),hor[ship]);
 					}
-					placedBefore[ship] = true;
-					addPointsToShip(ship,arrOfI.indexOf(valI),arrOfJ.indexOf(valJ),hor[ship]);
-					addShipClass(ship,arrOfI.indexOf(valI),arrOfJ.indexOf(valJ),hor[ship]);
+					else{
+						classInverser(ship,true);
+						$('#errorPlaceShip' + ship).text("Overlapping Ships");
+					}
 				}
 				else{
+					classInverser(ship,true);
 					$('#errorPlaceShip' + ship).text("Out of bounds");
 				}
+			}
+			else{
+				classInverser(ship,true);
+				$('#errorPlaceShip' + ship).text("Inavlid Entries");
 			}
 		}
 	}
@@ -240,240 +286,255 @@ $(document).ready(function() {
 		return true;
 	}
 	
+	function checkOverlap(valI,valJ,ship,horizontal){
+		j = arrOfJ.indexOf(valJ);
+		i = arrOfI.indexOf(valI);
+		var tempPoints = new Set();
+		if(horizontal){
+			for(var y = j; y<j+lengthOfType[ship]; y++){
+				tempPoints.add(JSON.stringify({'x':i,'y':y}));
+			}
+		}
+		else{
+			for(var x = i; x < i + lengthOfType[ship] ; x++){
+				tempPoints.add(JSON.stringify({'x':x,'y':j}));
+			}
+		}
+		for(var shipType in pointsOfShip){
+			if( shipType != ship){
+			
+				let intersection = new Set([...pointsOfShip[shipType]].filter(x => tempPoints.has(x)));
+				if(intersection.size > 0){
+					return false;
+				}
+
+			}
+		}
+		return true;
+	}
+
 	$('.inptXY').change(function(){
-		var ship = $(this).data("ship");
+		let ship = $(this).data("ship");
+		if(locked[ship]){
+			classInverser(ship,true);
+			$('#errorPlaceShip' + ship).text("Locked");
+			return ;
+		}
 		choicesChanged(ship)
 	});
 	
 	$('.btnRot').click(function(){
-		var ship = $(this).data("ship");
-		hor[ship] = ~hor[ship];
+		let ship = $(this).data("ship");
+		if(locked[ship]){
+			classInverser(ship,true);
+			$('#errorPlaceShip' + ship).text("Locked");
+		}
+		hor[ship] = !hor[ship];
+		if(hor[ship]){
+			$('#btnRotIndic' + ship).text("Currently Horizontal");
+		}
+		else{
+			$('#btnRotIndic' + ship).text("Currently Vertical");
+		}
 		choicesChanged(ship);
 	});
 	
+	$('.btnDrop').click(function(){
+		var ship = $(this).data("ship");
+		if(locked[ship]){
+			classInverser(ship,true);
+			$('#errorPlaceShip' + ship).text("Already Locked");
+		}
+		else{
+			if(placedBefore[ship]){
+				this.classList.remove('btn-primary');
+				this.classList.add('btn-danger');
+				locked[ship] = true;
+			}
+			else{
+				classInverser(ship,true);
+				$('#errorPlaceShip' + ship).text("Please Place before locking");
+			}
+		}
+	});
+	
+	function classInverser(ship,errorOn){
+		if(errorOn){
+			$('#errorPlaceShip' + ship).addClass("label-danger");
+			$('#errorPlaceShip' + ship).removeClass("label-default");
+		}
+		else{
+			$('#errorPlaceShip' + ship).removeClass("label-danger");
+			$('#errorPlaceShip' + ship).addClass("label-default");
+		}
+	}
+	
+	socket.on('readyResponse',function(data){
+		if(data.status === "Error"){
+			$('#errorReady').text(data.msg);
+		}
+		else{
+			$('#globalLoading').show();
+			cloneAndAppend();
+			deleteElement('choosePlacement');
+			$('#board').show();
+		}
+	});
+	
+	function cloneAndAppend(){
+		let toClone = document.getElementById("chooseBoard");
+		let cloned = toClone.cloneNode(true);
+		let clonedToChange = toClone.cloneNode(true);
+		let targetParent = document.getElementById("battleBoard");
+		changeId(clonedToChange);
+		targetParent.appendChild(cloned);
+		targetParent.appendChild(clonedToChange);
+	}
+	
+	function changeId(x){
+		if(x.id){
+			x.id = "opp-" + x.id;
+		}
+		x.className = x.className.replace(/ ship[A-E]/,"")
+		if(x.childElementCount > 0){
+			for(let i = 0; i<x.childElementCount; i++){
+				changeId(x.children[i]);
+			}
+		}
+	}
 	
 	//var se = setInterval(function(){console.log(pointsOfShip);},2000);
 	
-	//=========== 
+	//=========== GAMEPLAY
+
+	var myShips = {};
+	var oppShips = {A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set()};
 	
-	$("form").submit(function(event) {
-		event.preventDefault();
+	var otherPlayerBoard = [null,null,null,null,null,null,null,null,null,null];
+	for(let i = 0; i<10; i++){
+		otherPlayerBoard[i] = new Array(0,0,0,0,0,0,0,0,0,0);
+	}
+	
+	var myTurn = false;
+	
+	var lastMove = {};
+	
+	socket.on('go',function(data){
+		if(data.start){
+			$('#globalLoading').hide();
+			myTurn = true;
+		}
+		for( let shipType in pointsOfShip){
+			myShips[shipType] = new Set(pointsOfShip[shipType]);
+		}
 	});
-  
-  /*
-	$("#join").attr('disabled', 'disabled'); 
-  
-  if ($("#name").val() === "") {
-	  $("#join").attr('disabled', 'disabled');
-  }
-
-  //enter screen
-  $("#nameForm").submit(function() {
-    var name = $("#name").val();
-    var device = "desktop";
-    if (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i)) {
-      device = "mobile";
-    }
-    if (name === "" || name.length < 2) {
-      $("#errors").empty();
-      $("#errors").append("Please enter a name");
-      $("#errors").show();
-    } else {
-      socket.emit("joinserver", name, device);
-      toggleNameForm();
-      toggleChatWindow();
-      $("#msg").focus();
-    }
-  });
-
-  $("#name").keypress(function(e){
-    var name = $("#name").val();
-    if(name.length < 2) {
-      $("#join").attr('disabled', 'disabled'); 
-    } else {
-      $("#errors").empty();
-      $("#errors").hide();
-      $("#join").removeAttr('disabled');
-    }
-  });
-
-  //main chat screen
-  $("#chatForm").submit(function() {
-    var msg = $("#msg").val();
-    if (msg !== "") {
-      socket.emit("send", new Date().getTime(), msg);
-      $("#msg").val("");
-    }
-  });
-
-  //'is typing' message
-  var typing = false;
-  var timeout = undefined;
-
-  function timeoutFunction() {
-    typing = false;
-    socket.emit("typing", false);
-  }
-
-  $("#msg").keypress(function(e){
-    if (e.which !== 13) {
-      if (typing === false && myRoomID !== null && $("#msg").is(":focus")) {
-        typing = true;
-        socket.emit("typing", true);
-      } else {
-        clearTimeout(timeout);
-        timeout = setTimeout(timeoutFunction, 5000);
-      }
-    }
-  });
-
-  socket.on("isTyping", function(data) {
-    if (data.isTyping) {
-      if ($("#"+data.person+"").length === 0) {
-        $("#updates").append("<li id='"+ data.person +"'><span class='text-muted'><small><i class='fa fa-keyboard-o'></i> " + data.person + " is typing.</small></li>");
-        timeout = setTimeout(timeoutFunction, 5000);
-      }
-    } else {
-      $("#"+data.person+"").remove();
-    }
-  });
-
-  $("#showCreateRoom").click(function() {
-    $("#createRoomForm").toggle();
-  });
-
-  $("#createRoomBtn").click(function() {
-    var roomExists = false;
-    var roomName = $("#createRoomName").val();
-    socket.emit("check", roomName, function(data) {
-      roomExists = data.result;
-       if (roomExists) {
-          $("#errors").empty();
-          $("#errors").show();
-          $("#errors").append("Room <i>" + roomName + "</i> already exists");
-        } else {      
-        if (roomName.length > 0) { //also check for roomname
-          socket.emit("createRoom", roomName);
-          $("#errors").empty();
-          $("#errors").hide();
-          }
-        }
-    });
-  });
-
-  $("#rooms").on('click', '.joinRoomBtn', function() {
-    var roomName = $(this).siblings("span").text();
-    var roomID = $(this).attr("id");
-    socket.emit("joinRoom", roomID);
-  });
-
-  $("#rooms").on('click', '.removeRoomBtn', function() {
-    var roomName = $(this).siblings("span").text();
-    var roomID = $(this).attr("id");
-    socket.emit("removeRoom", roomID);
-    $("#createRoom").show();
-  }); 
-
-  $("#leave").click(function() {
-    var roomID = myRoomID;
-    socket.emit("leaveRoom", roomID);
-    $("#createRoom").show();
-  });
-
-  $("#people").on('click', '.whisper', function() {
-    var name = $(this).siblings("span").text();
-    $("#msg").val("w:"+name+":");
-    $("#msg").focus();
-  });
-
-//socket-y stuff
-socket.on("exists", function(data) {
-  $("#errors").empty();
-  $("#errors").show();
-  $("#errors").append(data.msg + " Try <strong>" + data.proposedName + "</strong>");
-    toggleNameForm();
-    toggleChatWindow();
-});
-
-socket.on("history", function(data) {
-  if (data.length !== 0) {
-    $("#msgs").append("<li><strong><span class='text-warning'>Last 10 messages:</li>");
-    $.each(data, function(data, msg) {
-      $("#msgs").append("<li><span class='text-warning'>" + msg + "</span></li>");
-    });
-  } else {
-    $("#msgs").append("<li><strong><span class='text-warning'>No past messages in this room.</li>");
-  }
-});
-
-  socket.on("update", function(msg) {
-    $("#msgs").append("<li>" + msg + "</li>");
-  });
-
-  socket.on("update-people", function(data){
-    //var peopleOnline = [];
-    $("#people").empty();
-    $('#people').append("<li class=\"list-group-item active\">People online <span class=\"badge\">"+data.count+"</span></li>");
-    $.each(data.people, function(a, obj) {
-      if (!("country" in obj)) {
-        html = "";
-      } else {
-        html = "<img class=\"flag flag-"+obj.country+"\"/>";
-      }
-      $('#people').append("<li class=\"list-group-item\"><span>" + obj.name + "</span> <i class=\"fa fa-"+obj.device+"\"></i> " + html + " <a href=\"#\" class=\"whisper btn btn-xs\">whisper</a></li>");
-      //peopleOnline.push(obj.name);
-    });
-
-  });
-
-  socket.on("chat", function(msTime, person, msg) {
-    
-	}
-  });
-
-  socket.on("whisper", function(msTime, person, msg) {
-    if (person.name === "You") {
-      s = "whisper"
-    } else {
-      s = "whispers"
-    }
-    $("#msgs").append("<li><strong><span class='text-muted'>" + timeFormat(msTime) + person.name + "</span></strong> "+s+": " + msg + "</li>");
-  });
-
-  socket.on("roomList", function(data) {
-    $("#rooms").text("");
-    $("#rooms").append("<li class=\"list-group-item active\">List of rooms <span class=\"badge\">"+data.count+"</span></li>");
-     if (!jQuery.isEmptyObject(data.rooms)) { 
-      $.each(data.rooms, function(id, room) {
-        var html = "<button id="+id+" class='joinRoomBtn btn btn-default btn-xs' >Join</button>" + " " + "<button id="+id+" class='removeRoomBtn btn btn-default btn-xs'>Remove</button>";
-        $('#rooms').append("<li id="+id+" class=\"list-group-item\"><span>" + room.name + "</span> " + html + "</li>");
-      });
-    } else {
-      $("#rooms").append("<li class=\"list-group-item\">There are no rooms yet.</li>");
-    }
-  });
-
-  socket.on("sendRoomID", function(data) {
-    myRoomID = data.id;
-  });
-
-  socket.on("disconnect", function(){
-    $("#msgs").append("<li><strong><span class='text-warning'>The server is not available</span></strong></li>");
-    $("#msg").attr("disabled", "disabled");
-    $("#send").attr("disabled", "disabled");
-  });
-  
-	socket.on("gameJoin", function(data){
-		initializeGame(data);
-	})
 	
-	socket.on("shot", function(data){
+	$('#btnShoot').click(function(){
+		if(myTurn){
+			var x = $('#shoti').val();
+			var y = $('#shotj').val();
+			if( arrOfI.indexOf(x) >-1 && arrOfJ.indexOf(y) >-1 ){
+				y = arrOfJ.indexOf(y);
+				x = arrOfI.indexOf(x);
+				if(otherPlayerBoard[x][y] === 0){
+					$('#globalLoading').show();
+					socket.emit('makeMove', { player: username, move: { x: x, y: y } });
+					lastMove.x = x;
+					lastMove.y = y;
+				}
+				else{
+					$('#errorShoot').text("Already");
+				}
+			}
+			else{
+				$('#errorShoot').text("Asdasd");
+			}
+		}
+		else{
+			$('#errorShoot').text("Tera nahi he");
+		}
+	});
+	
+	socket.on('moveMadeByYou',function(data){
+		if(data.result === "Hit"){
+			myTurn = !myTurn;
+			otherPlayerBoard[lastMove.x][lastMove.y] = 1;
+			$('#opp-cell-' + lastMove.x + lastMove.y).addClass("hit");
+			oppShips[data.extra.partOf].add(JSON.stringify(lastMove));
+			if(data.extra.shipDown){
+				markShipDown(data.extra.partOf);
+				if(data.extra.gameOver){
+					console.log("gameOver");
+				}
+			}
+		}
+		else if(data.result === "Miss"){
+			myTurn = !myTurn;
+			otherPlayerBoard[lastMove.x][lastMove.y] = -1;
+			$('#opp-cell-' + lastMove.x + lastMove.y).addClass("miss");
+		}
+		else{
+			$('#errorShoot').text("Repeat");
+		}
+	});
+	
+	function markShipDown(type){
+		let points = oppShips[type];
+		let z = points.keys();
+		while(!z.done){
+			points = z.next();
+			points = points.value;
+			if(points){
+				points = JSON.parse(points);
+				$('#opp-cell-' + points.x + points.y).addClass('ship' + type);
+			}
+			else{
+				break;
+			}
+		}
+	}
+	
+	socket.on('moveMadeByOther',function(data){
+		if(data.result === "Hit"){
+			myTurn = !myTurn;
+			$('#cell-' + data.point.x + data.point.y).addClass("hit");
+			if(data.extra.gameOver){
+				console.log("gameOver");
+			}
+		}
+		else if(data.result === "Miss"){
+			myTurn = !myTurn;
+			$('#cell-' + data.point.x + data.point.y).addClass("miss");
+		}
+		$('#globalLoading').hide();
+	});
+	
+	//=============
+	
+	$('#tetst').click(function(){
+		$('#Ai')[0].value = 1;
+		$('#Aj')[0].value = 'A';
+		$('#Bi')[0].value = 1;
+		$('#Bj')[0].value = 'B';
+		$('#Ci')[0].value = 1;
+		$('#Cj')[0].value = 'D';
+		$('#Di')[0].value = 1;
+		$('#Dj')[0].value = 'E';
+		$('#Ei')[0].value = 9;
+		$('#Ej')[0].value = 'F';
+
+		$('#btnRotA').click();
+		$('#btnRotA').click();
+		$('#btnRotB').click();
+		$('#btnRotB').click();
+		$('#btnRotC').click();
+		$('#btnRotC').click();
+		$('#btnRotD').click();
+		$('#btnRotD').click();
+		$('#btnRotE').click();
+		$('#btnRotE').click();
 		
-	})
-	
-	function shipsChoosen(){
-		socket.emit('')
-	}
-	*/
-
+		$('#btnReady').click();
+		
+	});
 });

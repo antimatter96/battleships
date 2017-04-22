@@ -1,9 +1,12 @@
 var express = require('express');
-var nunjucks = require('nunjucks');
 var app = express();
 
-var nunjucks = require('nunjucks');
+var favicon = require('serve-favicon');
+app.use(favicon(__dirname + '/static/favicon.ico'));
+app.use('/static', express.static('static'));
 app.set('views', __dirname + '/views');
+
+var nunjucks = require('nunjucks');
 nunjucks.configure(app.get('views'), {
 	autoescape: true,
 	noCache: true,
@@ -11,26 +14,24 @@ nunjucks.configure(app.get('views'), {
 	express: app
 });
 
-app.use('/static', express.static('static'));
-
 var server = require('http').Server(app);
-server.listen(8080);
+server.listen(process.env.PORT || 8080);
 
 var io = require('socket.io')(server);
 
-io.set("log level", 1);
-
 /*
+=====================================
+
 	Currently storing these in memory;
 	Might use a datastore
+	
+======================================
 */
 
 const { List } = require('immutable');
 
 var UsersInQueue = List();
 var Users = new Set();
-
-console.log(List.isList(UsersInQueue));
 
 var userToSocketId = [];
 var socketToUser = [];
@@ -52,15 +53,10 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
 	
-	console.log("CLIENT CONNECTED");
+	console.log("_____client connected_____");
 	
 	socket.on('disconnect', function(data){
-		console.log("CLIENT DISCONNECTED");
-	});
-	
-	socket.use(function(packet, next){
-		//console.log(packet);
-		next();
+		console.log("_____client disconnected_____");
 	});
 	
 	socket.on('addUser', function (data) {
@@ -71,21 +67,18 @@ io.on('connection', function (socket) {
 		else{
 			Users.add(data.name);
 			socket.username = data.name;
-			//userToSocketId[socket.id] = data.name;
 			socketToUser[data.name] = socket.id;
-			socket.emit('userAddEvent', { msg: 'OK' , name: data.name} );
+			socket.emit('userAddEvent', { msg: 'OK' , name: data.name } );
 		}
 	});
 
 	socket.on('updatePlayerSocket', function(data){
-		//userToSocketId[socket.id] = data.player;
 		socketToUser[data.player] = socket.id;
 		socket.username = data.player;
 	});
 
 	socket.on('join', function (data) {
-		console.log(socket.username);
-		var player1 = socket.username;
+		let player1 = socket.username;
 		if(player1 != data.player){
 			socket.username = data.player;
 			socketToUser[data.player] = socket.id;
@@ -96,7 +89,7 @@ io.on('connection', function (socket) {
 		}
 		else{
 			if(UsersInQueue.size > 0){
-				var player2 = UsersInQueue.first();
+				let player2 = UsersInQueue.first();
 				if(player2 === player1){
 					//timeOutStorage[player1] = setInterval(function(){findAPlayerFor(player1)}, 500);
 				}
@@ -121,22 +114,47 @@ io.on('connection', function (socket) {
 		}		
 	});
 
-	
-
 	socket.on('addToFree', function (data) {
 		
 	});
 
 	socket.on('boardMade' , function(data){
-		if(playerIsIn[player]){
-			var player = data.player;
-			var shipPlacement = data.ships;
-			var res = Games[playerIsIn[player]].playerReady(player,shipPlacement);
-			socket.emit('readyResponse', res );
+		if(playerIsIn[data.player]){
+			let player = data.player;
+			let shipPlacement = data.shipPlacement;
+			let game = Games[playerIsIn[player]];
+			let res = game.playerReady(player,shipPlacement);
+			if(game.bothReady()){
+				socket.emit('readyResponse', res );
+				socket.emit('go', {start:true} );
+				let otherPlayer = game.otherPlayer(player);
+				game.startGame(player);
+				socket.to(socketToUser[otherPlayer]).emit('go', { start: false } );
+			}
+			else{
+				socket.emit('readyResponse', res );
+			}
 		}
 	});
 	
-	
+	socket.on('makeMove' , function(data){
+		if(playerIsIn[data.player]){
+			let player = data.player;
+			let game = Games[playerIsIn[player]];
+			let res = game.makeMove(player,data.move);
+			if(res.status == "OK"){
+				socket.emit('moveMadeByYou', res.forShooter );
+				let otherPlayer = game.otherPlayer(player);
+				socket.to(socketToUser[otherPlayer]).emit('moveMadeByOther', res.forTarget );
+			}
+			else if(res.status == "Rep"){
+				socket.emit('moveMadeByYou', res.forShooter );
+			}
+			else{
+				socket.emit('makeMoveError', res );
+			}
+		}
+	});
 	
 	/*
 	function findAPlayerFor(player1){
@@ -161,8 +179,6 @@ io.on('connection', function (socket) {
 	*/
 
 });
-
-
 
 
 //var s1 = setInterval(function(){console.log(UsersInQueue);},10000);
