@@ -141,8 +141,24 @@ socket.to( socketId ).emit('eventName', data);
 | playerTwoBoard |  |  |
 | playerOneShip |  |  |
 | playerTwoShip |  |  |
-| lengthOfType |  |
+| lengthOfType | Object |
 | arrOfI | Array |
 | arrOfJ | Array |
 
+#### Functions
 
+| Name | Type | Purpose |
+|-|-|-|
+| id | String |  |
+| p1 | String |  |
+| p2 | String |  |
+| p1BoardDone | Boolean |  |
+| p2BoardDone | Boolean |  |
+| turnOf | String |  |
+| playerOneBoard |  |  |
+| playerTwoBoard |  |  |
+| playerOneShip |  |  |
+| playerTwoShip |  |  |
+| lengthOfType | Object |
+| arrOfI | Array |
+| arrOfJ | Array |
