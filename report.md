@@ -48,7 +48,7 @@ At this point the HTTP connection breaks down and is replaced by the WebSocket c
 
 The handshake resembles HTTP in allowing servers to handle HTTP connections as well as WebSocket connections on the same port. Once the connection is established, communication switches to a bidirectional binary protocol which doesn't conform to the HTTP protocol.
 
-In addition to Upgrade headers, the client sends a Sec-WebSocket-Key header containing base64-encoded random bytes, and the server replies with a hash of the key in the Sec-WebSocket-Accept header. This is intended to prevent a caching proxy from re-sending a previous WebSocket conversation, and does not provide any authentication, privacy or integrity. The hashing function appends the fixed string `258EAFA5-E914-47DA-95CA-C5AB0DC85B11` (a GUID) to the value from Sec-WebSocket-Key header (which is not decoded from base64), applies the SHA-1 hashing function, and encodes the result using base64.
+In addition to Upgrade headers, the client sends a Sec-WebSocket-Key header containing base64-encoded random bytes, and the server replies with a hash of the key in the Sec-WebSocket-Accept header. This is intended to prevent a caching proxy from re-sending a previous WebSocket conversation, and does not provide any authentication, privacy or integrity. The hashing function appends the fixed string `258EAFA5-E914-47DA-95CA-C5AB0DC85B11` (a UUID) to the value from Sec-WebSocket-Key header (which is not decoded from base64), applies the SHA-1 hashing function, and encodes the result using base64.
 
 Once the connection is established, the client and server can send WebSocket data or text frames back and forth in full-duplex mode. The data is minimally framed, with a small header followed by payload. WebSocket transmissions are described as "messages", where a single message can optionally be split across several data frames. This can allow for sending of messages where initial data is available but the complete length of the message is unknown (it sends one data frame after another until the end is reached and marked with the FIN bit). With extensions to the protocol, this can also be used for multiplexing several streams simultaneously (for instance to avoid monopolizing use of a socket for a single large payload).
 
@@ -58,7 +58,7 @@ The WebSocket protocol specification defines `ws` and `wss` as two new uniform r
 
 ## Node.js
 
-Node.js is an open-source, cross-platform JavaScript run-time environment for executing JavaScript code server-side. While JavaScript was historically used primarily for client-side scripting, in which scripts written in JavaScript are embedded in a webpage's HTML, to be run client-side by a JavaScript engine in the user's web browser, Node.js enables JavaScript to be used for server-side scripting, and runs scripts server-side to produce dynamic web page content before the page is sent to the user's web browser.
+Node.js is an open-source, cross-platform JavaScript run-time environment for executing JavaScript code server-side. JavaScript was historically used primarily for client-side scripting, in which scripts written in JavaScript are embedded in a webpage's HTML, to be run client-side by a JavaScript engine in the user's web browser, Node.js enables JavaScript to be used for server-side scripting, and runs scripts server-side to produce dynamic web page content.
 
 Node.js allows the creation of Web servers and networking tools using JavaScript and a collection of "modules" that handle various core functionality. Modules are provided for file system I/O, networking (DNS, HTTP, TCP, TLS/SSL, or UDP), binary data (buffers), cryptography functions, data streams and other core functions.
 
@@ -91,3 +91,58 @@ Express provides a thin layer of fundamental web application features, without o
 Socket.IO is a JavaScript library for realtime web applications. It enables realtime, bi-directional communication between web clients and servers. It has two parts: a client-side library that runs in the browser, and a server-side library for Node.js. Both components have a nearly identical API. Like Node.js, it is event-driven.
 
 Socket.IO primarily uses the WebSocket protocol with polling as a fallback option, while providing the same interface. Although it can be used as simply a wrapper for WebSocket, it provides many more features, including broadcasting to multiple sockets, storing data associated with each client, and asynchronous I/O.
+
+## Event driven programming using Socket.io and Node.js
+
+
+```js
+socket.on('eventName', function (data) {
+	...
+	...		
+});
+```
+
+```js
+socket.on('eventName', function (data) {
+	...
+	socket.emit('myOtherEvent', otherData);	
+});
+```
+
+We can send data to a client using its socket-Id which can be accessed by its `id`;
+
+```js
+let socketId = socket.id;
+...
+socket.to( socketId ).emit('eventName', data);
+```
+
+#### Data Structures Used in server.js
+
+| Name | Type | Purpose |
+|-|-|-|
+| UsersInQueue| Queue| Stores the usernames of players waiting for another player to join a game |
+| Users | Set | Stores the usernames already taken by the different players to avoid collisions |
+| socketOfUser | Array | Used as a mapping of usernames to socketId |
+| Games | Array | Stores the different Game objects |
+| playerIsIn | Array | Used as a mapping of usernames to GameId |
+
+#### Game Object
+
+| Name | Type | Purpose |
+|-|-|-|
+| id | String |  |
+| p1 | String |  |
+| p2 | String |  |
+| p1BoardDone | Boolean |  |
+| p2BoardDone | Boolean |  |
+| turnOf | String |  |
+| playerOneBoard |  |  |
+| playerTwoBoard |  |  |
+| playerOneShip |  |  |
+| playerTwoShip |  |  |
+| lengthOfType |  |
+| arrOfI | Array |
+| arrOfJ | Array |
+
+
