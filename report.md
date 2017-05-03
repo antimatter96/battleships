@@ -11,49 +11,31 @@ Documents
 > 
 > - StackEdit is accessible offline after the application has been loaded for the first time.
 > - Clearing your browser's data may **delete all your local documents!** Make sure your documents are synchronized with **Google Drive** or **Dropbox** (check out the [ Synchronization](#synchronization) section).
+ 
+---
+
+>  **Tip:** Check out the [<i class="icon-upload"></i> Publish a document](#publish-a-document) section for a description of the different output formats
+> 
+>> **Note:** You can find more information about **Markdown** syntax [here][2]
+> 
+> 
+> **Note:** The  button is disabled when you have no document to synchronize.
+
+>> **Note:** If you delete the file from **Google Drive** or from **Dropbox**, the document will no longer be synchronized with that location.
 
 #### <i class="icon-file"></i> Create a document
 
 *All your local documents* are listed in the document panel. You can switch from one to another by clicking a document in the list or you can toggle documents using <kbd>Ctrl+[</kbd> and <kbd>Ctrl+]</kbd>.
 
-## Heading ##
-> **Tip:** Check out the [<i class="icon-upload"></i> Publish a document](#publish-a-document) section for a description of the different output formats.
-
-ss
-==
-
-> **Note:** The  button is disabled when you have no document to synchronize.
-
-> **Note:** If you delete the file from **Google Drive** or from **Dropbox**, the document will no longer be synchronized with that location.
-
-Markdown Extra
---------------------
-
-StackEdit supports **Markdown Extra**, which extends **Markdown** syntax with some nice features.
-
-> **Tip:** You can disable any **Markdown Extra** feature in the **Extensions** tab of the <i class="icon-cog"></i> **Settings** dialog.
-
-> **Note:** You can find more information about **Markdown** syntax [here][2] and **Markdown Extra** extension [here][3].
-
-
-### Tables
-
-**Markdown Extra** has a special syntax for tables:
-
 Item     | Value
 -------- | ---
 Computer | $1600
 
-You can specify column alignment with one or two colons:
 
 | Item        | Value | Qty   |
 | :-| ----: | :--: |
 | Computer    | $1600 |  5    |
 
-
-### Definition Lists
-
-**Markdown Extra** has a special syntax for definition lists too:
 
 Term 1
 Term 2
@@ -68,7 +50,6 @@ Term 3
 
 	> part of definition D
 
-### Footnotes
 
 You can create footnotes like this[^footnote].
 
@@ -86,7 +67,7 @@ SmartyPants converts ASCII punctuation characters into "smart" typographic punct
 | Dashes           | `-- is en-dash, --- is em-dash` | -- is en-dash, --- is em-dash |
 
 
-### MathJax
+----
 
 The *Gamma function* satisfying $\Gamma(n) = (n-1)!\quad\forall n\in\mathbb N$ is via the Euler integral
 
@@ -94,22 +75,12 @@ $$
 \Gamma(z) = \int_0^\infty t^{z-1}e^{-t}dt\,.
 $$
 
-
-> **Note:** You can find more information about **LaTeX** mathematical expressions [here][4].
-
-
-### UML diagrams
-
-You can also render sequence diagrams like this:
-
 ```sequence
 Alice->Bob: Hello Bob, how are you?
 Note right of Bob: Bob thinks
 Bob-->Alice: I am good thanks!
 ```
-
-And flow charts like this:
-
+---
 ```flow
 st=>start: Start
 e=>end
@@ -120,11 +91,6 @@ st->op->cond
 cond(yes)->e
 cond(no)->op
 ```
-
-> **Note:** You can find more information:
-
-> - about **Sequence diagrams** syntax [here][7],
-> - about **Flow charts** syntax [here][8].
 
  [^stackedit]: [StackEdit](https://stackedit.io/) is a full-featured, open-source Markdown editor based on PageDown, the Markdown library used by Stack Overflow and the other Stack Exchange sites.
 nnnn
