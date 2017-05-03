@@ -116,6 +116,7 @@ let socketId = socket.id;
 ...
 socket.to( socketId ).emit('eventName', data);
 ```
+## Code Explanation
 
 #### Data Structures Used in server.js
 
@@ -147,18 +148,11 @@ socket.to( socketId ).emit('eventName', data);
 
 #### Functions
 
-| Name | Type | Purpose |
+| Name | Arguments| Purpose |
 |-|-|-|
-| id | String |  |
-| p1 | String |  |
-| p2 | String |  |
-| p1BoardDone | Boolean |  |
-| p2BoardDone | Boolean |  |
-| turnOf | String |  |
-| playerOneBoard |  |  |
-| playerTwoBoard |  |  |
-| playerOneShip |  |  |
-| playerTwoShip |  |  |
-| lengthOfType | Object |
-| arrOfI | Array |
-| arrOfJ | Array |
+| --constructor-- | player1,player2 |  |
+| playerReady | String |  |
+| bothReady | String |  |
+| otherPlayer | Boolean |  |
+| startGame| Boolean |  |
+| makeMove| String |  |
