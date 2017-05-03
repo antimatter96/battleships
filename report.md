@@ -1,9 +1,4 @@
 
-
-Welcome to StackEdit!
-===================
-
-
 Hey! I'm your first Markdown document in **StackEdit**[^stackedit]. Don't delete me, I'm very helpful! I can be recovered anyway in the **Utils** tab of the <i class="icon-cog"></i> **Settings** dialog.
 
 ----------
@@ -123,16 +118,12 @@ StackEdit supports **Markdown Extra**, which extends **Markdown** syntax with so
 Item     | Value
 -------- | ---
 Computer | $1600
-Phone    | $12
-Pipe     | $1
 
 You can specify column alignment with one or two colons:
 
 | Item        | Value | Qty   |
 | :-| ----: | :--: |
 | Computer    | $1600 |  5    |
-| Phone       | $12   |  12   |
-| Pipe        | $1    |  234  |
 
 
 ### Definition Lists
@@ -168,13 +159,6 @@ SmartyPants converts ASCII punctuation characters into "smart" typographic punct
 | Single backticks | `'Isn't this fun?'`            | 'Isn't this fun?' |
 | Quotes           | `"Isn't this fun?"`            | "Isn't this fun?" |
 | Dashes           | `-- is en-dash, --- is em-dash` | -- is en-dash, --- is em-dash |
-
-
-### Table of contents
-
-You can insert a table of contents using the marker `[TOC]`:
-
-[TOC]
 
 
 ### MathJax
@@ -224,21 +208,15 @@ cond(no)->op
 > - about **Sequence diagrams** syntax [here][7],
 > - about **Flow charts** syntax [here][8].
 
-### Support StackEdit
-
  [^stackedit]: [StackEdit](https://stackedit.io/) is a full-featured, open-source Markdown editor based on PageDown, the Markdown library used by Stack Overflow and the other Stack Exchange sites.
 nnnn
 
   [1]: http://math.stackexchange.com/
   [2]: http://daringfireball.net/projects/markdown/syntax "Markdown"
-  [3]: https://github.com/jmcmanus/pagedown-extra "Pagedown Extra"
-  [4]: http://meta.math.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference
-  [5]: https://code.google.com/p/google-code-prettify/
-  [6]: http://highlightjs.org/
-  [7]: http://bramp.github.io/js-sequence-diagrams/
-  [8]: http://adrai.github.io/flowchart.js/
 
-----
+---
+
+[TOC]
 
 MAIN HEADING
 =============
