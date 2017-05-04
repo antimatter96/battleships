@@ -93,6 +93,13 @@ Socket.IO is a JavaScript library for realtime web applications. It enables real
 
 Socket.IO primarily uses the WebSocket protocol with polling as a fallback option, while providing the same interface. Although it can be used as simply a wrapper for WebSocket, it provides many more features, including broadcasting to multiple sockets, storing data associated with each client, and asynchronous I/O.
 
+
+&nbps;
+
+
+&nbps;
+  
+
 ## Event driven programming using Socket.io and Node.js
 
 
@@ -125,7 +132,7 @@ socket.to( socketId ).emit('eventName', data);
 The server side is game agnostic i.e. it supports more than BattleShips and any turn based game can be made by changing the game.js file.
 
 ### Data Structures Used
-
+//DONE
 | Name | Type | Purpose |
 |-|-|-|
 | UsersInQueue| Queue| Stores the usernames of players waiting for another player to join a game |
@@ -140,14 +147,14 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 ## Game Object
 
 ### Data Structures
-
+//DONE
 | Name | Type | Purpose |
 |-|-|-|
 | id | String | Unique Id for the game instance |
 | p1 | String | Name of first player |
 | p2 | String | Name of second player |
-| p1BoardDone | Boolean |  |
-| p2BoardDone | Boolean |  |
+| p1BoardDone | Boolean | Flag set if player one has placed ships  |
+| p2BoardDone | Boolean | Flag set if player two has placed ships |
 | turnOf | String | Stores name of player whose turn it is |
 | playerOneBoard | 2D Array | Marks the points where a ship has been placed by player1 |
 | playerTwoBoard | 2D Array  | Marks the points where a ship has been placed by player2 |
@@ -156,13 +163,15 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 ### Functions
 
+//DONE
 | Name | Arguments| Purpose |
 |-|-|-|
 | --- constructor --- | player1, player2 | Sets the player names and initializes other data members |
 | playerReady | player, board data | Processes the ship placement and stores it |
-| bothReady |  | Returns true if both players have placed their ships |
+| bothReady | - | Returns true if both players have placed their ships |
 | otherPlayer | player | Returns the name of the other player |
-| startGame| player |  |
+| startGame| player | Marks the start of game after both players have placed thier ships, sets the value of turnOf to player|
+| makeMove| player, move made| Processes the move and returns the appropritate response for player and opponent |
 | makeMove| player, move made|  |
 
 
@@ -173,26 +182,29 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 ### Data Structures
 
 | Name | Type | Purpose |
-|-|-|-|
+|-|-|:-|
 | socket | String | The main socket object |
-| username | String |  |
-| boardValid | String |  |
+| username | String | Stores the player's username |
+| boardValid | String | Flag for validity of player's board |
 | playerBoard |  |  |
 | pointsOfShip | Object |
-| hor | Array | |
-| placedBefore | Array | |
-| locked | Array |  |
-| myShips | Array | |
-| oppShips | Array | |
+| hor | Array | Stores the orientation of ships (true for horizontal false, otherwise) |
+| locked | Array | Stores the states of ships, helps in avoiding changing placememt by mistake |
+| myShips | Array | An array of set holding points for each type of ship for player |
+| oppShips | Array | An array of set holding points for each type of ship for oppopnent |
 | otherPlayerBoard | Array | |
-| myTurn | Array | |
-| lastMove | Array | |
+| myTurn | Boolean | Flag for users turn |
+| lastMove | Array | Stores the last move made by user (to avoid clicking by mistake) |
 
 ### Functions
 
 // TO DO
 
 | Name | Arguments| Purpose |
+|-|-|-|
+|-|-|-|
+|-|-|-|
+|-|-|-|
 |-|-|-|
 
 
@@ -211,6 +223,7 @@ Events emitted by Server
 | oppMove | Opponent took a shot | Used as a mapping of usernames to GameId |
 | moveError | Player took a shot and an error occurred |  |
 
+//DONE
 Events Emitted by Client
 
 | Event | Trigger | Server Action |
@@ -218,5 +231,5 @@ Events Emitted by Client
 | addUser | User has choosen username |  |
 | updateSocket | Site loaded and a username has been set already | Server updates its map of username to socketId |
 | join | User has chosen to play | Server finds an opponent for the player |
-| boardMade | User has finalized his board | Server  |
-| makeMove | User made a move |  |
+| boardMade | User has finalized his board | Server processes and stores the plaayers ship placement  |
+| makeMove | User made a move | Server processes the move and sends reponse to player and opponentro |
