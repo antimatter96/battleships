@@ -1,3 +1,4 @@
+
 MAIN HEADING
 =============
 
@@ -10,7 +11,7 @@ Technologies that enable the server to send data to the client in the very momen
 
 ### WebSockets
 
-WebSocket is a computer communications protocol, providing full-duplex communication channels over a single TCP connection. 
+WebSocket is a communications protocol, providing full-duplex communication channels over a single TCP connection. 
 In plain words: There is a persistent connection between the client and the server and both parties can start sending data at any time.
 
 The WebSocket protocol enables interaction between a browser and a web server with lower overheads, facilitating real-time data transfer from and to the server. This is made possible by providing a standardized way for the server to send content to the browser without being solicited by the client, and allowing for messages to be passed back and forth while keeping the connection open.
@@ -114,6 +115,7 @@ We can send data to a client using its socket-Id which can be accessed by its `i
 ```js
 let socketId = socket.id;
 ...
+...
 socket.to( socketId ).emit('eventName', data);
 ```
 # Code Explanation
@@ -132,16 +134,6 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | Games | Array | Stores the different Game objects |
 | playerIsIn | Array | Used as a mapping of usernames to GameId |
 
-### Events
-
-| Events | Purpose |
-|-|-|
-| addUser | Stores the usernames of players waiting for another player to join a game |
-| updatePlayerSocket | Stores the usernames already taken by the different players to avoid collisions |
-| join | Used as a mapping of usernames to socketId |
-| boardMade | Stores the different Game objects |
-| makeMove | Used as a mapping of usernames to GameId |
-
 
 ---
 
@@ -151,30 +143,27 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 | Name | Type | Purpose |
 |-|-|-|
-| id | String |  |
-| p1 | String |  |
-| p2 | String |  |
+| id | String | Unique Id for the game instance |
+| p1 | String | Name of first player |
+| p2 | String | Name of second player |
 | p1BoardDone | Boolean |  |
 | p2BoardDone | Boolean |  |
-| turnOf | String |  |
-| playerOneBoard |  |  |
-| playerTwoBoard |  |  |
-| playerOneShip |  |  |
+| turnOf | String | Stores name of player whose turn it is |
+| playerOneBoard | 2D Array | Marks the points where a ship has been placed by player1 |
+| playerTwoBoard | 2D Array  | Marks the points where a ship has been placed by player2 |
+| playerOneShip | Array |  |
 | playerTwoShip |  |  |
-| lengthOfType | Object |
-| arrOfI | Array |
-| arrOfJ | Array |
 
 ### Functions
 
 | Name | Arguments| Purpose |
 |-|-|-|
-| --constructor-- | player1,player2 |  |
-| playerReady | String |  |
-| bothReady | String |  |
-| otherPlayer | Boolean |  |
-| startGame| Boolean |  |
-| makeMove| String |  |
+| --- constructor --- | player1, player2 | Sets the player names and initializes other data members |
+| playerReady | player, board data | Processes the ship placement and stores it |
+| bothReady |  | Returns true if both players have placed their ships |
+| otherPlayer | player | Returns the name of the other player |
+| startGame| player |  |
+| makeMove| player, move made|  |
 
 
 ---
@@ -185,15 +174,12 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 | Name | Type | Purpose |
 |-|-|-|
-| socket | String |  |
+| socket | String | The main socket object |
 | username | String |  |
 | lockName | String |  |
 | lockJoin | Boolean |  |
 | lockReady | Boolean |  |
 | boardValid | String |  |
-| lengthOfType |  |  |
-| arrOfI |  |  |
-| arrOfJ |  |  |
 | playerBoard |  |  |
 | pointsOfShip | Object |
 | hor | Array |
@@ -207,21 +193,25 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 ### Functions
 
+// TO DO
+
 | Name | Arguments| Purpose |
 |-|-|-|
-| --constructor-- | player1,player2 |  |
-| playerReady | String |  |
-| bothReady | String |  |
-| otherPlayer | Boolean |  |
-| startGame| Boolean |  |
-| makeMove| String |  |
 
-### Events
+## Events
 
-| Events | Purpose |
-|-|-|
-| addUser | Stores the usernames of players waiting for another player to join a game |
-| updatePlayerSocket | Stores the usernames already taken by the different players to avoid collisions |
-| join | Used as a mapping of usernames to socketId |
-| boardMade | Stores the different Game objects |
-| makeMove | Used as a mapping of usernames to GameId |
+| Event | By | Trigger | Action on other side |
+|-|-|-|-|
+| userAdded | S | Server received players chosen username | Depending on the response,  |
+| lockJoin | S | Player wants to  | Stores the usernames already taken by the different players to avoid collisions |
+| startGame | S |  |  |
+| readyResponse | S |  | Stores the different Game objects |
+| go | S |  | Used as a mapping of usernames to GameId |
+| moveMadeByYou | S |  | Used as a mapping of usernames to GameId |
+| moveMadeByOther | S |  | Used as a mapping of usernames to GameId |
+| makeMoveError | S |  | Used as a mapping of usernames to GameId |
+| addUser | C | User has choosen username |  |
+| updateSocket | C |  |  |
+| join | C | User has chosen to play |  |
+| boardMade | C | User has finalized his board |  |
+| makeMove | C | User made a move |  |
