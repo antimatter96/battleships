@@ -198,8 +198,6 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | pointsOfShip | Object |
 | hor | Array |
 | placedBefore | Array |
-| hor | Array |
-| hor | Array |
 | locked | Array |
 | myShips | Array |
 | oppShips | Array |
