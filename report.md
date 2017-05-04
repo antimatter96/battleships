@@ -116,11 +116,13 @@ let socketId = socket.id;
 ...
 socket.to( socketId ).emit('eventName', data);
 ```
-## Code Explanation
+# Code Explanation
 
-### Server Side
+## Server Side
 
-#### Data Structures Used
+The server side is game agnostic i.e. it supports more than BattleShips and any turn based game can be made by changing the game.js file.
+
+### Data Structures Used
 
 | Name | Type | Purpose |
 |-|-|-|
@@ -130,7 +132,7 @@ socket.to( socketId ).emit('eventName', data);
 | Games | Array | Stores the different Game objects |
 | playerIsIn | Array | Used as a mapping of usernames to GameId |
 
-#### Events
+### Events
 
 | Events | Purpose |
 |-|-|
@@ -140,9 +142,12 @@ socket.to( socketId ).emit('eventName', data);
 | boardMade | Stores the different Game objects |
 | makeMove | Used as a mapping of usernames to GameId |
 
-### Game Object
 
-#### Data Structures
+---
+
+## Game Object
+
+### Data Structures
 
 | Name | Type | Purpose |
 |-|-|-|
@@ -160,7 +165,7 @@ socket.to( socketId ).emit('eventName', data);
 | arrOfI | Array |
 | arrOfJ | Array |
 
-#### Functions
+### Functions
 
 | Name | Arguments| Purpose |
 |-|-|-|
@@ -172,6 +177,53 @@ socket.to( socketId ).emit('eventName', data);
 | makeMove| String |  |
 
 
-### Client Side
+---
 
+## Client Side
 
+### Data Structures
+
+| Name | Type | Purpose |
+|-|-|-|
+| socket | String |  |
+| username | String |  |
+| lockName | String |  |
+| lockJoin | Boolean |  |
+| lockReady | Boolean |  |
+| boardValid | String |  |
+| lengthOfType |  |  |
+| arrOfI |  |  |
+| arrOfJ |  |  |
+| playerBoard |  |  |
+| pointsOfShip | Object |
+| hor | Array |
+| placedBefore | Array |
+| hor | Array |
+| hor | Array |
+| locked | Array |
+| myShips | Array |
+| oppShips | Array |
+| otherPlayerBoard | Array |
+| myTurn | Array |
+| lastMove | Array |
+
+### Functions
+
+| Name | Arguments| Purpose |
+|-|-|-|
+| --constructor-- | player1,player2 |  |
+| playerReady | String |  |
+| bothReady | String |  |
+| otherPlayer | Boolean |  |
+| startGame| Boolean |  |
+| makeMove| String |  |
+
+### Events
+
+| Events | Purpose |
+|-|-|
+| addUser | Stores the usernames of players waiting for another player to join a game |
+| updatePlayerSocket | Stores the usernames already taken by the different players to avoid collisions |
+| join | Used as a mapping of usernames to socketId |
+| boardMade | Stores the different Game objects |
+| makeMove | Used as a mapping of usernames to GameId |
