@@ -195,20 +195,28 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | Name | Arguments| Purpose |
 |-|-|-|
 
+
 ## Events
 
-| Event | By | Trigger | Action on other side |
-|-|-|-|-|
-| userAdded | S | Server received players chosen username | Depending on the response, either the username is set or player is asked to choose a different name |
-| lockJoin | S | Player wants to play a new game | Disables the join button to prevent multiplee request |
-| startGame | S | A match has been found and a new game has started |  Allow the user to place ships |
-| readyResponse | S | A player's ship placement has been processed and saved | Shows the gameboard |
-| go | S | Both plsyers have chosen ship placement | Depending on whose turn it is, player is allowed to shoot |
-| moveMadeByYou | S | Player took a shot | Used as a mapping of usernames to GameId |
-| moveMadeByOther | S | Opponent took a shot | Used as a mapping of usernames to GameId |
-| makeMoveError | S | Player took a shot |  |
-| addUser | C | User has choosen username |  |
-| updateSocket | C |  |  |
-| join | C | User has chosen to play |  |
-| boardMade | C | User has finalized his board |  |
-| makeMove | C | User made a move |  |
+Events emitted by Server
+
+| Event | Trigger | Client Action |
+|-|-|-|
+| userAdded | Server received players chosen username | Depending on the response, either the username is set or player is asked to choose a different name |
+| lockJoin | Player wants to play a new game | Disables the join button to prevent multiplee request |
+| startGame | A match has been found and a new game has started |  Allow the user to place ships |
+| wait| Player's ship placement has been processed and saved | Shows the gameboard |
+| go | Both plsyers have chosen ship placement | Depending on whose turn it is, player is allowed to shoot |
+| yourMove | Player took a shot | Used as a mapping of usernames to GameId |
+| oppMove | Opponent took a shot | Used as a mapping of usernames to GameId |
+| moveError | Player took a shot and an error occurred |  |
+
+Events Emitted by Client
+
+| Event | Trigger | Server Action |
+|-|-|-|
+| addUser | User has choosen username |  |
+| updateSocket | Site loaded and a username has been set already | Server updates its map of username to socketId |
+| join | User has chosen to play | Server finds an opponent for the player |
+| boardMade | User has finalized his board | Server  |
+| makeMove | User made a move |  |
