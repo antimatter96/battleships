@@ -1,8 +1,25 @@
+# Realtime Battleships game using Websockets
 
-MAIN HEADING
+<br>
+<br>
+
+**Implementing the classic BattleShips game using Socket.Io and Node.js**
+
+<br>
+<br>
+<br>
+
+**By**
+**Arpit Jain**
+**716/IT/14**
+
 =============
 
-## WEBSOCKETS
+[TOC]
+
+=============
+
+## Websockets
 
 ### What was wrong with HTTP ?
 The web has been largely built around the so-called request/response paradigm of HTTP. A client loads up a web page and then nothing happens until the user clicks onto the next page. Around 2005, AJAX (Asynchronous JavaScript And XML) started to make the web feel more dynamic. Still, all HTTP communication was steered by the client, which required user interaction or periodic polling to load new data from the server.
@@ -73,13 +90,13 @@ Node.js uses libuv to handle asynchronous events. Libuv is an abstraction layer 
 
 The core functionality of Node.js resides in a JavaScript library. The Node.js bindings, written in C++, connect these technologies to each other and to the operating system.
 
-#### Threading
+### Threading
 
 Node.js operates on a single thread, using non-blocking I/O calls, allowing it to support tens of thousands of concurrent connections without incurring the cost of thread context switching. The design of sharing a single thread between all the requests that uses the observer pattern is intended for building highly concurrent applications, where any function performing I/O must use a callback. In order to accommodate the single-threaded event loop, Node.js utilizes the libuv library that in turn uses a fixed-sized threadpool that is responsible for some of the non-blocking asynchronous I/O operations.
 
 Execution of parallel tasks in Node.js is handled by a thread pool. The main thread call functions post tasks to the shared task queue that threads in the thread pool pull and execute. Inherently non-blocking system functions like networking translates to kernel-side non-blocking sockets, while inherently blocking system functions like file I/O run in a blocking way on its own thread. When a thread in the thread pool completes a task, it informs the main thread of this that in turn wakes up and execute the registered callback. Since callbacks are handled in serial on the main thread, long lasting computations and other CPU-bound tasks will freeze the entire event-loop until completion.
 
-#### Event loop
+### Event loop
 
 Node.js registers itself with the operating system in order to be notified when a connection is made, and the operating system will issue a callback. Within the Node.js runtime, each connection is a small heap allocation. Traditionally, relatively heavyweight OS processes or threads handled each connection. Node.js uses an event loop for scalability, instead of processes or threads. In contrast to other event-driven servers, Node.js's event loop does not need to be called explicitly. Instead callbacks are defined, and the server automatically enters the event loop at the end of the callback definition. Node.js exits the event loop when there are no further callbacks to be performed.
 
@@ -93,8 +110,9 @@ Socket.IO is a JavaScript library for realtime web applications. It enables real
 
 Socket.IO primarily uses the WebSocket protocol with polling as a fallback option, while providing the same interface. Although it can be used as simply a wrapper for WebSocket, it provides many more features, including broadcasting to multiple sockets, storing data associated with each client, and asynchronous I/O.
 
-## Event driven programming using Socket.io and Node.js
+## Event driven programming using Socket.io
 
+We can choose the actions to be done on a particular event, using any data sent by the client
 
 ```js
 socket.on('eventName', function (data) {
@@ -103,6 +121,8 @@ socket.on('eventName', function (data) {
 });
 ```
 
+We can send data to the client who triggered the event easily
+
 ```js
 socket.on('eventName', function (data) {
 	...
@@ -110,7 +130,7 @@ socket.on('eventName', function (data) {
 });
 ```
 
-We can send data to a client using its socket-Id which can be accessed by its `id`;
+We can send data to a client using its socketId which can be accessed by its `id`;
 
 ```js
 let socketId = socket.id;
@@ -118,14 +138,41 @@ let socketId = socket.id;
 ...
 socket.to( socketId ).emit('eventName', data);
 ```
-# Code Explanation
 
-## Server Side
+The same is valid for client side except that the client can emit only to the server
+
+## Rules
+
+**Game Objective**
+
+The object of Battleship is to try and sink all of the other player's before they sink all of your ships. All of the other player's ships are somewhere on his/her board.  Neither you nor the other player can see the other's board so you must try to guess where they are.  Each board has two grids one for the player's ships and the other for recording the player's guesses and their results.
+<br>
+
+**Starting a New Game**
+
+Each player places the 5 ships somewhere on their board.  The ships can only be placed vertically or horizontally. Diagonal placement is not allowed. No part of a ship may hang off the edge of the board.  Ships may not overlap each other.  No ships may be placed on another ship. 
+
+Once the guessing begins, the players may not move the ships.
+
+The 5 ships are:  Carrier (occupies 5 spaces), Submarine (4), Destroyer (3), Cruiser (2), and Patrol (2).  
+<br>
+
+**Playing the Game**
+
+Player's take turns guessing by calling out the coordinates. The opponent responds with "hit" or "miss" as appropriate.  Both players should mark their board. For example, if you call out F6 and your opponent does not have any ship located at F6, your opponent would respond with "miss".  You record the miss F6 by placing a miss mark on your guess board at F6.  Your opponent records the miss by placing a miss mark on his board.
+
+When all of the squares that one of your ships occupies have been hit, the ship will be sunk. You should announce the type of ship sunk.
+
+As soon as all of one player's ships have been sunk, the game ends.
+
+## Code Explanation
+
+### Server Side
 
 The server side is game agnostic i.e. it supports more than BattleShips and any turn based game can be made by changing the game.js file.
 
-### Data Structures Used
-//DONE
+#### Data Variables
+
 | Name | Type | Purpose |
 |-|-|-|
 | UsersInQueue| Queue| Stores the usernames of players waiting for another player to join a game |
@@ -134,13 +181,10 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | Games | Array | Stores the different Game objects |
 | playerIsIn | Array | Used as a mapping of usernames to GameId |
 
+### Game Object
 
----
+#### Data Variables
 
-## Game Object
-
-### Data Structures
-//DONE
 | Name | Type | Purpose |
 |-|-|-|
 | id | String | Unique Id for the game instance |
@@ -154,9 +198,8 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | playerOneShip | Array | An array of set holding points for each type of ship for first player |
 | playerTwoShip | Array |  An array of set holding points for each type of ship for second player |
 
-### Functions
+#### Functions
 
-//DONE
 | Name | Arguments| Purpose |
 |-|-|-|
 | --- constructor --- | player1, player2 | Sets the player names and initializes other data members |
@@ -168,11 +211,10 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | makeMove| player, move made|  |
 
 
----
 
-## Client Side
+### Client Side
 
-### Variables
+#### Data Variables
 
 | Name | Type | Purpose |
 |-|-|:-|
@@ -189,9 +231,7 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | myTurn | Boolean | Flag indicating user's turn |
 | lastMove | Array | Stores the last move made by user (to avoid clicking by mistake) |
 
-### Functions
-
-// TO DO
+#### Functions
 
 | Name | Arguments| Purpose |
 |-|-|-|
@@ -206,9 +246,9 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | markShipDown | type | Exposes ship's type when a ship has been sunk | 
 
 
-## Events
+### Events
 
-Events emitted by Server
+#### Events emitted by Server
 
 | Event | Trigger | Client Action |
 |-|-|-|
@@ -221,8 +261,7 @@ Events emitted by Server
 | oppMove | Opponent took a shot | Updates player's board as result of opponents shotand allows to take a shot |
 | moveError | Player took a shot and an error occurred | Displays error and allows to shoot again |
 
-//DONE
-Events Emitted by Client
+#### Events Emitted by Client
 
 | Event | Trigger | Server Action |
 |-|-|-|
@@ -231,3 +270,10 @@ Events Emitted by Client
 | join | User has chosen to play | Server finds an opponent for the player |
 | boardMade | User has finalized his board | Server processes and stores the plaayers ship placement  |
 | makeMove | User made a move | Server processes the move and sends reponse to player and opponentro |
+
+
+## References
+
+- 
+-  asdasd
+- sdaasd
