@@ -3,21 +3,35 @@
 <br>
 <br>
 
-**Implementing the classic BattleShips game using Socket.Io and Node.js**
+## Implementing the classic BattleShips game using Socket.Io and Node.js
 
 <br>
 <br>
 <br>
 
-**By**
-**Arpit Jain**
-**716/IT/14**
+####By
+##Arpit Jain
+##716/IT/14
 
-=============
+## Contents
 
-[TOC]
+| Topic | Page No |
+|:-|-:|
+|<br><br><br><br> ||
+|1. **Websockets**|  |
+|1.1 What was wrong with HTTP ? | 1 |
+|1.2 Websockets | 1 |
+|1.3 Working | 1 |
+|**Node.js** | 2 |
+|What was wrong with HTTP ? | 1 |
+|Intro | 1 |
+|Threading | 1 |
+|Event Loop | 1 |
+|Expressjs | 1 |
+|Socket.io | 1 |
+|**Event** |  1 |
+|**Rules** |  1 |
 
-=============
 
 ## Websockets
 
@@ -72,10 +86,12 @@ Once the connection is established, the client and server can send WebSocket dat
 
 The WebSocket protocol specification defines `ws` and `wss` as two new uniform resource identifier (URI) schemes that are used for unencrypted and encrypted connections, respectively. Apart from the scheme name and fragment (`#` is not supported), the rest of the URI components are defined to use URI generic syntax.
 
-<br><br>
+<br>
+<br>
 
 ## Node.js
 
+### Intro
 Node.js is an open-source, cross-platform JavaScript run-time environment for executing JavaScript code server-side. JavaScript was historically used primarily for client-side scripting, in which scripts written in JavaScript are embedded in a webpage's HTML, to be run client-side by a JavaScript engine in the user's web browser, Node.js enables JavaScript to be used for server-side scripting, and runs scripts server-side to produce dynamic web page content.
 
 Node.js allows the creation of Web servers and networking tools using JavaScript and a collection of "modules" that handle various core functionality. Modules are provided for file system I/O, networking (DNS, HTTP, TCP, TLS/SSL, or UDP), binary data (buffers), cryptography functions, data streams and other core functions.
@@ -110,7 +126,7 @@ Socket.IO is a JavaScript library for realtime web applications. It enables real
 
 Socket.IO primarily uses the WebSocket protocol with polling as a fallback option, while providing the same interface. Although it can be used as simply a wrapper for WebSocket, it provides many more features, including broadcasting to multiple sockets, storing data associated with each client, and asynchronous I/O.
 
-## Event driven programming using Socket.io
+### Event driven programming using Socket.io
 
 We can choose the actions to be done on a particular event, using any data sent by the client
 
