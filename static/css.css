@@ -1,5 +1,5 @@
 body{
-	padding:75px;
+	padding-top:75px;
 }
 
 #globalLoading{
@@ -148,34 +148,14 @@ body{
 
 .board-cell.miss::before{
 	background:url('miss.png');
+	background-position:-5px -7px;
 }
 
 .board-cell.hit::before{
 	content:"◎";
 	font-size: 2em;
-		line-height: 125%;
+	line-height: 125%;
 }
-
-.board-cell.shot.shipDestroyed{
-	
-}
-
-.board-cell.shot.shipDestroyed.shipA{
-	
-}
-.board-cell.shot.shipDestroyed.shipB{
-	
-}
-.board-cell.shot.shipDestroyed.shipC{
-	
-}
-.board-cell.shot.shipDestroyed.shipD{
-	
-}
-.board-cell.shot.shipDestroyed.shipE{
-	
-}
-
 
 .board-row{
 	text-align:center;
@@ -187,6 +167,15 @@ body{
 	background:white;
 }
 
+.label-default{
+	background:#ffffff;
+}
+
 .centered-i{
 	text-align:center;
+}
+
+.gameOverDisplay{
+	padding: 20rem 0rem;
+    margin-top: 5%;
 }
