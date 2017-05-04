@@ -2,18 +2,56 @@
 
 <br>
 <br>
+<br>
+<br>
 
-## Implementing the classic BattleShips game using Socket.Io and Node.js
+## Taking the classic BattleShips game online with Websockets
+## Built using Socket.Io and Node.js
 
 <br>
 <br>
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
-####By
+### By
+<br>
 ##Arpit Jain
 ##716/IT/14
 
-## Contents
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Contents
+
+<br>
+<br>
 
 | Topic | Page No |
 |:-|-:|
@@ -31,14 +69,48 @@
 |Socket.io | 1 |
 |**Event** |  1 |
 |**Rules** |  1 |
+|**Code Explanation** | 1|
+|Server Side ||
+|Game Object||
+|Client Side||
+|Events||
+|**References**||
 
+
+<br>
+<br>
+<br>
+<br><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ## Websockets
+
+<br>
+<br>
 
 ### What was wrong with HTTP ?
 The web has been largely built around the so-called request/response paradigm of HTTP. A client loads up a web page and then nothing happens until the user clicks onto the next page. Around 2005, AJAX (Asynchronous JavaScript And XML) started to make the web feel more dynamic. Still, all HTTP communication was steered by the client, which required user interaction or periodic polling to load new data from the server.
 
 Technologies that enable the server to send data to the client in the very moment when it knows that new data is available have been around for quite some time. They go by names such as "Push" or "Comet". One of the most common hacks to create the illusion of a server initiated connection is called long polling. With long polling, the client opens an HTTP connection to the server which keeps it open until sending response. Whenever the server actually has new data it sends the response. Long polling and the other techniques work quite well, however, all of these work-arounds share one problem: They carry the overhead of HTTP, which doesn't make them well suited for low latency applications.
+
+<br>
+<br>
+<br>
+<br>
 
 ### WebSockets
 
@@ -49,12 +121,17 @@ The WebSocket protocol enables interaction between a browser and a web server wi
 
 The WebSocket protocol was standardized by the IETF (Internet Engineering Task Force) as RFC 6455 in 2011, and the WebSocket API in Web IDL is being standardized by the W3C (World Wide Web Consortium).
 
+<br>
+<br>
+<br>
+<br>
+
 ### Working
 
 The WebSocket protocol was designed to work well with the existing Web infrastructure. As part of this design principle, the protocol specification defines that the WebSocket connection starts its life as an HTTP connection, guaranteeing full backwards compatibility with the pre-WebSocket world. The protocol switch from HTTP to WebSocket is referred to as a the WebSocket handshake.
 
 The browser sends a request to the server, indicating that it wants to switch protocols from HTTP to WebSocket. The client expresses its desire through the Upgrade header
-
+<br>
 ```
 GET /chat HTTP/1.1
 Host: server.example.com
@@ -65,9 +142,9 @@ Sec-WebSocket-Protocol: chat, superchat
 Sec-WebSocket-Version: 13
 Origin: http://example.com
 ```
-
+<br>
 If the server understands the WebSocket protocol, it agrees to the protocol switch through the Upgrade header.
-
+<br>
 ```
 HTTP/1.1 101 Switching Protocols
 Upgrade: websocket
@@ -75,21 +152,40 @@ Connection: Upgrade
 Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
 Sec-WebSocket-Protocol: chat
 ```
-
+<br>
 At this point the HTTP connection breaks down and is replaced by the WebSocket connection over the same underlying TCP/IP connection. The WebSocket connection uses the same ports as HTTP (80) and HTTPS (443), by default.
 
 The handshake resembles HTTP in allowing servers to handle HTTP connections as well as WebSocket connections on the same port. Once the connection is established, communication switches to a bidirectional binary protocol which doesn't conform to the HTTP protocol.
 
 In addition to Upgrade headers, the client sends a Sec-WebSocket-Key header containing base64-encoded random bytes, and the server replies with a hash of the key in the Sec-WebSocket-Accept header. This is intended to prevent a caching proxy from re-sending a previous WebSocket conversation, and does not provide any authentication, privacy or integrity. The hashing function appends the fixed string `258EAFA5-E914-47DA-95CA-C5AB0DC85B11` (a UUID) to the value from Sec-WebSocket-Key header (which is not decoded from base64), applies the SHA-1 hashing function, and encodes the result using base64.
 
-Once the connection is established, the client and server can send WebSocket data or text frames back and forth in full-duplex mode. The data is minimally framed, with a small header followed by payload. WebSocket transmissions are described as "messages", where a single message can optionally be split across several data frames. This can allow for sending of messages where initial data is available but the complete length of the message is unknown (it sends one data frame after another until the end is reached and marked with the FIN bit). With extensions to the protocol, this can also be used for multiplexing several streams simultaneously (for instance to avoid monopolizing use of a socket for a single large payload).
+Once the connection is established, the client and server can send WebSocket data or text frames back and forth in full-duplex mode. The data is minimally framed, with a small header followed by payload. WebSocket transmissions are described as "messages", where a single message can optionally be split across several data frames. This can allow for sending of messages where initial data is available but the complete length of the message is unknown (it sends one data frame after another until the end is reached and marked with the FIN bit).
+
+<br>
+<br>
+
+
+![enter image description here](https://devcentral.f5.com/Portals/0/Users/036/40/123940/lb-websockets-02.png)
+
+<br>
+<br>
 
 The WebSocket protocol specification defines `ws` and `wss` as two new uniform resource identifier (URI) schemes that are used for unencrypted and encrypted connections, respectively. Apart from the scheme name and fragment (`#` is not supported), the rest of the URI components are defined to use URI generic syntax.
 
 <br>
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+          <br>
 
 ## Node.js
+
+<br>
+<br>
 
 ### Intro
 Node.js is an open-source, cross-platform JavaScript run-time environment for executing JavaScript code server-side. JavaScript was historically used primarily for client-side scripting, in which scripts written in JavaScript are embedded in a webpage's HTML, to be run client-side by a JavaScript engine in the user's web browser, Node.js enables JavaScript to be used for server-side scripting, and runs scripts server-side to produce dynamic web page content.
@@ -106,25 +202,50 @@ Node.js uses libuv to handle asynchronous events. Libuv is an abstraction layer 
 
 The core functionality of Node.js resides in a JavaScript library. The Node.js bindings, written in C++, connect these technologies to each other and to the operating system.
 
+<br>
+<br>
+<br>
+<br>
+
 ### Threading
 
 Node.js operates on a single thread, using non-blocking I/O calls, allowing it to support tens of thousands of concurrent connections without incurring the cost of thread context switching. The design of sharing a single thread between all the requests that uses the observer pattern is intended for building highly concurrent applications, where any function performing I/O must use a callback. In order to accommodate the single-threaded event loop, Node.js utilizes the libuv library that in turn uses a fixed-sized threadpool that is responsible for some of the non-blocking asynchronous I/O operations.
 
 Execution of parallel tasks in Node.js is handled by a thread pool. The main thread call functions post tasks to the shared task queue that threads in the thread pool pull and execute. Inherently non-blocking system functions like networking translates to kernel-side non-blocking sockets, while inherently blocking system functions like file I/O run in a blocking way on its own thread. When a thread in the thread pool completes a task, it informs the main thread of this that in turn wakes up and execute the registered callback. Since callbacks are handled in serial on the main thread, long lasting computations and other CPU-bound tasks will freeze the entire event-loop until completion.
 
+<br>
+<br>
+<br>
+<br>
+
 ### Event loop
 
 Node.js registers itself with the operating system in order to be notified when a connection is made, and the operating system will issue a callback. Within the Node.js runtime, each connection is a small heap allocation. Traditionally, relatively heavyweight OS processes or threads handled each connection. Node.js uses an event loop for scalability, instead of processes or threads. In contrast to other event-driven servers, Node.js's event loop does not need to be called explicitly. Instead callbacks are defined, and the server automatically enters the event loop at the end of the callback definition. Node.js exits the event loop when there are no further callbacks to be performed.
+
+<br>
+<br>
+<br>
+<br>
 
 ### Expressjs
 
 Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
 Express provides a thin layer of fundamental web application features, without obscuring Node.js features that you know and love.
 
+<br>
+<br>
+<br>
+<br>
+
 ### Socket.io
 Socket.IO is a JavaScript library for realtime web applications. It enables realtime, bi-directional communication between web clients and servers. It has two parts: a client-side library that runs in the browser, and a server-side library for Node.js. Both components have a nearly identical API. Like Node.js, it is event-driven.
 
 Socket.IO primarily uses the WebSocket protocol with polling as a fallback option, while providing the same interface. Although it can be used as simply a wrapper for WebSocket, it provides many more features, including broadcasting to multiple sockets, storing data associated with each client, and asynchronous I/O.
+
+<br>
+<br>
+<br>
+<br>
 
 ### Event driven programming using Socket.io
 
@@ -157,7 +278,18 @@ socket.to( socketId ).emit('eventName', data);
 
 The same is valid for client side except that the client can emit only to the server
 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ## Rules
+
+<br>
+<br>
 
 **Game Objective**
 
@@ -181,7 +313,19 @@ When all of the squares that one of your ships occupies have been hit, the ship 
 
 As soon as all of one player's ships have been sunk, the game ends.
 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ## Code Explanation
+
+<br>
+<br>
 
 ### Server Side
 
@@ -196,6 +340,12 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | socketOfUser | Array | Used as a mapping of usernames to socketId |
 | Games | Array | Stores the different Game objects |
 | playerIsIn | Array | Used as a mapping of usernames to GameId |
+
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ### Game Object
 
@@ -225,7 +375,6 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | startGame| player | Marks the start of game after both players have placed thier ships, sets the value of turnOf to player|
 | makeMove| player, move made| Processes the move and returns the appropritate response for player and opponent |
 | makeMove| player, move made|  |
-
 
 
 ### Client Side
@@ -290,6 +439,14 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 ## References
 
-- 
--  asdasd
-- sdaasd
+<br>
+<br>
+
+- RFC 6455 - The WebSocket Protocol - IETF Tools : https://tools.ietf.org/html/rfc6455
+- Introducing WebSockets: Bringing Sockets to the Web : https://www.html5rocks.com/en/tutorials/websockets/basics
+- The WebSocket API : https://dev.w3.org/html5/websockets
+- Websocket.org : https://www.websocket.org/
+- IBM Developers blog :  https://www.ibm.com/developerworks/community/blogs/gcuomo/entry/javascript_everywhere_and_the_three_amigos
+- Node.js API : https://nodejs.org/api/
+- BattleShip rules : https://www.cs.nmsu.edu/~bdu/TA/487/brules.htm
+
