@@ -130,7 +130,19 @@ socket.to( socketId ).emit('eventName', data);
 | Games | Array | Stores the different Game objects |
 | playerIsIn | Array | Used as a mapping of usernames to GameId |
 
+#### Events
+
+| Events | Purpose |
+|-|-|
+| addUser | Stores the usernames of players waiting for another player to join a game |
+| updatePlayerSocket | Stores the usernames already taken by the different players to avoid collisions |
+| join | Used as a mapping of usernames to socketId |
+| boardMade | Stores the different Game objects |
+| makeMove | Used as a mapping of usernames to GameId |
+
 ### Game Object
+
+#### Data Structures
 
 | Name | Type | Purpose |
 |-|-|-|
@@ -148,7 +160,7 @@ socket.to( socketId ).emit('eventName', data);
 | arrOfI | Array |
 | arrOfJ | Array |
 
-### Functions
+#### Functions
 
 | Name | Arguments| Purpose |
 |-|-|-|
@@ -158,5 +170,8 @@ socket.to( socketId ).emit('eventName', data);
 | otherPlayer | Boolean |  |
 | startGame| Boolean |  |
 | makeMove| String |  |
+
+
+### Client Side
 
 
