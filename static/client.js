@@ -1,7 +1,4 @@
 $(document).ready(function() {
-	//
-	//HIDE ALL
-	//
 	
 	var hostname = window.location.hostname;
 	if(hostname === "localhost"){
@@ -16,6 +13,7 @@ $(document).ready(function() {
 	$('#joinGame').hide();
 	$('#choosePlacement').hide();
 	$('#board').hide();
+	$('#gameOver').hide();
 	
 	function deleteElement(id){
 		let toDelete = document.getElementById(id);
@@ -27,7 +25,7 @@ $(document).ready(function() {
 	
 	if(window.localStorage.getItem('username')){
 		username = window.localStorage.getItem('username');
-		socket.emit('updatePlayerSocket', { player: username});
+		socket.emit('updateSocket', { player: username});
 		deleteElement('namePrompt');
 		$('#joinGame').show();
 	}
@@ -44,11 +42,11 @@ $(document).ready(function() {
 			$('#errorName').text("Please Wait");
 		}
 		else{
-			var result = validateName($('#inptName').val());	
+			let result = validateName($('#inptName').val());	
 			if(result === 'OK'){
-				localName = true;
-				$('#btnSubmitName').addClass('loading');
+				lockName = true;
 				socket.emit('addUser', { name: $('#inptName').val() });
+				$('#globalLoading').show();
 			}
 			else{
 				$('#errorName').text(result);	
@@ -56,15 +54,15 @@ $(document).ready(function() {
 		}
 	});
 	
-	socket.on('userAddEvent', function(data){
-		lockName = false;
-		$('#btnSubmitName').removeClass('loading');
+	socket.on('userAdded', function(data){
+		$('#globalLoading').hide();
 		if(data.msg === 'OK'){
 			deleteElement('namePrompt');
 			$('#joinGame').show();
 			window.localStorage.setItem('username', data.name);
 		}
 		else{
+			lockName = false;
 			$('#errorName').text( data.msg );
 		}
 	});
@@ -80,7 +78,7 @@ $(document).ready(function() {
 			return "OK";
 		}
 		else{
-			return "Please Choose alphabets,numbers or '_'";
+			return "Please Choose alphabets, numbers or '_'";
 		}
 	}
 	
@@ -111,7 +109,7 @@ $(document).ready(function() {
 		$('#globalLoading').hide();
 		$('#choosePlacement').show();
 		console.log('Player2 is' + data.otherPlayer);
-	})
+	});
 	
 	//========== BOARD INITIALIZATION
 	
@@ -127,10 +125,10 @@ $(document).ready(function() {
 			boardValid = boardIsValid();
 			if(boardValid){
 				lockReady = true;
-				for(var shipType in locked){
+				for(let shipType in locked){
 					locked[shipType] = true;
 				}
-				var toSend = makeToSend();
+				let toSend = makeToSend();
 				socket.emit('boardMade' , { player: username, shipPlacement: toSend });
 			}
 			else{
@@ -140,15 +138,15 @@ $(document).ready(function() {
 	});
 	
 	function makeToSend(){
-		var arrToSend = {};
-		for(var shipType in pointsOfShip){
-			arrToSend[shipType] = {}
-			var points = pointsOfShip[shipType];
-			var z = points.keys();
-			var i = 0;
+		let arrToSend = {};
+		for(let shipType in pointsOfShip){
+			arrToSend[shipType] = {};
+			let points = pointsOfShip[shipType];
+			let z = points.keys();
+			let i = 0;
 			while(!z.done){
-				var point = z.next();
-				var point = point.value;
+				let point = z.next();
+				point = point.value;
 				if(point){
 					point = JSON.parse(point);
 					arrToSend[shipType][i] = point;
@@ -163,7 +161,7 @@ $(document).ready(function() {
 	}
 	
 	function boardIsValid(){
-		for(var shipType in pointsOfShip){
+		for(let shipType in pointsOfShip){
 			if(pointsOfShip[shipType].size !== lengthOfType[shipType]) {
 				return false;
 			}
@@ -179,21 +177,21 @@ $(document).ready(function() {
 	var arrOfJ = ['A','B','C','D','E','F','G','H','I','J'];
 	
 	function addShipClass(type,i,j,horizontal){
-
 		if(horizontal){
-			for(var y = j;y<j+lengthOfType[type];y++){
+			for(let y = j;y<j+lengthOfType[type];y++){
 				$('#cell-' + i + y).addClass('ship' + type);
 			}
 		}
 		else{
-			for(var x = i; x < i + lengthOfType[type] ; x++){
+			for(let x = i; x < i + lengthOfType[type] ; x++){
 				$('#cell-' + x + j).addClass('ship' + type);
 			}
 		}
 	}
 	
 	var playerBoard = new Array(null,null,null,null,null,null,null,null,null,null);
-	for(var i=0;i<10;i++){
+	
+	for(let i = 0; i<10; i++){
 		playerBoard[i] = new Array(0,0,0,0,0,0,0,0,0,0);
 	}
 	
@@ -204,23 +202,23 @@ $(document).ready(function() {
 	var locked = { A:false, B:false, C:false, D:false, E:false};
 	
 	function addPointsToShip(type,i,j,horizontal){
-		var points = pointsOfShip[type];
+		let points = pointsOfShip[type];
 		points.clear();
 		if(horizontal){
-			for(var y = j; y<j+lengthOfType[type]; y++){
+			for(let y = j; y<j+lengthOfType[type]; y++){
 				points.add(JSON.stringify({'x':i,'y':y}));
 			}
 		}
 		else{
-			for(var x = i; x < i + lengthOfType[type] ; x++){
+			for(let x = i; x < i + lengthOfType[type] ; x++){
 				points.add(JSON.stringify({'x':x,'y':j}));
 			}
 		}
 	}
 	
 	function removeShip(type){
-		var points = pointsOfShip[type];
-		var z = points.keys();
+		let points = pointsOfShip[type];
+		let z = points.keys();
 		while(!z.done){
 			points = z.next();
 			points = points.value;
@@ -236,12 +234,13 @@ $(document).ready(function() {
 	}
 	
 	function choicesChanged(ship){
-		var valI = $('#' + ship + 'i').val();
-		var valJ = $('#' + ship + 'j').val();
+		let valI = $('#' + ship + 'i').val();
+		let valJ = $('#' + ship + 'j').val();
+		valJ = valJ.toUpperCase();
 		classInverser(ship,false);
 		$('#errorPlaceShip' + ship).text(".");
-		var possibleBounds = true;
-		var possibleOverlap = true;
+		let possibleBounds = true;
+		let possibleOverlap = true;
 		if(valI && valJ){
 			if(arrOfI.indexOf(valI) >-1 && arrOfJ.indexOf(valJ) >-1 ){
 				possibleBounds = checkBounds(valI,valJ,ship,hor[ship]);
@@ -287,20 +286,20 @@ $(document).ready(function() {
 	}
 	
 	function checkOverlap(valI,valJ,ship,horizontal){
-		j = arrOfJ.indexOf(valJ);
-		i = arrOfI.indexOf(valI);
-		var tempPoints = new Set();
+		let j = arrOfJ.indexOf(valJ);
+		let i = arrOfI.indexOf(valI);
+		let tempPoints = new Set();
 		if(horizontal){
-			for(var y = j; y<j+lengthOfType[ship]; y++){
+			for(let y = j; y<j+lengthOfType[ship]; y++){
 				tempPoints.add(JSON.stringify({'x':i,'y':y}));
 			}
 		}
 		else{
-			for(var x = i; x < i + lengthOfType[ship] ; x++){
+			for(let x = i; x < i + lengthOfType[ship] ; x++){
 				tempPoints.add(JSON.stringify({'x':x,'y':j}));
 			}
 		}
-		for(var shipType in pointsOfShip){
+		for(let shipType in pointsOfShip){
 			if( shipType != ship){
 			
 				let intersection = new Set([...pointsOfShip[shipType]].filter(x => tempPoints.has(x)));
@@ -320,7 +319,7 @@ $(document).ready(function() {
 			$('#errorPlaceShip' + ship).text("Locked");
 			return ;
 		}
-		choicesChanged(ship)
+		choicesChanged(ship);
 	});
 	
 	$('.btnRot').click(function(){
@@ -328,6 +327,7 @@ $(document).ready(function() {
 		if(locked[ship]){
 			classInverser(ship,true);
 			$('#errorPlaceShip' + ship).text("Locked");
+			return ;
 		}
 		hor[ship] = !hor[ship];
 		if(hor[ship]){
@@ -340,10 +340,11 @@ $(document).ready(function() {
 	});
 	
 	$('.btnDrop').click(function(){
-		var ship = $(this).data("ship");
+		let ship = $(this).data("ship");
 		if(locked[ship]){
 			classInverser(ship,true);
 			$('#errorPlaceShip' + ship).text("Already Locked");
+			return ;
 		}
 		else{
 			if(placedBefore[ship]){
@@ -369,7 +370,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	socket.on('readyResponse',function(data){
+	socket.on('wait',function(data){
 		if(data.status === "Error"){
 			$('#errorReady').text(data.msg);
 		}
@@ -395,7 +396,7 @@ $(document).ready(function() {
 		if(x.id){
 			x.id = "opp-" + x.id;
 		}
-		x.className = x.className.replace(/ ship[A-E]/,"")
+		x.className = x.className.replace(/ ship[A-E]/,"");
 		if(x.childElementCount > 0){
 			for(let i = 0; i<x.childElementCount; i++){
 				changeId(x.children[i]);
@@ -431,8 +432,10 @@ $(document).ready(function() {
 	
 	$('#btnShoot').click(function(){
 		if(myTurn){
-			var x = $('#shoti').val();
-			var y = $('#shotj').val();
+			let x = $('#shoti').val();
+			let y = $('#shotj').val();
+			y = y.toUpperCase();
+			classInverserShoot(false);
 			if( arrOfI.indexOf(x) >-1 && arrOfJ.indexOf(y) >-1 ){
 				y = arrOfJ.indexOf(y);
 				x = arrOfI.indexOf(x);
@@ -443,19 +446,33 @@ $(document).ready(function() {
 					lastMove.y = y;
 				}
 				else{
+					classInverserShoot(true);
 					$('#errorShoot').text("Already");
 				}
 			}
 			else{
-				$('#errorShoot').text("Asdasd");
+				classInverserShoot(true);
+				$('#errorShoot').text("Invlid Entry");
 			}
 		}
 		else{
-			$('#errorShoot').text("Tera nahi he");
+			classInverserShoot(true);
+			$('#errorShoot').text("Please Wait For Your turn");
 		}
 	});
 	
-	socket.on('moveMadeByYou',function(data){
+	function classInverserShoot(errorOn){
+		if(errorOn){
+			$('#errorShoot').addClass("label-danger");
+			$('#errorShoot').removeClass("label-default");
+		}
+		else{
+			$('#errorShoot').removeClass("label-danger");
+			$('#errorShoot').addClass("label-default");
+		}
+	}
+	
+	socket.on('yourMove',function(data){
 		if(data.result === "Hit"){
 			myTurn = !myTurn;
 			otherPlayerBoard[lastMove.x][lastMove.y] = 1;
@@ -464,7 +481,10 @@ $(document).ready(function() {
 			if(data.extra.shipDown){
 				markShipDown(data.extra.partOf);
 				if(data.extra.gameOver){
-					console.log("gameOver");
+					//
+					deleteElement('board');
+					$('#gameOver').show();
+					$('#gameOverLose').hide();
 				}
 			}
 		}
@@ -476,6 +496,26 @@ $(document).ready(function() {
 		else{
 			$('#errorShoot').text("Repeat");
 		}
+	});
+		
+	socket.on('oppMove',function(data){
+		if(data.result === "Hit"){
+			myTurn = !myTurn;
+			$('#cell-' + data.point.x + data.point.y).addClass("hit");
+			if(data.extra.gameOver){
+				//
+				deleteElement('board');
+				$('#globalLoading').hide();
+				$('#gameOver').show();
+				$('#gameOverWin').hide();
+
+			}
+		}
+		else if(data.result === "Miss"){
+			myTurn = !myTurn;
+			$('#cell-' + data.point.x + data.point.y).addClass("miss");
+		}
+		$('#globalLoading').hide();
 	});
 	
 	function markShipDown(type){
@@ -494,47 +534,21 @@ $(document).ready(function() {
 		}
 	}
 	
-	socket.on('moveMadeByOther',function(data){
-		if(data.result === "Hit"){
-			myTurn = !myTurn;
-			$('#cell-' + data.point.x + data.point.y).addClass("hit");
-			if(data.extra.gameOver){
-				console.log("gameOver");
-			}
-		}
-		else if(data.result === "Miss"){
-			myTurn = !myTurn;
-			$('#cell-' + data.point.x + data.point.y).addClass("miss");
-		}
-		$('#globalLoading').hide();
-	});
-	
 	//=============
 	
-	$('#tetst').click(function(){
-		$('#Ai')[0].value = 1;
-		$('#Aj')[0].value = 'A';
-		$('#Bi')[0].value = 1;
-		$('#Bj')[0].value = 'B';
-		$('#Ci')[0].value = 1;
-		$('#Cj')[0].value = 'D';
-		$('#Di')[0].value = 1;
-		$('#Dj')[0].value = 'E';
-		$('#Ei')[0].value = 9;
-		$('#Ej')[0].value = 'F';
-
-		$('#btnRotA').click();
-		$('#btnRotA').click();
-		$('#btnRotB').click();
-		$('#btnRotB').click();
-		$('#btnRotC').click();
-		$('#btnRotC').click();
-		$('#btnRotD').click();
-		$('#btnRotD').click();
-		$('#btnRotE').click();
-		$('#btnRotE').click();
-		
-		$('#btnReady').click();
-		
-	});
+	var dot1 = document.getElementById('_dot1');
+	var dot2 = document.getElementById('_dot2');
+	
+	var colorArr = ["f44336","#E91E63","#9C27B0","#673AB7","#3F51B5","#2196F3","#03A9F4","#00BCD4","#009688","#4CAF50","#8BC34A","#CDDC39","#FFEB3B","#FFC107","#FF9800","#FF5722"];
+	var colorArrLength = colorArr.length;
+	
+	function changeColors(){
+		let z = parseInt(Math.random()*colorArrLength);
+		dot1.style.backgroundColor = colorArr[z];
+		z = parseInt(Math.random()*colorArrLength);
+		dot2.style.backgroundColor = colorArr[z];
+	}
+	
+	var changeColorInterval = setInterval(changeColors, 1500);
+	
 });

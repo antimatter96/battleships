@@ -33,8 +33,7 @@ const { List } = require('immutable');
 var UsersInQueue = List();
 var Users = new Set();
 
-var userToSocketId = [];
-var socketToUser = [];
+var socketOfUser = [];
 
 var Games = [];
 var Game = require('./game');
@@ -62,18 +61,18 @@ io.on('connection', function (socket) {
 	socket.on('addUser', function (data) {
 		console.log(data);
 		if( Users.has(data.name) ){
-			socket.emit('userAddEvent', { msg: 'Username Taken' } );
+			socket.emit('userAdded', { msg: 'Username Taken' } );
 		}
 		else{
 			Users.add(data.name);
 			socket.username = data.name;
-			socketToUser[data.name] = socket.id;
-			socket.emit('userAddEvent', { msg: 'OK' , name: data.name } );
+			socketOfUser[data.name] = socket.id;
+			socket.emit('userAdded', { msg: 'OK' , name: data.name } );
 		}
 	});
 
-	socket.on('updatePlayerSocket', function(data){
-		socketToUser[data.player] = socket.id;
+	socket.on('updateSocket', function(data){
+		socketOfUser[data.player] = socket.id;
 		socket.username = data.player;
 	});
 
@@ -81,7 +80,7 @@ io.on('connection', function (socket) {
 		let player1 = socket.username;
 		if(player1 != data.player){
 			socket.username = data.player;
-			socketToUser[data.player] = socket.id;
+			socketOfUser[data.player] = socket.id;
 			player1 = data.player;
 		}
 		if(UsersInQueue.includes(player1)){
@@ -91,17 +90,12 @@ io.on('connection', function (socket) {
 			if(UsersInQueue.size > 0){
 				let player2 = UsersInQueue.first();
 				if(player2 === player1){
-					//timeOutStorage[player1] = setInterval(function(){findAPlayerFor(player1)}, 500);
+					
 				}
 				else{
 					UsersInQueue = UsersInQueue.shift();
-					/*
-					if(timeOutStorage[player2]){
-						clearInterval(timeOutStorage[player2]);
-					}
-					*/
 					socket.emit('startGame', { otherPlayer: player2 });
-					socket.to(socketToUser[player2]).emit('startGame', { otherPlayer: player1 });
+					socket.to(socketOfUser[player2]).emit('startGame', { otherPlayer: player1 });
 					var newGame = new Game(player1,player2);
 					Games[newGame.id] = newGame;
 					playerIsIn[player1] = newGame.id;
@@ -114,10 +108,6 @@ io.on('connection', function (socket) {
 		}		
 	});
 
-	socket.on('addToFree', function (data) {
-		
-	});
-
 	socket.on('boardMade' , function(data){
 		if(playerIsIn[data.player]){
 			let player = data.player;
@@ -125,14 +115,14 @@ io.on('connection', function (socket) {
 			let game = Games[playerIsIn[player]];
 			let res = game.playerReady(player,shipPlacement);
 			if(game.bothReady()){
-				socket.emit('readyResponse', res );
+				socket.emit('wait', res );
 				socket.emit('go', {start:true} );
 				let otherPlayer = game.otherPlayer(player);
 				game.startGame(player);
-				socket.to(socketToUser[otherPlayer]).emit('go', { start: false } );
+				socket.to(socketOfUser[otherPlayer]).emit('go', { start: false } );
 			}
 			else{
-				socket.emit('readyResponse', res );
+				socket.emit('wait', res );
 			}
 		}
 	});
@@ -143,44 +133,20 @@ io.on('connection', function (socket) {
 			let game = Games[playerIsIn[player]];
 			let res = game.makeMove(player,data.move);
 			if(res.status == "OK"){
-				socket.emit('moveMadeByYou', res.forShooter );
+				socket.emit('yourMove', res.forShooter );
 				let otherPlayer = game.otherPlayer(player);
-				socket.to(socketToUser[otherPlayer]).emit('moveMadeByOther', res.forTarget );
+				socket.to(socketOfUser[otherPlayer]).emit('oppMove', res.forTarget );
+				
+				//GAME END CHECK
+				
 			}
 			else if(res.status == "Rep"){
-				socket.emit('moveMadeByYou', res.forShooter );
+				socket.emit('yourMove', res.forShooter );
 			}
 			else{
-				socket.emit('makeMoveError', res );
+				socket.emit('moveError', res );
 			}
 		}
 	});
-	
-	/*
-	function findAPlayerFor(player1){
-		if(UsersInQueue.size > 1){
-			var player2 = UsersInQueue[1];
-			if(player2 === player1){
-				console.log("Finding for" + player1 + "COLLISION");
-			}
-			else{
-				UsersInQueue = UsersInQueue.delete(1);
-				clearInterval(timeOutStorage[player1]);
-				socket.to(socketToUser[player2]).emit('startGame', { otherPlayer: player1 })
-				socket.to(socketToUser[player1]).emit('startGame', { otherPlayer: player2 })
-			}
-		}
-		else{
-			console.log("Finding for" + player1 + "Few Players");
-		}
-	}
-
-	var timeOutStorage = [];
-	*/
 
 });
-
-
-//var s1 = setInterval(function(){console.log(UsersInQueue);},10000);
-//var s2 = setInterval(function(){console.log(Games);},10000);
-//var s3 = setInterval(function(){console.log(playerIsIn);},10000);
