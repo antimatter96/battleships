@@ -151,8 +151,8 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | turnOf | String | Stores name of player whose turn it is |
 | playerOneBoard | 2D Array | Marks the points where a ship has been placed by player1 |
 | playerTwoBoard | 2D Array  | Marks the points where a ship has been placed by player2 |
-| playerOneShip | Array |  |
-| playerTwoShip |  |  |
+| playerOneShip | Array | An array of set holding points for each type of ship for first player |
+| playerTwoShip | Array |  An array of set holding points for each type of ship for second player |
 
 ### Functions
 
@@ -176,20 +176,17 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 |-|-|-|
 | socket | String | The main socket object |
 | username | String |  |
-| lockName | String |  |
-| lockJoin | Boolean |  |
-| lockReady | Boolean |  |
 | boardValid | String |  |
 | playerBoard |  |  |
 | pointsOfShip | Object |
-| hor | Array |
-| placedBefore | Array |
-| locked | Array |
-| myShips | Array |
-| oppShips | Array |
-| otherPlayerBoard | Array |
-| myTurn | Array |
-| lastMove | Array |
+| hor | Array | |
+| placedBefore | Array | |
+| locked | Array |  |
+| myShips | Array | |
+| oppShips | Array | |
+| otherPlayerBoard | Array | |
+| myTurn | Array | |
+| lastMove | Array | |
 
 ### Functions
 
@@ -202,14 +199,14 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 | Event | By | Trigger | Action on other side |
 |-|-|-|-|
-| userAdded | S | Server received players chosen username | Depending on the response,  |
-| lockJoin | S | Player wants to  | Stores the usernames already taken by the different players to avoid collisions |
-| startGame | S |  |  |
-| readyResponse | S |  | Stores the different Game objects |
-| go | S |  | Used as a mapping of usernames to GameId |
-| moveMadeByYou | S |  | Used as a mapping of usernames to GameId |
-| moveMadeByOther | S |  | Used as a mapping of usernames to GameId |
-| makeMoveError | S |  | Used as a mapping of usernames to GameId |
+| userAdded | S | Server received players chosen username | Depending on the response, either the username is set or player is asked to choose a different name |
+| lockJoin | S | Player wants to play a new game | Disables the join button to prevent multiplee request |
+| startGame | S | A match has been found and a new game has started |  Allow the user to place ships |
+| readyResponse | S | A player's ship placement has been processed and saved | Shows the gameboard |
+| go | S | Both plsyers have chosen ship placement | Depending on whose turn it is, player is allowed to shoot |
+| moveMadeByYou | S | Player took a shot | Used as a mapping of usernames to GameId |
+| moveMadeByOther | S | Opponent took a shot | Used as a mapping of usernames to GameId |
+| makeMoveError | S | Player took a shot |  |
 | addUser | C | User has choosen username |  |
 | updateSocket | C |  |  |
 | join | C | User has chosen to play |  |
