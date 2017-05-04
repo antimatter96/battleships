@@ -1,116 +1,9 @@
-# Realtime Battleships game using Websockets
-
-<br>
-<br>
-<br>
-<br>
-
-## Taking the classic BattleShips game online with Websockets
-## Built using Socket.Io and Node.js
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-### By
-<br>
-##Arpit Jain
-##716/IT/14
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-# Contents
-
-<br>
-<br>
-
-| Topic | Page No |
-|:-|-:|
-|<br><br><br><br> ||
-|1. **Websockets**|  |
-|1.1 What was wrong with HTTP ? | 1 |
-|1.2 Websockets | 1 |
-|1.3 Working | 1 |
-|**Node.js** | 2 |
-|What was wrong with HTTP ? | 1 |
-|Intro | 1 |
-|Threading | 1 |
-|Event Loop | 1 |
-|Expressjs | 1 |
-|Socket.io | 1 |
-|**Event** |  1 |
-|**Rules** |  1 |
-|**Code Explanation** | 1|
-|Server Side ||
-|Game Object||
-|Client Side||
-|Events||
-|**References**||
-
-
-<br>
-<br>
-<br>
-<br><br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
 ## Websockets
-
-<br>
-<br>
 
 ### What was wrong with HTTP ?
 The web has been largely built around the so-called request/response paradigm of HTTP. A client loads up a web page and then nothing happens until the user clicks onto the next page. Around 2005, AJAX (Asynchronous JavaScript And XML) started to make the web feel more dynamic. Still, all HTTP communication was steered by the client, which required user interaction or periodic polling to load new data from the server.
 
 Technologies that enable the server to send data to the client in the very moment when it knows that new data is available have been around for quite some time. They go by names such as "Push" or "Comet". One of the most common hacks to create the illusion of a server initiated connection is called long polling. With long polling, the client opens an HTTP connection to the server which keeps it open until sending response. Whenever the server actually has new data it sends the response. Long polling and the other techniques work quite well, however, all of these work-arounds share one problem: They carry the overhead of HTTP, which doesn't make them well suited for low latency applications.
-
-<br>
-<br>
-<br>
-<br>
 
 ### WebSockets
 
@@ -121,17 +14,12 @@ The WebSocket protocol enables interaction between a browser and a web server wi
 
 The WebSocket protocol was standardized by the IETF (Internet Engineering Task Force) as RFC 6455 in 2011, and the WebSocket API in Web IDL is being standardized by the W3C (World Wide Web Consortium).
 
-<br>
-<br>
-<br>
-<br>
-
 ### Working
 
 The WebSocket protocol was designed to work well with the existing Web infrastructure. As part of this design principle, the protocol specification defines that the WebSocket connection starts its life as an HTTP connection, guaranteeing full backwards compatibility with the pre-WebSocket world. The protocol switch from HTTP to WebSocket is referred to as a the WebSocket handshake.
 
 The browser sends a request to the server, indicating that it wants to switch protocols from HTTP to WebSocket. The client expresses its desire through the Upgrade header
-<br>
+
 ```
 GET /chat HTTP/1.1
 Host: server.example.com
@@ -142,9 +30,9 @@ Sec-WebSocket-Protocol: chat, superchat
 Sec-WebSocket-Version: 13
 Origin: http://example.com
 ```
-<br>
+
 If the server understands the WebSocket protocol, it agrees to the protocol switch through the Upgrade header.
-<br>
+
 ```
 HTTP/1.1 101 Switching Protocols
 Upgrade: websocket
@@ -152,7 +40,7 @@ Connection: Upgrade
 Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
 Sec-WebSocket-Protocol: chat
 ```
-<br>
+
 At this point the HTTP connection breaks down and is replaced by the WebSocket connection over the same underlying TCP/IP connection. The WebSocket connection uses the same ports as HTTP (80) and HTTPS (443), by default.
 
 The handshake resembles HTTP in allowing servers to handle HTTP connections as well as WebSocket connections on the same port. Once the connection is established, communication switches to a bidirectional binary protocol which doesn't conform to the HTTP protocol.
@@ -161,33 +49,14 @@ In addition to Upgrade headers, the client sends a Sec-WebSocket-Key header cont
 
 Once the connection is established, the client and server can send WebSocket data or text frames back and forth in full-duplex mode. The data is minimally framed, with a small header followed by payload. WebSocket transmissions are described as "messages", where a single message can optionally be split across several data frames. This can allow for sending of messages where initial data is available but the complete length of the message is unknown (it sends one data frame after another until the end is reached and marked with the FIN bit).
 
-<br>
-<br>
-
-
 ![enter image description here](https://devcentral.f5.com/Portals/0/Users/036/40/123940/lb-websockets-02.png)
-
-<br>
-<br>
 
 The WebSocket protocol specification defines `ws` and `wss` as two new uniform resource identifier (URI) schemes that are used for unencrypted and encrypted connections, respectively. Apart from the scheme name and fragment (`#` is not supported), the rest of the URI components are defined to use URI generic syntax.
 
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-          <br>
-
 ## Node.js
 
-<br>
-<br>
-
 ### Intro
+
 Node.js is an open-source, cross-platform JavaScript run-time environment for executing JavaScript code server-side. JavaScript was historically used primarily for client-side scripting, in which scripts written in JavaScript are embedded in a webpage's HTML, to be run client-side by a JavaScript engine in the user's web browser, Node.js enables JavaScript to be used for server-side scripting, and runs scripts server-side to produce dynamic web page content.
 
 Node.js allows the creation of Web servers and networking tools using JavaScript and a collection of "modules" that handle various core functionality. Modules are provided for file system I/O, networking (DNS, HTTP, TCP, TLS/SSL, or UDP), binary data (buffers), cryptography functions, data streams and other core functions.
@@ -278,23 +147,11 @@ socket.to( socketId ).emit('eventName', data);
 
 The same is valid for client side except that the client can emit only to the server
 
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
 ## Rules
-
-<br>
-<br>
 
 **Game Objective**
 
 The object of Battleship is to try and sink all of the other player's before they sink all of your ships. All of the other player's ships are somewhere on his/her board.  Neither you nor the other player can see the other's board so you must try to guess where they are.  Each board has two grids one for the player's ships and the other for recording the player's guesses and their results.
-<br>
 
 **Starting a New Game**
 
@@ -303,7 +160,6 @@ Each player places the 5 ships somewhere on their board.  The ships can only be 
 Once the guessing begins, the players may not move the ships.
 
 The 5 ships are:  Carrier (occupies 5 spaces), Submarine (4), Destroyer (3), Cruiser (2), and Patrol (2).  
-<br>
 
 **Playing the Game**
 
@@ -313,19 +169,7 @@ When all of the squares that one of your ships occupies have been hit, the ship 
 
 As soon as all of one player's ships have been sunk, the game ends.
 
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
 ## Code Explanation
-
-<br>
-<br>
 
 ### Server Side
 
@@ -340,12 +184,6 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 | socketOfUser | Array | Used as a mapping of usernames to socketId |
 | Games | Array | Stores the different Game objects |
 | playerIsIn | Array | Used as a mapping of usernames to GameId |
-
-<br>
-<br>
-<br>
-<br>
-<br>
 
 ### Game Object
 
@@ -438,9 +276,6 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 
 ## References
-
-<br>
-<br>
 
 - RFC 6455 - The WebSocket Protocol - IETF Tools : https://tools.ietf.org/html/rfc6455
 - Introducing WebSockets: Bringing Sockets to the Web : https://www.html5rocks.com/en/tutorials/websockets/basics
