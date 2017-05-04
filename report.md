@@ -55,7 +55,7 @@ Once the connection is established, the client and server can send WebSocket dat
 
 The WebSocket protocol specification defines `ws` and `wss` as two new uniform resource identifier (URI) schemes that are used for unencrypted and encrypted connections, respectively. Apart from the scheme name and fragment (`#` is not supported), the rest of the URI components are defined to use URI generic syntax.
 
----
+<br><br>
 
 ## Node.js
 
@@ -92,13 +92,6 @@ Express provides a thin layer of fundamental web application features, without o
 Socket.IO is a JavaScript library for realtime web applications. It enables realtime, bi-directional communication between web clients and servers. It has two parts: a client-side library that runs in the browser, and a server-side library for Node.js. Both components have a nearly identical API. Like Node.js, it is event-driven.
 
 Socket.IO primarily uses the WebSocket protocol with polling as a fallback option, while providing the same interface. Although it can be used as simply a wrapper for WebSocket, it provides many more features, including broadcasting to multiple sockets, storing data associated with each client, and asynchronous I/O.
-
-
-&nbps;
-
-
-&nbps;
-  
 
 ## Event driven programming using Socket.io and Node.js
 
@@ -179,21 +172,21 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 ## Client Side
 
-### Data Structures
+### Variables
 
 | Name | Type | Purpose |
 |-|-|:-|
 | socket | String | The main socket object |
 | username | String | Stores the player's username |
 | boardValid | String | Flag for validity of player's board |
-| playerBoard |  |  |
-| pointsOfShip | Object |
+| playerBoard | 2D Array  | Marks the points where a ship has been placed by player |
+| pointsOfShip | Array | An array of sets holding points for each type of ship for player |
 | hor | Array | Stores the orientation of ships (true for horizontal false, otherwise) |
 | locked | Array | Stores the states of ships, helps in avoiding changing placememt by mistake |
-| myShips | Array | An array of set holding points for each type of ship for player |
-| oppShips | Array | An array of set holding points for each type of ship for oppopnent |
-| otherPlayerBoard | Array | |
-| myTurn | Boolean | Flag for users turn |
+| myShips | Array | An array of sets holding points for each type of ship for player |
+| oppShips | Array | An array of sets holding points for each type of ship for oppopnent |
+| otherPlayerBoard | 2D Array | Marks the points where a shot has been made by player, indicating hits and misses |
+| myTurn | Boolean | Flag indicating user's turn |
 | lastMove | Array | Stores the last move made by user (to avoid clicking by mistake) |
 
 ### Functions
@@ -202,10 +195,15 @@ The server side is game agnostic i.e. it supports more than BattleShips and any 
 
 | Name | Arguments| Purpose |
 |-|-|-|
-|-|-|-|
-|-|-|-|
-|-|-|-|
-|-|-|-|
+| makeToSend | - | Parses the user's board into a form interpret-able by the server |
+| boardIsValid | - | Checks the validity of board and sets boardValid flag |
+| addShipClass | type, i, j, horizontal | Adds ship's class to a set of points |
+| addPointsToShip | type, i, j, horizontal | Add points to the set for a ship's |
+| removeShip | type | Removes the ship class from points earlier marked as belonging to a ship |
+| choicesChanged | ship | Removes the earlier points and sets the new points |
+| checkBounds | valI, valJ, ship, horizontal | Checks ship's boundaries while shipplacement |
+| checkOverlap | valI, valJ, ship, horizontal | Checks overlapping ships while shipplacement |
+| markShipDown | type | Exposes ship's type when a ship has been sunk | 
 
 
 ## Events
@@ -219,9 +217,9 @@ Events emitted by Server
 | startGame | A match has been found and a new game has started |  Allow the user to place ships |
 | wait| Player's ship placement has been processed and saved | Shows the gameboard |
 | go | Both plsyers have chosen ship placement | Depending on whose turn it is, player is allowed to shoot |
-| yourMove | Player took a shot | Used as a mapping of usernames to GameId |
-| oppMove | Opponent took a shot | Used as a mapping of usernames to GameId |
-| moveError | Player took a shot and an error occurred |  |
+| yourMove | Player took a shot | Updates the opponent's board as a result of players shot |
+| oppMove | Opponent took a shot | Updates player's board as result of opponents shotand allows to take a shot |
+| moveError | Player took a shot and an error occurred | Displays error and allows to shoot again |
 
 //DONE
 Events Emitted by Client
