@@ -551,4 +551,35 @@ $(document).ready(function() {
 	
 	var changeColorInterval = setInterval(changeColors, 1500);
 	
+	//=============
+	
+	$('#tetst').click(function(){
+		$('#Ai')[0].value = 1;
+		$('#Aj')[0].value = 'A';
+		$('#Bi')[0].value = 1;
+		$('#Bj')[0].value = 'B';
+		$('#Ci')[0].value = 1;
+		$('#Cj')[0].value = 'D';
+		$('#Di')[0].value = 1;
+		$('#Dj')[0].value = 'E';
+		$('#Ei')[0].value = 9;
+		$('#Ej')[0].value = 'F';
+
+		$('#btnRotA').click();
+		$('#btnRotA').click();
+		$('#btnRotB').click();
+		$('#btnRotB').click();
+		$('#btnRotC').click();
+		$('#btnRotC').click();
+		$('#btnRotD').click();
+		$('#btnRotD').click();
+		$('#btnRotE').click();
+		$('#btnRotE').click();
+		
+		$('#btnReady').click();
+		
+		$('#tetst').hide();
+		
+		
+	});
 });
