@@ -1,20 +1,19 @@
 {
-  "name": "battle",
-  "version": "0.0.1",
+  "name": "battle-ships",
+  "version": "0.0.2",
   "description": "battleShips",
   "main": "server.js",
-  "dependencies" : {
-	"nunjucks":"^3.0.0"
-	,"express":"^4.15.2"
-	,"immutable":"^2.4.3"
-	,"uuid":"^3.0.1"
-	,"immutable":"^3.8.1"
-	,"serve-favicon":"^2.3.2 "
-	,"socket.io":"^1.7.3"
+  "dependencies": {
+    "nunjucks": "*",
+    "express": "*",
+    "immutable": "*",
+    "uuid": "*",
+    "serve-favicon": "*",
+    "socket.io": "*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-	"start": "node server.js"
+    "start": "node server.js"
   },
   "alias": "battleships.now.sh",
   "author": "Arpit Jain",
