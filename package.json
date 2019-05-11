@@ -4,18 +4,31 @@
   "description": "battleShips",
   "main": "server.js",
   "dependencies": {
-    "nunjucks": "*",
     "express": "*",
     "immutable": "*",
-    "uuid": "*",
+    "jsonwebtoken": "^8.5.1",
+    "nunjucks": "*",
     "serve-favicon": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "uuid": "*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "NODE_ENV=prod node server.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "node minify.js"
+    }
   },
   "alias": "battleships.now.sh",
   "author": "Arpit Jain",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@node-minify/core": "^4.0.5",
+    "@node-minify/csso": "^4.0.5",
+    "@node-minify/google-closure-compiler": "^4.0.5",
+    "@node-minify/uglify-es": "^4.0.5",
+    "husky": "^2.2.0"
+  }
 }
