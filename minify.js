@@ -24,5 +24,5 @@ for (let i = 0; i < files.length; i++) {
 }
 
 Promise.all(promises).then(() => {
-	process.exit(1);
+	process.exit(0);
 });
