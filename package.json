@@ -4,8 +4,9 @@
   "description": "battleShips",
   "main": "server.js",
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "express": "*",
-    "immutable": "*",
+    "immutable": "^3.8.2",
     "jsonwebtoken": "^8.5.1",
     "nunjucks": "*",
     "serve-favicon": "*",

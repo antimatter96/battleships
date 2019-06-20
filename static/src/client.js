@@ -7,6 +7,7 @@ $(document).ready(function () {
 
 	var socket = io.connect(hostname);
 	var username = "Not Choosen";
+	var userId = "";
 
 	$("#globalLoading").hide();
 	$("#namePrompt").hide();
@@ -25,8 +26,9 @@ $(document).ready(function () {
 
 	if (window.localStorage.getItem("username")) {
 		username = window.localStorage.getItem("username");
+		userId = window.localStorage.getItem("userid");
 		socket.emit("updateSocket", {
-			username: username,
+			userId: userId,
 			token: window.localStorage.getItem("userjwt")
 		});
 		$("#globalLoading").show();
@@ -62,6 +64,7 @@ $(document).ready(function () {
 			deleteElement("namePrompt");
 			$("#joinGame").show();
 			window.localStorage.setItem("username", data.name);
+			window.localStorage.setItem("userid", data.userId);
 			window.localStorage.setItem("userjwt", data.token);
 		} else {
 			lockName = false;
@@ -79,6 +82,7 @@ $(document).ready(function () {
 		$("#globalLoading").hide();
 
 		window.localStorage.removeItem("username");
+		window.localStorage.removeItem("userid");
 		window.localStorage.removeItem("userjwt");
 
 		$("#namePrompt").show();

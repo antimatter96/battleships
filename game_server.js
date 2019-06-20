@@ -13,6 +13,7 @@ var socketOfUser = [];
 var Games = [];
 
 var Game = require("./models/game");
+
 var playerIsIn = [];
 
 function socketDisconnect(_data) {
@@ -118,24 +119,19 @@ function boardMade(data) {
 function updateSocket(data) {
 	let socket = this;
 	//console.log(data);
-	let username = jwt.verify(data.token, publicKey, {algorithms : 'RS256'});
-	console.log(username, data.username, username == data.username);
-	if (username == data.username) {
-		socketOfUser[data.player] = socket.id;
-		socket.username = data.player;
+	if(UsersDB.verifyJWT(data.username, data.token)) {
+		socketOfUser[data.username] = socket.id;
+		socket.username = data.username;
 		socket.emit("socketUpdated");
 	} else {
 		socket.emit("socketUpdateRejected");
 	}
-
 }
 
+var UsersDB;
+function init(server, _UsersDB) {
+	UsersDB = _UsersDB;
 
-var privateKey, publicKey;
-function init(server, _privateKey, _publicKey) {
-	privateKey = _privateKey;
-	publicKey = _publicKey;
-	
 	var io = socket_io(server);
 	io.on("connection", (socket) => {
 		console.log(`_____client connected_____ ${socket.id}`);

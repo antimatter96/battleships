@@ -18,6 +18,10 @@ nunjucks.configure(app.get("views"), {
 var server = require("http").Server(app);
 server.listen(process.env.PORT || 8080);
 
+var UserVerifier = require("./models/user_verifier");
+var GameServer = require("./game_server");
+var UsersDb = require("./models/user_in_memory");
+
 var staticFileLocation = process.env.NODE_ENV=="prod" ? "/static/dist" : "/static/src";
 var privateKey = fs.readFileSync('private_key.pem');
 var publicKey = fs.readFileSync('public_key.pem');
@@ -42,4 +46,6 @@ app.get("/", function (req, res) {
 	res.render("index.njk", {staticFileLocation});
 });
 
-var _gameServer = require("./game_server").init(server, privateKey, publicKey);
+var _userVerifier = new UserVerifier(privateKey, publicKey);
+var _usersDB = new UsersDb(_userVerifier);
+var _gameServer = GameServer.init(server, _usersDB);
