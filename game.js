@@ -5,8 +5,8 @@ class Game {
 		this.id = uuid();
 		this.p1 = player1;
 		this.p2 = player2;
-		this.p1BoardDone = false;
-		this.p2BoardDone = false;
+		this.p1BoardDone = { bool: false };
+		this.p2BoardDone = { bool: false };
 		this.turnOf = this.p1;
 
 		this.playerOneBoard = [null, null, null, null, null, null, null, null, null, null];
@@ -40,51 +40,35 @@ class Game {
 	}
 
 	playerReady(player, shipPlacement) {
-		if (this.p1 === player) {
-			if (this.p1BoardDone) {
-				return { status: "Error", msg: "Already Choosen" };
-			}
-			else {
-				for (let shipType in shipPlacement) {
-					let length = this.lengthOfType[shipType];
-					for (let i = 0; i < length; i++) {
-						let point = shipPlacement[shipType][i];
-						this.playerOneShip[shipType].add(JSON.stringify(point));
-						this.playerOneBoard[point.x][point.y] = 1;
-						//this.playerOneBoardForTwo[point.x][point.y] = 0;
-					}
-				}
-				this.p1BoardDone = true;
-				return { status: "OK", msg: "Done" };
-			}
-		}
-		else if (this.p2 === player) {
-			if (this.p2BoardDone) {
-				return { status: "Error", msg: "Already Choosen" };
-			}
-			else {
-				for (var shipType in shipPlacement) {
-					var length = this.lengthOfType[shipType];
-					for (var i = 0; i < length; i++) {
-						let point = shipPlacement[shipType][i];
-						this.playerTwoShip[shipType].add(JSON.stringify(point));
-						this.playerTwoBoard[point.x][point.y] = 1;
-						//this.playerTwoBoardForOne[point.x][point.y] = 0;
-					}
-				}
-				this.p2BoardDone = true;
-				return { status: "OK", msg: "Done" };
-			}
+		let playerBoardDone = this.p1BoardDone;
+		let playerShip = this.playerOneShip;
+		let playerBoard = this.playerOneBoard;
+
+		if (this.p2 === player) {
+			playerBoardDone = this.p2BoardDone;
+			playerShip = this.playerTwoShip;
+			playerBoard = this.playerTwoBoard;
 		}
 
-		/* TO DO
-			REDUCE SIZE BY SAME LOGIC AS IN MAKEMOVE
-		*/
+		if (playerBoardDone.bool) {
+			return { status: "Error", msg: "Already Choosen" };
+		}
 
+		for (let shipType in shipPlacement) {
+			let length = this.lengthOfType[shipType];
+			for (let i = 0; i < length; i++) {
+				let point = shipPlacement[shipType][i];
+				playerShip[shipType].add(JSON.stringify(point));
+				playerBoard[point.x][point.y] = 1;
+				//this.playerOneBoardForTwo[point.x][point.y] = 0;
+			}
+		}
+		playerBoardDone.bool = true;
+		return { status: "OK", msg: "Done" };
 	};
 
 	bothReady() {
-		return this.p1BoardDone && this.p2BoardDone;
+		return this.p1BoardDone.bool && this.p2BoardDone.bool;
 	};
 
 	otherPlayer(player) {
