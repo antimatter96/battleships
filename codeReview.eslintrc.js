@@ -1,16 +1,16 @@
 module.exports = {
-	"env": {
+    "env": {
         "node": true
     },
-	"parserOptions": {
+    "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "strict",
     },
     "extends": "eslint:recommended",
     "rules": {
-		"indent": ["error", "tab"],
+        "indent": ["error", "tab"],
         "semi": ["error", "always"],
-		"linebreak-style":["error","windows"],
+        "linebreak-style": ["error", "windows"],
         "no-cond-assign": ["error", "always"],
         "no-console": "off",
     }
