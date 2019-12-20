@@ -21,12 +21,13 @@ class GameServer {
     //console.log(socket);
     console.log("_____client connected_____");
 
-    socket.on('disconnect', this.disconnect.bind(this, socket));
-    socket.on('addUser', this.addUser.bind(this, socket));
+    socket.on('disconnect',   this.disconnect.bind(this, socket));
+    socket.on('addUser',      this.addUser.bind(this, socket));
     socket.on('updateSocket', this.updateSocket.bind(this, socket));
-    socket.on('join', this.join.bind(this, socket));
-    socket.on('boardMade', this.boardMade.bind(this, socket));
-    socket.on('move', this.move.bind(this, socket));
+    socket.on('join',         this.join.bind(this, socket));
+
+    socket.on('boardMade',    this.boardMade.bind(this, socket));
+    socket.on('makeMove',         this.move.bind(this, socket));
   }
 
   disconnect(socket, data) {
@@ -38,14 +39,16 @@ class GameServer {
       socket.emit('userAdded', {
         msg: 'Username taken'
       })
-    } else {
-      this.Users.add(data.name);
-      socket.username = data.name;
-      this.socketOfUser[data.name] = socket.id;
-      socket.emit('userAdded', {
-        msg: 'OK', name: data.name
-      });
+      return
     }
+
+    this.Users.add(data.name);
+    socket.username = data.name;
+    this.socketOfUser[data.name] = socket.id;
+    socket.emit('userAdded', {
+      msg: 'OK', name: data.name
+    });
+
   }
 
   updateSocket(socket, data) {
@@ -61,78 +64,118 @@ class GameServer {
       this.socketOfUser[data.player] = socket.id;
       player1 = data.player;
     }
+
     if (this.UsersInQueue.includes(player1)) {
       socket.emit('lockJoin');
-    } else {
-      if (this.UsersInQueue.size > 0) {
-        let player2 = this.UsersInQueue.first();
-        if (player2 === player1) {
-
-        } else {
-          UsersInQueue = this.UsersInQueue.shift();
-
-          let newGame = new Game(player1, player2);
-          this.Games[newGame.id] = newGame;
-          this.playerIsIn[player1] = newGame.id;
-          this.playerIsIn[player2] = newGame.id;
-
-          socket.emit('startGame', {
-            'otherPlayer': player2
-          });
-          socket.to(this.socketOfUser[player2]).emit('startGame', {
-            'otherPlayer': player1
-          });
-        }
-      } else {
-        this.UsersInQueue = this.UsersInQueue.push(player1);
-      }
+      return
     }
+    if (this.UsersInQueue.size <= 0) {
+      this.UsersInQueue = this.UsersInQueue.push(player1);
+      return
+    }
+
+    let player2 = this.UsersInQueue.first();
+    if (player2 === player1) {
+      // Da actual faq
+      return
+    }
+
+    this.UsersInQueue = this.UsersInQueue.shift();
+
+    let newGame = new Game(player1, player2);
+    this.Games[newGame.id] = newGame;
+    this.playerIsIn[player1] = newGame.id;
+    this.playerIsIn[player2] = newGame.id;
+
+    socket.emit('startGame', {
+      'otherPlayer': player2
+    });
+    socket.to(this.socketOfUser[player2]).emit('startGame', {
+      'otherPlayer': player1
+    });
+
   }
 
 
   boardMade(socket, data) {
-    if (this.playerIsIn[data.player]) {
-      let player = data.player;
-      let shipPlacement = data.shipPlacement;
-      let game = this.Games[this.playerIsIn[player]];
-      let res = game.playerReady(player, shipPlacement);
-      if (game.bothReady()) {
-        let otherPlayer = game.otherPlayer(player);
-        game.startGame(player);
+    if (data == null || data == undefined) {
+      return
+    }
+    let player = data.player;
+    if (player == null || player == undefined) {
+      return
+    }
+    let gameId = this.playerIsIn[player];
+    if (gameId == null || gameId == undefined) {
+      return;
+    }
 
-        socket.emit('wait', res);
-        socket.emit('go', {
-          start: true
-        });
-        socket.to(this.socketOfUser[otherPlayer]).emit('go', {
-          start: false
-        });
+    let game = this.Games[this.playerIsIn[player]];
+    if (game == null || game == undefined) {
+      return;
+    }
 
-      } else {
-        socket.emit('wait', res);
+    let shipPlacement = data.shipPlacement;
+    if (shipPlacement == null || shipPlacement == undefined) {
+      console.log("missing shipPlacement");
+      return;
+    }
+
+    let res = game.playerReady(player, shipPlacement);
+
+    for (let message of res.thisPlayer ){
+      socket.emit(message.message, message.data)
+    }
+
+    if (res.otherPlayer) {
+      let otherPlayer = game.otherPlayer(player);
+      for (let message of res.otherPlayer ){
+        socket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data)
       }
     }
+
   }
 
   move(socket, data) {
-    if (playerIsIn[data.player]) {
-      let player = data.player;
-      let game = this.Games[playerIsIn[player]];
-      let res = game.makeMove(player, data.move);
-      if (res.status == "OK") {
-        let otherPlayer = game.otherPlayer(player);
+    if (data == null || data == undefined) {
+      return
+    }
+    let player = data.player;
+    if (player == null || player == undefined) {
+      return
+    }
+    let gameId = this.playerIsIn[player];
+    if (gameId == null || gameId == undefined) {
+      return;
+    }
 
-        socket.emit('yourMove', res.forShooter);
-        socket.to(this.socketOfUser[otherPlayer]).emit('oppMove', res.forTarget);
+    let game = this.Games[this.playerIsIn[player]];
+    if (game == null || game == undefined) {
+      return;
+    }
 
-        //GAME END CHECK
+    let move = data.move
+    if (move == null || move == undefined) {
+      return;
+    }
 
-      } else if (res.status == "Rep") {
-        socket.emit('yourMove', res.forShooter);
-      } else {
-        socket.emit('moveError', res);
+    let res = game.makeMove(player, move);
+
+    for (let message of res.thisPlayer ){
+      socket.emit(message.message, message.data)
+    }
+
+    if (res.otherPlayer) {
+      let otherPlayer = game.otherPlayer(player);
+      for (let message of res.otherPlayer ){
+        socket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data)
       }
     }
+
+  }
+
+  rejectIfGameMissing(socket, data, callback) {
+    callback(socket, data);
   }
 }
 
