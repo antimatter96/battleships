@@ -21,13 +21,13 @@ class GameServer {
     //console.log(socket);
     console.log("_____client connected_____");
 
-    socket.on('disconnect',   this.disconnect.bind(this, socket));
-    socket.on('addUser',      this.addUser.bind(this, socket));
+    socket.on('disconnect', this.disconnect.bind(this, socket));
+    socket.on('addUser', this.addUser.bind(this, socket));
     socket.on('updateSocket', this.updateSocket.bind(this, socket));
-    socket.on('join',         this.join.bind(this, socket));
+    socket.on('join', this.join.bind(this, socket));
 
-    socket.on('boardMade',    this.boardMade.bind(this, socket));
-    socket.on('makeMove',         this.move.bind(this, socket));
+    socket.on('boardMade', this.rejectIfGameMissing.bind(this, this.boardMade.bind(this), socket));
+    socket.on('makeMove', this.rejectIfGameMissing.bind(this, this.move.bind(this), socket));
   }
 
   disconnect(socket, data) {
