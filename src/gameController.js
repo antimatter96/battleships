@@ -96,25 +96,8 @@ class GameServer {
 
   }
 
-
-  boardMade(socket, data) {
-    if (data == null || data == undefined) {
-      return
-    }
-    let player = data.player;
-    if (player == null || player == undefined) {
-      return
-    }
-    let gameId = this.playerIsIn[player];
-    if (gameId == null || gameId == undefined) {
-      return;
-    }
-
-    let game = this.Games[this.playerIsIn[player]];
-    if (game == null || game == undefined) {
-      return;
-    }
-
+  boardMade(socket, player, game, data) {
+    console.log(data);
     let shipPlacement = data.shipPlacement;
     if (shipPlacement == null || shipPlacement == undefined) {
       console.log("missing shipPlacement");
@@ -122,60 +105,60 @@ class GameServer {
     }
 
     let res = game.playerReady(player, shipPlacement);
-
-    for (let message of res.thisPlayer ){
-      socket.emit(message.message, message.data)
-    }
-
-    if (res.otherPlayer) {
-      let otherPlayer = game.otherPlayer(player);
-      for (let message of res.otherPlayer ){
-        socket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data)
-      }
-    }
-
+    console.log(res);
+    let otherPlayer = game.otherPlayer(player);
+    this.sendStuff(socket, otherPlayer, res);
   }
 
-  move(socket, data) {
-    if (data == null || data == undefined) {
-      return
-    }
-    let player = data.player;
-    if (player == null || player == undefined) {
-      return
-    }
-    let gameId = this.playerIsIn[player];
-    if (gameId == null || gameId == undefined) {
-      return;
-    }
-
-    let game = this.Games[this.playerIsIn[player]];
-    if (game == null || game == undefined) {
-      return;
-    }
-
+  move(socket, player, game, data) {
+    console.log(data);
     let move = data.move
     if (move == null || move == undefined) {
       return;
     }
 
     let res = game.makeMove(player, move);
+    console.log(res);
+    let otherPlayer = game.otherPlayer(player);
+    this.sendStuff(socket, otherPlayer, res);
+  }
 
-    for (let message of res.thisPlayer ){
-      socket.emit(message.message, message.data)
+  sendStuff(currentSocket, otherPlayer, res) {
+    for (let message of res.thisPlayer) {
+      currentSocket.emit(message.message, message.data)
     }
 
     if (res.otherPlayer) {
-      let otherPlayer = game.otherPlayer(player);
-      for (let message of res.otherPlayer ){
-        socket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data)
+      for (let message of res.otherPlayer) {
+        currentSocket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data)
       }
     }
-
   }
 
-  rejectIfGameMissing(socket, data, callback) {
-    callback(socket, data);
+  rejectIfGameMissing(callback, socket, data) {
+    console.log("rejectIfGameMissing")
+    if (data == null || data == undefined) {
+      console.log("Error", "missing data");
+      return
+    }
+    let player = data.player;
+    if (player == null || player == undefined) {
+      console.log("Error", "missing playerid");
+      return
+    }
+    let gameId = this.playerIsIn[player];
+    if (gameId == null || gameId == undefined) {
+      console.log("Error", "missing gameId");
+      return;
+    }
+
+    let game = this.Games[this.playerIsIn[player]];
+    if (game == null || game == undefined) {
+      console.log("Error", "missing game");
+      return;
+    }
+    console.log("rejectIfGameMissing: OK");
+    callback(socket, player, game, data);
   }
 }
 
