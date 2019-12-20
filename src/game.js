@@ -22,10 +22,14 @@ class Game {
 
     this.playerOneBoard = [null, null, null, null, null, null, null, null, null, null];
     this.playerTwoBoard = [null, null, null, null, null, null, null, null, null, null];
+    //this.playerOneBoardForTwo = [null,null,null,null,null,null,null,null,null,null];
+    //this.playerTwoBoardForOne = [null,null,null,null,null,null,null,null,null,null];
 
     for (let i = 0; i < 10; i++) {
       this.playerOneBoard[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      //this.playerOneBoardForTwo[i] = new Array(0,0,0,0,0,0,0,0,0,0,0); 
       this.playerTwoBoard[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      //this.playerTwoBoardForOne[i] = new Array(0,0,0,0,0,0,0,0,0,0,0); 
     }
 
     this.playerOneShip = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
@@ -49,12 +53,7 @@ class Game {
     }
 
     if (playerBoardDone.bool) {
-      return {
-        thisPlayer: [
-          { message: "wait", data: { status: "Error", msg: "Already Choosen" } }
-        ],
-      };
-      return
+      return { status: "Error", msg: "Already Choosen" };
     }
 
     for (let shipType in shipPlacement) {
@@ -63,29 +62,11 @@ class Game {
         let point = shipPlacement[shipType][i];
         playerShip[shipType].add(JSON.stringify(point));
         playerBoard[point.x][point.y] = 1;
+        //this.playerOneBoardForTwo[point.x][point.y] = 0;
       }
     }
-
     playerBoardDone.bool = true;
-
-    if (this.bothReady()) {
-      this.startGame(player);
-      return {
-        thisPlayer: [
-          { message: "wait", data: { status: "OK", msg: "Done" } },
-          { message: "go", data: { status: "OK", start: true } }
-        ],
-        otherPlayer: [
-          { message: "go", data: { status: "OK", start: false } }
-        ]
-      };
-    } else {
-      return {
-        thisPlayer: [
-          { message: "wait", data: { status: "OK", msg: "Done" } },
-        ]
-      };
-    }
+    return { status: "OK", msg: "Done" };
   };
 
   bothReady() {
@@ -105,64 +86,55 @@ class Game {
   };
 
   makeMove(player, move) {
-    if (this.turnOf != player) {
-      return {
-        thisPlayer: [{ message: 'moveError', data: { status: "Error", msg: "Not your turn" } }]
-      };
-    }
-    let x = move.x;
-    let y = move.y;
-    let point = { x: x, y: y };
+    if (this.turnOf === player) {
+      let x = move.x;
+      let y = move.y;
+      let point = { x: x, y: y };
 
-    var otherPlayerBoard;
+      var otherPlayerBoard;
 
-    var otherPlayerShip;
+      var otherPlayerShip;
 
-    if (this.p1 === player) {
-      otherPlayerBoard = this.playerTwoBoard;
-      otherPlayerShip = this.playerTwoShip;
-    } else {
-      otherPlayerBoard = this.playerOneBoard;
-      otherPlayerShip = this.playerOneShip;
-    }
+      if (this.p1 === player) {
+        otherPlayerBoard = this.playerTwoBoard;
+        otherPlayerShip = this.playerTwoShip;
+      } else {
+        otherPlayerBoard = this.playerOneBoard;
+        otherPlayerShip = this.playerOneShip;
+      }
 
-    if (otherPlayerBoard[x][y] === 1) {
-      otherPlayerBoard[x][y] = -1;
-      let tempPoint = JSON.stringify(point);
-      let countZero = 0;
-      let extra = {};
-      for (var shipType in otherPlayerShip) {
-        if (otherPlayerShip[shipType].has(tempPoint)) {
-          otherPlayerShip[shipType].delete(tempPoint);
-          extra.partOf = shipType;
-          if (otherPlayerShip[shipType].size === 0) {
-            extra.shipDown = true;
+      if (otherPlayerBoard[x][y] === 1) {
+        otherPlayerBoard[x][y] = -1;
+        let tempPoint = JSON.stringify(point);
+        let countZero = 0;
+        let extra = {};
+        for (var shipType in otherPlayerShip) {
+          if (otherPlayerShip[shipType].has(tempPoint)) {
+            otherPlayerShip[shipType].delete(tempPoint);
+            extra.partOf = shipType;
+            if (otherPlayerShip[shipType].size === 0) {
+              extra.shipDown = true;
+              countZero++;
+            }
+          } else if (otherPlayerShip[shipType].size === 0) {
             countZero++;
           }
-        } else if (otherPlayerShip[shipType].size === 0) {
-          countZero++;
+          if (countZero === 5) {
+            console.log("Over");
+            extra.gameOver = true;
+          }
         }
-        if (countZero === 5) {
-          console.log("Over");
-          extra.gameOver = true;
-        }
-      }
-      this.turnOf = this.otherPlayer(player);
-      return {
-        thisPlayer: [{ message: "yourMove", data: { status: "OK", result: "Hit", extra: extra } }],
-        otherPlayer: [{ message: "oppMove", data: { status: "OK", result: "Hit", point: move, extra: extra } }]
-      };
-    } else if (otherPlayerBoard[x][y] === 0) {
-      otherPlayerBoard[x][y] = -1;
-      this.turnOf = this.otherPlayer(player);
-      return {
-        thisPlayer: [{ message: "yourMove", data: { status: "OK", result: "Miss" } }],
-        otherPlayer: [{ message: "oppMove", data: { status: "OK", result: "Miss", point: move } }]
+        this.turnOf = this.otherPlayer(player);
+        return { status: "OK", forShooter: { status: "OK", result: "Hit", extra: extra }, forTarget: { status: "OK", result: "Hit", point: move, extra: extra } };
+      } else if (otherPlayerBoard[x][y] === 0) {
+        otherPlayerBoard[x][y] = -1;
+        this.turnOf = this.otherPlayer(player);
+        return { status: "OK", forShooter: { status: "OK", result: "Miss" }, forTarget: { status: "OK", result: "Miss", point: move } };
+      } else {
+        return { status: "Rep", forShooter: { status: "OK", result: "Repeat" } };
       }
     } else {
-      return {
-        thisPlayer: [{ message: "yourMove", data: { status: "OK", result: "Repeat" } }],
-      }
+      return { status: "Error", msg: "Not your turn" };
     }
   };
 
