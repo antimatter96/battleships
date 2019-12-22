@@ -85,11 +85,11 @@ class Game {
         ]
       };
     }
-  };
+  }
 
   bothReady() {
     return this.p1BoardDone.bool && this.p2BoardDone.bool;
-  };
+  }
 
   otherPlayer(player) {
     if (player === this.p1) {
@@ -97,11 +97,11 @@ class Game {
     } else {
       return this.p1;
     }
-  };
+  }
 
   startGame(player) {
     this.turnOf = player;
-  };
+  }
 
   makeMove(player, move) {
     if (this.turnOf != player) {
