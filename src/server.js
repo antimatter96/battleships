@@ -2,7 +2,7 @@ const express = require('express');
 const favicon = require('serve-favicon');
 const http = require('http');
 const nunjucks = require('nunjucks');
-const path = require("path")
+const path = require("path");
 
 const GameController = require('./gameController');
 
@@ -47,5 +47,5 @@ app.get('/', function (req, res) {
   res.render('index.njk');
 });
 
-const gc = new GameController(server);
+const _gc = new GameController(server);
 //console.log(gc);

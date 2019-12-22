@@ -30,16 +30,17 @@ class GameServer {
     socket.on('makeMove', this.rejectIfGameMissing.bind(this, this.move.bind(this), socket));
   }
 
-  disconnect(socket, data) {
+  disconnect(_socket, _data) {
     console.log("_____client disconnected_____");
   }
 
   addUser(socket, data) {
+    //add gaurd
     if (this.Users.has(data.name)) {
       socket.emit('userAdded', {
         msg: 'Username taken'
-      })
-      return
+      });
+      return;
     }
 
     this.Users.add(data.name);
@@ -60,24 +61,23 @@ class GameServer {
     console.log(data);
     let player1 = socket.username;
     if (player1 != data.player) {
-      socket.username = data.player;
-      this.socketOfUser[data.player] = socket.id;
+      this.updateSocket(socket, data);
       player1 = data.player;
     }
 
     if (this.UsersInQueue.includes(player1)) {
       socket.emit('lockJoin');
-      return
+      return;
     }
     if (this.UsersInQueue.size <= 0) {
       this.UsersInQueue = this.UsersInQueue.push(player1);
-      return
+      return;
     }
 
     let player2 = this.UsersInQueue.first();
     if (player2 === player1) {
       // Da actual faq
-      return
+      return;
     }
 
     this.UsersInQueue = this.UsersInQueue.shift();
@@ -99,7 +99,7 @@ class GameServer {
   boardMade(socket, player, game, data) {
     console.log(data);
     let shipPlacement = data.shipPlacement;
-    if (shipPlacement == null || shipPlacement == undefined) {
+    if (shipPlacement == undefined) {
       console.log("missing shipPlacement");
       return;
     }
@@ -112,8 +112,8 @@ class GameServer {
 
   move(socket, player, game, data) {
     console.log(data);
-    let move = data.move
-    if (move == null || move == undefined) {
+    let move = data.move;
+    if (move == undefined) {
       return;
     }
 
@@ -125,35 +125,35 @@ class GameServer {
 
   sendStuff(currentSocket, otherPlayer, res) {
     for (let message of res.thisPlayer) {
-      currentSocket.emit(message.message, message.data)
+      currentSocket.emit(message.message, message.data);
     }
 
     if (res.otherPlayer) {
       for (let message of res.otherPlayer) {
-        currentSocket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data)
+        currentSocket.to(this.socketOfUser[otherPlayer]).emit(message.message, message.data);
       }
     }
   }
 
   rejectIfGameMissing(callback, socket, data) {
-    console.log("rejectIfGameMissing")
-    if (data == null || data == undefined) {
+    console.log("rejectIfGameMissing");
+    if (data == undefined) {
       console.log("Error", "missing data");
-      return
+      return;
     }
     let player = data.player;
-    if (player == null || player == undefined) {
+    if (player == undefined) {
       console.log("Error", "missing playerid");
-      return
+      return;
     }
     let gameId = this.playerIsIn[player];
-    if (gameId == null || gameId == undefined) {
+    if (gameId == undefined) {
       console.log("Error", "missing gameId");
       return;
     }
 
     let game = this.Games[this.playerIsIn[player]];
-    if (game == null || game == undefined) {
+    if (game == undefined) {
       console.log("Error", "missing game");
       return;
     }

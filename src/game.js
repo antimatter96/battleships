@@ -54,7 +54,6 @@ class Game {
           { message: "wait", data: { status: "Error", msg: "Already Choosen" } }
         ],
       };
-      return
     }
 
     for (let shipType in shipPlacement) {
@@ -158,13 +157,13 @@ class Game {
       return {
         thisPlayer: [{ message: "yourMove", data: { status: "OK", result: "Miss" } }],
         otherPlayer: [{ message: "oppMove", data: { status: "OK", result: "Miss", point: move } }]
-      }
+      };
     } else {
       return {
         thisPlayer: [{ message: "yourMove", data: { status: "OK", result: "Repeat" } }],
-      }
+      };
     }
-  };
+  }
 
 }
 module.exports = Game;
