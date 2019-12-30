@@ -57,6 +57,7 @@ class Game {
     }
 
     for (let shipType in shipPlacement) {
+      if (!shipPlacement.hasOwnProperty(shipType)) { continue; }
       let length = this.lengthOfType[shipType];
       for (let i = 0; i < length; i++) {
         let point = shipPlacement[shipType][i];
@@ -130,7 +131,8 @@ class Game {
       let tempPoint = JSON.stringify(point);
       let countZero = 0;
       let extra = {};
-      for (var shipType in otherPlayerShip) {
+      for (let shipType in otherPlayerShip) {
+        if (!otherPlayerShip.hasOwnProperty(shipType)) { continue; }
         if (otherPlayerShip[shipType].has(tempPoint)) {
           otherPlayerShip[shipType].delete(tempPoint);
           extra.partOf = shipType;
