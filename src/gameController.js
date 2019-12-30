@@ -7,6 +7,13 @@ class GameServer {
   constructor(server) {
     this.io = SocketIO(server);
 
+    /*
+    =====================================
+      Currently storing these in memory;
+      Might use a datastore
+    ======================================
+    */
+
     this.UsersInQueue = List();
     this.Users = new Set();
     this.socketOfUser = [];

@@ -26,16 +26,6 @@ nunjucks.configure(app.get('views'), {
 const server = http.Server(app);
 server.listen(process.env.PORT || 8080);
 
-/*
-=====================================
-
-  Currently storing these in memory;
-  Might use a datastore
-
-======================================
-*/
-
-
 app.use(function (req, res, next) {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
