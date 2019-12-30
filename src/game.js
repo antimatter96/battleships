@@ -13,6 +13,9 @@ const uuid = require('uuid/v4');
 
 class Game {
   constructor(player1, player2) {
+    if (!player1 || !player2 || player1 == "" || player2 == "") {
+      throw "player name missing";
+    }
     this.id = uuid();
     this.p1 = player1;
     this.p2 = player2;
