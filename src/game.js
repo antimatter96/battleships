@@ -20,16 +20,16 @@ class Game {
     this.p2BoardDone = { bool: false };
     this.turnOf = this.p1;
 
-    this.playerOneBoard = [null, null, null, null, null, null, null, null, null, null];
-    this.playerTwoBoard = [null, null, null, null, null, null, null, null, null, null];
+    this.p1Board = [null, null, null, null, null, null, null, null, null, null];
+    this.p2Board = [null, null, null, null, null, null, null, null, null, null];
 
     for (let i = 0; i < 10; i++) {
-      this.playerOneBoard[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      this.playerTwoBoard[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      this.p1Board[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      this.p2Board[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
-    this.playerOneShip = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
-    this.playerTwoShip = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
+    this.p1Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
+    this.p2Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
 
 
     this.lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
@@ -39,13 +39,13 @@ class Game {
 
   playerReady(player, shipPlacement) {
     let playerBoardDone = this.p1BoardDone;
-    let playerShip = this.playerOneShip;
-    let playerBoard = this.playerOneBoard;
+    let playerShip = this.p1Ship;
+    let playerBoard = this.p1Board;
 
     if (this.p2 === player) {
       playerBoardDone = this.p2BoardDone;
-      playerShip = this.playerTwoShip;
-      playerBoard = this.playerTwoBoard;
+      playerShip = this.p2Ship;
+      playerBoard = this.p2Board;
     }
 
     if (playerBoardDone.bool) {
@@ -118,11 +118,11 @@ class Game {
     var otherPlayerShip;
 
     if (this.p1 === player) {
-      otherPlayerBoard = this.playerTwoBoard;
-      otherPlayerShip = this.playerTwoShip;
+      otherPlayerBoard = this.p2Board;
+      otherPlayerShip = this.p2Ship;
     } else {
-      otherPlayerBoard = this.playerOneBoard;
-      otherPlayerShip = this.playerOneShip;
+      otherPlayerBoard = this.p1Board;
+      otherPlayerShip = this.p1Ship;
     }
 
     if (otherPlayerBoard[x][y] === 1) {
