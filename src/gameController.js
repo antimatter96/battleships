@@ -19,7 +19,7 @@ class GameServer {
     this.socketOfUser = [];
 
     this.playerIsIn = [];
-    this.Games = [];
+    this.Games = {};
 
     this.io.on('connect', this.connect.bind(this));
   }
