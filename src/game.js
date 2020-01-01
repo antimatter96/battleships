@@ -40,9 +40,6 @@ class Game {
 
     this.p1Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
     this.p2Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
-
-    this.arrOfI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-    this.arrOfJ = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   }
 
   playerReady(player, shipPlacement) {
