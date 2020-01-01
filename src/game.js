@@ -11,6 +11,8 @@ const uuid = require('uuid/v4');
 
 */
 
+const lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
+
 class Game {
   constructor(player1, player2) {
     if (!player1 || !player2 || player1 == "" || player2 == "") {
@@ -34,8 +36,6 @@ class Game {
     this.p1Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
     this.p2Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
 
-
-    this.lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
     this.arrOfI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
     this.arrOfJ = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   }
@@ -61,7 +61,7 @@ class Game {
 
     for (let shipType in shipPlacement) {
       if (!shipPlacement.hasOwnProperty(shipType)) { continue; }
-      let length = this.lengthOfType[shipType];
+      let length = lengthOfType[shipType];
       for (let i = 0; i < length; i++) {
         let point = shipPlacement[shipType][i];
         playerShip[shipType].add(JSON.stringify(point));
