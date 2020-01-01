@@ -20,5 +20,19 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^24.9.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "testURL": "http://localhost/",
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "html",
+      "json-summary"
+    ],
+    "reporters": [
+      "default"
+    ]
   }
 }
