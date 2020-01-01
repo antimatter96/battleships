@@ -30,12 +30,12 @@ class Game {
     this.p2BoardDone = { bool: false };
     this.turnOf = this.p1;
 
-    this.p1Board = [null, null, null, null, null, null, null, null, null, null];
-    this.p2Board = [null, null, null, null, null, null, null, null, null, null];
+    this.p1Board = new Array(10);
+    this.p2Board = new Array(10);
 
     for (let i = 0; i < 10; i++) {
-      this.p1Board[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      this.p2Board[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      this.p1Board[i] = (new Array(10)).fill(0);
+      this.p2Board[i] = (new Array(10)).fill(0);
     }
 
     this.p1Ship = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
