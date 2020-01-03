@@ -1,5 +1,8 @@
 const Game = require("../src/game");
 
+let p1 = "p1";
+let p2 = "p2";
+
 describe("game.js", () => {
   describe("constructor", () => {
 
@@ -40,9 +43,6 @@ describe("game.js", () => {
     });
 
     describe("Creates defaults and stuff", () => {
-      let p1 = "p1";
-      let p2 = "p2";
-
       let game = new Game(p1, p2);
       let regexUUID = new RegExp(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
 
@@ -63,7 +63,7 @@ describe("game.js", () => {
         expect(game.turnOf).toEqual(p1);
       });
 
-      test("", () => {
+      test("Creates the ship's data structures", () => {
         expect(game.p1Ship).toEqual({
           "A": expect.any(Set),
           "B": expect.any(Set),
@@ -74,12 +74,29 @@ describe("game.js", () => {
         expect(game.p1Ship).toEqual(game.p2Ship);
       });
 
-      test("", () => {
+      test("Creates the boards", () => {
         let row = (new Array(10)).fill(0);
         let board = (new Array(10)).fill(row);
 
         expect(game.p1Board).toEqual(board);
         expect(game.p2Board).toEqual(board);
+      });
+    });
+
+  });
+
+  describe("bothReady", () => {
+    let game = new Game(p1, p2);
+    describe("ANDS the done of both players", () => {
+      test.each([
+        [true, true, true],
+        [true, false, false],
+        [false, true, false],
+        [false, false, false],
+      ])("Testing table #%#", (p1BoardDone, p2BoardDone, result) => {
+        game.p1BoardDone.bool = p1BoardDone;
+        game.p2BoardDone.bool = p2BoardDone;
+        expect(game.bothReady()).toEqual(result);
       });
     });
 
