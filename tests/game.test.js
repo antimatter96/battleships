@@ -30,6 +30,7 @@ describe("game.js", () => {
         ["p1", null],
         ["p1", undefined],
         ["p1", ""],
+        ["p1", "  "],
         ["p1", { "name": "p2" }],
         [true, "p2"],
         [false, "p2"],

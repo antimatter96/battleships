@@ -18,7 +18,7 @@ class Game {
       throw "player name missing";
     }
 
-    if (player1 == "" || player2 == "") {
+    if (player1.trim() == "" || player2.trim() == "") {
       throw "player name missing";
     }
 
@@ -42,6 +42,9 @@ class Game {
   }
 
   playerReady(player, shipPlacement) {
+    // add bounds and checks
+    // player is not in p1,p2, not valid
+    // playerShipment valid ?
     let playerBoardDone = this.p1BoardDone;
     let playerShip = this.p1Ship;
     let playerBoard = this.p1Board;
