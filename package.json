@@ -32,6 +32,9 @@
     ],
     "reporters": [
       "default"
+    ],
+    "setupFiles": [	
+      "./tests/_not_used_/over-ride.js"
     ]
   }
 }
