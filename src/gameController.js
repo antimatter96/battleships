@@ -23,7 +23,9 @@ class GameServer {
 
     this.playerIsIn = [];
     this.Games = {};
+  }
 
+  Start() {
     this.io.on('connect', this.connect.bind(this));
   }
 
