@@ -3,6 +3,11 @@ const Game = require("../src/game");
 let p1 = "p1";
 let p2 = "p2";
 
+let examples = require("./examples");
+let sampleShipPlacement = examples.shipPlacement;
+let samplePlayerBoard = examples.playerBoard;
+let samplePlayerShip = examples.playerShip;
+
 describe("game.js", () => {
   describe("constructor", () => {
 
@@ -98,6 +103,103 @@ describe("game.js", () => {
         game.p2BoardDone.bool = p2BoardDone;
         expect(game.bothReady()).toEqual(result);
       });
+    });
+
+  });
+
+  describe("otherPlayer", () => {
+    let game = new Game(p1, p2);
+    describe("Gives the other player", () => {
+      test.each([
+        [p1, p2],
+        [p2, p1],
+      ])("Testing table #%#", (player, result) => {
+        expect(game.otherPlayer(player)).toEqual(result);
+      });
+    });
+
+  });
+
+  describe("startGame", () => {
+    let game = new Game(p1, p2);
+    describe("Sets the turn of the player", () => {
+      test.each([
+        [p1, p1],
+        [p2, p2],
+      ])("Testing table #%#", (player, result) => {
+        game.startGame(player);
+        expect(game.turnOf).toEqual(result);
+      });
+    });
+
+  });
+
+  describe("playerReady", () => {
+    let game;
+    beforeEach(() => {
+      game = new Game(p1, p2);
+      game.startGame = jest.fn();
+      game.bothReady = jest.fn().mockImplementation(() => {return false;});
+    });
+
+    test("Given: p1, p1 done", () => {
+      game.p1BoardDone.bool = true;
+      let result = game.playerReady(p1, sampleShipPlacement);
+
+      expect(result.otherPlayer).toBeUndefined();
+      expect(result.thisPlayer).not.toBeUndefined();
+      expect(result.thisPlayer[0]).not.toBeUndefined();
+      expect(result.thisPlayer[0]).toEqual({ message: 'wait', data: { status: 'Error', msg: 'Already Choosen' } });
+      expect(result.thisPlayer[1]).toBeUndefined();
+    });
+
+    test("Given: p1, p2 not done", () => {
+      let result = game.playerReady(p1, sampleShipPlacement);
+
+      expect(game.p1BoardDone.bool).toEqual(true);
+
+      expect(result.otherPlayer).toBeUndefined();
+      expect(result.thisPlayer).not.toBeUndefined();
+      expect(result.thisPlayer[0]).not.toBeUndefined();
+      expect(result.thisPlayer[0]).toEqual({ message: 'wait', data: { status: 'OK', msg: 'Done' } });
+      expect(result.thisPlayer[1]).toBeUndefined();
+      expect(game.startGame).not.toBeCalled();
+    });
+
+    test("Given: p1, p2 done", () => {
+      game.bothReady = jest.fn().mockImplementation(() => {return true;});
+
+      let result = game.playerReady(p1, sampleShipPlacement);
+
+      expect(result.otherPlayer).not.toBeUndefined();
+      expect(result.thisPlayer).not.toBeUndefined();
+      expect(result.thisPlayer[0]).not.toBeUndefined();
+      expect(result.thisPlayer[0]).toEqual({ message: 'wait', data: { status: 'OK', msg: 'Done' } });
+
+      expect(result.otherPlayer[0]).not.toBeUndefined();
+      expect(result.otherPlayer[0]).toEqual({ message: 'go', data: { start: false, status: 'OK' } });
+
+      expect(result.thisPlayer[1]).not.toBeUndefined();
+      expect(result.thisPlayer[1]).toEqual({ message: 'go', data: { start: true, status: 'OK' } });
+
+      expect(result.otherPlayer[1]).toBeUndefined();
+
+      expect(game.startGame).toBeCalledWith(p1);
+    });
+
+    test("Given: p1, value checks", () => {
+      let _result = game.playerReady(p1, sampleShipPlacement);
+
+      expect(game.p1Board).toEqual(samplePlayerBoard);
+      expect(game.p1Ship).toEqual(samplePlayerShip);
+    });
+
+    test("Given: p2, when p2 given", () => {
+      let _result = game.playerReady(p2, sampleShipPlacement);
+
+      expect(game.p2Board).toEqual(samplePlayerBoard);
+      expect(game.p2Ship).toEqual(samplePlayerShip);
+      expect(game.p2BoardDone.bool).toEqual(true);
     });
 
   });
