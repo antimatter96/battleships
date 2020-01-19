@@ -14,13 +14,13 @@ describe("game.js", () => {
     describe("Fails when user names missing or not strings", () => {
 
       test("Both missing", () => {
-        expect(function() {
+        expect(function () {
           new Game();
         }).toThrow();
       });
 
       test("Player 2 missing", () => {
-        expect(function() {
+        expect(function () {
           new Game("p1");
         }).toThrow();
       });
@@ -30,11 +30,11 @@ describe("game.js", () => {
         ["p1", null],
         ["p1", undefined],
         ["p1", ""],
-        ["p1", {"name": "p2"}],
+        ["p1", { "name": "p2" }],
         [true, "p2"],
         [false, "p2"],
       ])("Testing table #%#", (p1, p2) => {
-        expect(function() {
+        expect(function () {
           new Game(p1, p2);
         }).toThrow();
       });
@@ -42,7 +42,7 @@ describe("game.js", () => {
     });
 
     test("Works when both player name given and string", () => {
-      expect(function() {
+      expect(function () {
         new Game("p1", "p2");
       }).not.toThrow();
     });
@@ -61,7 +61,7 @@ describe("game.js", () => {
       });
 
       test("Sets players board done to false", () => {
-        expect(game.p1BoardDone).toEqual({bool: false});
+        expect(game.p1BoardDone).toEqual({ bool: false });
       });
 
       test("Set turns to the first player", () => {
@@ -139,7 +139,7 @@ describe("game.js", () => {
     beforeEach(() => {
       game = new Game(p1, p2);
       game.startGame = jest.fn();
-      game.bothReady = jest.fn().mockImplementation(() => {return false;});
+      game.bothReady = jest.fn().mockImplementation(() => { return false; });
     });
 
     test("Given: p1, p1 done", () => {
@@ -167,7 +167,7 @@ describe("game.js", () => {
     });
 
     test("Given: p1, p2 done", () => {
-      game.bothReady = jest.fn().mockImplementation(() => {return true;});
+      game.bothReady = jest.fn().mockImplementation(() => { return true; });
 
       let result = game.playerReady(p1, sampleShipPlacement);
 

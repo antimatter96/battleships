@@ -5,7 +5,7 @@ const SocketIO = require('socket.io');
 
 class GameServer {
   constructor(server) {
-    if (!server || typeof(server.listeners) != "function") {
+    if (!server || typeof (server.listeners) != "function") {
       throw new Error("Server not present");
     }
     this.io = SocketIO(server);

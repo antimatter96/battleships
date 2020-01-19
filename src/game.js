@@ -1,21 +1,20 @@
 const uuid = require('uuid/v4');
 
 /*
-    5 ships
+  5 ships
 
-    shipA = 5
-    shipB = 4
-    shipC = 3
-    shipD = 3
-    shipE = 2
-
+  shipA = 5
+  shipB = 4
+  shipC = 3
+  shipD = 3
+  shipE = 2
 */
 
 const lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
 
 class Game {
   constructor(player1, player2) {
-    if (typeof(player1) != "string" || typeof(player2) != "string") {
+    if (typeof (player1) != "string" || typeof (player2) != "string") {
       throw "player name missing";
     }
 
@@ -98,6 +97,7 @@ class Game {
   }
 
   otherPlayer(player) {
+    // Add check on other player, throw error if neccessary
     if (player === this.p1) {
       return this.p2;
     } else {
@@ -106,6 +106,7 @@ class Game {
   }
 
   startGame(player) {
+    // Add check on that
     this.turnOf = player;
   }
 
