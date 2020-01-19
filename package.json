@@ -13,9 +13,8 @@
   },
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/jest/bin/jest.js --silent=false --verbose=true --runInBand",
-    "start": "node src/server.js"
+    "start": "node src/index.js"
   },
-  "alias": "battleships.now.sh",
   "author": "Arpit Jain",
   "license": "ISC",
   "devDependencies": {

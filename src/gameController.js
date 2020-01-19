@@ -5,6 +5,9 @@ const SocketIO = require('socket.io');
 
 class GameServer {
   constructor(server) {
+    if (!server || typeof(server.listeners) != "function") {
+      throw new Error("Server not present");
+    }
     this.io = SocketIO(server);
 
     /*
@@ -25,7 +28,6 @@ class GameServer {
   }
 
   connect(socket) {
-    //console.log(socket);
     console.log("_____client connected_____");
 
     socket.on('disconnect', this.disconnect.bind(this, socket));
@@ -42,6 +44,7 @@ class GameServer {
   }
 
   addUser(socket, data) {
+    console.dir(data, { depth: null, colors: true });
     //add gaurd
     if (this.Users.has(data.name)) {
       socket.emit('userAdded', {
@@ -60,12 +63,13 @@ class GameServer {
   }
 
   updateSocket(socket, data) {
+    console.dir(data, { depth: null, colors: true });
     this.socketOfUser[data.player] = socket.id;
     socket.username = data.player;
   }
 
   join(socket, data) {
-    console.log(data);
+    console.dir(data, { depth: null, colors: true });
     let player1 = socket.username;
     if (player1 != data.player) {
       this.updateSocket(socket, data);
@@ -104,7 +108,7 @@ class GameServer {
   }
 
   boardMade(socket, player, game, data) {
-    console.log(data);
+    console.dir(data, { depth: null, colors: true });
     let shipPlacement = data.shipPlacement;
     if (shipPlacement == undefined) {
       console.log("missing shipPlacement");
@@ -118,7 +122,7 @@ class GameServer {
   }
 
   move(socket, player, game, data) {
-    console.log(data);
+    console.dir(data, { depth: null, colors: true });
     let move = data.move;
     if (move == undefined) {
       return;
