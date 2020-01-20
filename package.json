@@ -28,7 +28,9 @@
     "coverageReporters": [
       "json",
       "html",
-      "json-summary"
+      "json-summary",
+      "lcov",
+      "text-summary"
     ],
     "reporters": [
       "default"
