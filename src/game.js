@@ -14,11 +14,11 @@ const lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
 
 class Game {
   constructor(player1, player2) {
-    if (typeof (player1) != "string" || typeof (player2) != "string") {
+    if (typeof (player1) !== "string" || typeof (player2) !== "string") {
       throw "player name missing";
     }
 
-    if (player1.trim() == "" || player2.trim() == "") {
+    if (player1.trim() === "" || player2.trim() === "") {
       throw "player name missing";
     }
 
@@ -114,7 +114,7 @@ class Game {
   }
 
   makeMove(player, move) {
-    if (this.turnOf != player) {
+    if (this.turnOf !== player) {
       return {
         thisPlayer: [{ message: 'moveError', data: { status: "Error", msg: "Not your turn" } }]
       };

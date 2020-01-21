@@ -5,7 +5,7 @@ const SocketIO = require('socket.io');
 
 class GameServer {
   constructor(server) {
-    if (!server || typeof (server.listeners) != "function") {
+    if (!server || typeof (server.listeners) !== "function") {
       throw new Error("Server not present");
     }
     this.io = SocketIO(server);
@@ -73,7 +73,7 @@ class GameServer {
   join(socket, data) {
     console.dir(data, { depth: null, colors: true });
     let player1 = socket.username;
-    if (player1 != data.player) {
+    if (player1 !== data.player) {
       this.updateSocket(socket, data);
       player1 = data.player;
     }
@@ -150,25 +150,25 @@ class GameServer {
 
   rejectIfGameMissing(callback, socket, data) {
     //console.log("rejectIfGameMissing");
-    if (data == null || typeof (data) != "object" || Object.keys(data).length == 0) {
+    if (data == null || typeof (data) !== "object" || Object.keys(data).length === 0) {
       //console.log("Error", "missing data");
       return new Error("missing data");
     }
 
     let player = data.player;
-    if (typeof (player) != "string" || player.trim() == "") {
+    if (typeof (player) !== "string" || player.trim() === "") {
       //console.log("Error", "missing playerid");
       return new Error("missing playerId");
     }
 
     let gameId = this.playerIsIn[player];
-    if (typeof (gameId) != "string" || gameId.trim() == "") {
+    if (typeof (gameId) !== "string" || gameId.trim() === "") {
       //console.log("Error", "missing gameId");
       return new Error("missing gameId");
     }
 
     let game = this.Games[gameId];
-    if (game == null || typeof (game) != "object" || Object.keys(game).length == 0) {
+    if (game == null || typeof (game) !== "object" || Object.keys(game).length === 0) {
       //console.log("Error", "missing game");
       return new Error("missing game");
     }
