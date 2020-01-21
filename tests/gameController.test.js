@@ -5,7 +5,13 @@ const { List } = require('immutable');
 const SocketIO = require('socket.io');
 
 describe("gameController.js", () => {
-  const server = http.Server();
+  let server = http.Server();
+  beforeEach(() => {
+    server = http.Server();
+  });
+  afterEach(() => {
+    server.close();
+  });
 
   describe("constructor", () => {
     test("Fails when server missing", () => {
