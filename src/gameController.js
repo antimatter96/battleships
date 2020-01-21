@@ -156,13 +156,13 @@ class GameServer {
     }
 
     let player = data.player;
-    if (player == undefined || typeof (player) != "string" || player.trim() == "") {
+    if (typeof (player) != "string" || player.trim() == "") {
       //console.log("Error", "missing playerid");
       return new Error("missing playerId");
     }
 
     let gameId = this.playerIsIn[player];
-    if (gameId == undefined || typeof (gameId) != "string") {
+    if (typeof (gameId) != "string" || gameId.trim() == "") {
       //console.log("Error", "missing gameId");
       return new Error("missing gameId");
     }
