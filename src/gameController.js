@@ -167,8 +167,8 @@ class GameServer {
       return new Error("missing gameId");
     }
 
-    if (game == undefined) {
     let game = this.Games[gameId];
+    if (game == null || typeof (game) != "object" || Object.keys(game).length == 0) {
       //console.log("Error", "missing game");
       return new Error("missing game");
     }
