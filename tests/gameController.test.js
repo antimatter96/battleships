@@ -1,8 +1,10 @@
 const GameController = require("../src/gameController");
+const Game = require("../src/game");
 
 const http = require("http");
 const { List } = require('immutable');
 const SocketIO = require('socket.io');
+
 
 describe("gameController.js", () => {
   let server = http.Server();
@@ -84,6 +86,7 @@ describe("gameController.js", () => {
 
     describe("checks for data", () => {
       let err = new Error("missing data");
+
       test.each([
         [null],
         [undefined],
@@ -98,6 +101,7 @@ describe("gameController.js", () => {
 
     describe("checks for data.player", () => {
       let err = new Error("missing playerId");
+
       test.each([
         [{ one: "two" }],
       ])("Testing table #%#", (data) => {
@@ -113,6 +117,79 @@ describe("gameController.js", () => {
       ])("Testing table #%#", (data) => {
         let returned = gameController.rejectIfGameMissing(callback, socket, { player: data });
         expect(returned).toEqual(err);
+      });
+    });
+
+    describe("checks for gameId for player", () => {
+      let playerId = "some_player_id";
+      let data = { player: playerId };
+
+      let err = new Error("missing gameId");
+
+      test.each([
+        [{}],
+      ])("Testing table #%#", (tc) => {
+        gameController.playerIsIn = tc;
+        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        expect(returned).toEqual(err);
+      });
+      test.each([
+        [null],
+        [undefined],
+        [{}],
+        [""],
+        [true],
+      ])("Testing table #%#", (tc) => {
+        gameController.playerIsIn[playerId] = tc;
+        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        expect(returned).toEqual(err);
+      });
+    });
+
+    describe("checks for game for player", () => {
+      let playerId = "some_player_id";
+      let gameId = "some_game_id";
+      let data = { player: playerId };
+
+      let err = new Error("missing game");
+
+      beforeEach(() => {
+        gameController.playerIsIn[playerId] = gameId;
+      });
+
+      test.each([
+        [{}],
+      ])("Testing table #%#", (tc) => {
+        gameController.Games = tc;
+        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        expect(returned).toEqual(err);
+      });
+      test.each([
+        [null],
+        [undefined],
+        [{}],
+        [""],
+        [true],
+      ])("Testing table #%#", (tc) => {
+        gameController.Games[gameId] = tc;
+        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        expect(returned).toEqual(err);
+      });
+    });
+
+    describe("everything OK", () => {
+      let playerId = "some_player_id";
+      let gameId = "some_game_id";
+      let data = { player: playerId };
+      let game = new Game("p1", "p2");
+
+      callback = jest.fn();
+
+      test("calls callback ", () => {
+        gameController.playerIsIn[playerId] = gameId;
+        gameController.Games[gameId] = game;
+        gameController.rejectIfGameMissing(callback, socket, data);
+        expect(callback).toBeCalledWith(socket, playerId, game, data);
       });
     });
 
