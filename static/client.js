@@ -536,19 +536,26 @@ $(document).ready(function () {
 
   //=============
 
-  var dot1 = document.getElementById('_dot1');
-  var dot2 = document.getElementById('_dot2');
+  let dots = [
+    document.getElementById('_dot1'),
+    document.getElementById('_dot2'),
+  ];
 
-  var colorArr = ["f44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722"];
-  var colorArrLength = colorArr.length;
+  const colorArr = [
+    "#F44336", "#E91E63", "#9C27B0", "#673AB7",
+    "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
+    "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
+    "#FFEB3B", "#FFC107", "#FF9800", "#FF5722",
+  ];
+  let colorArrLength = colorArr.length;
 
   function changeColors() {
-    let z = parseInt(Math.random() * colorArrLength);
-    dot1.style.backgroundColor = colorArr[z];
-    z = parseInt(Math.random() * colorArrLength);
-    dot2.style.backgroundColor = colorArr[z];
+    for (let dot of dots) {
+      let z = parseInt(Math.random() * colorArrLength);
+      dot.style.backgroundColor = colorArr[z];
+    }
   }
 
-  var changeColorInterval = setInterval(changeColors, 1500);
+  let changeColorInterval = setInterval(changeColors, 1500);
 
 });
