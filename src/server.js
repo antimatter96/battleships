@@ -1,19 +1,16 @@
 const express = require('express');
 const favicon = require('serve-favicon');
 const nunjucks = require('nunjucks');
-const path = require("path");
 
 function getExpressApp(config) {
   const app = express();
 
-  app.use(favicon(path.join(__dirname, '../static/favicon.ico')));
-  app.use('/static', express.static(path.join(__dirname, "../static")));
-  app.set('views', (path.join(__dirname, '../views')));
+  app.use(favicon(config.faviconDirectory));
+  app.use(config.staticPath, express.static(config.staticDirectory));
+  app.set('views', config.viewsDirectory);
 
   nunjucks.configure(app.get('views'), {
-    autoescape: true,
-    noCache: true,
-    watch: true,
+    ...config.nunjucks,
     express: app
   });
 

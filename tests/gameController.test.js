@@ -195,4 +195,77 @@ describe("gameController.js", () => {
 
   });
 
+  describe("sendStuff", () => {
+    let gameController;
+    let currentPlayerSocket = {};
+    currentPlayerSocket.emit = jest.fn();
+    let otherPlayerSocket = {};
+    otherPlayerSocket.emit = jest.fn();
+    let thisPlayerMessages = [];
+    let response = {
+      thisPlayer: thisPlayerMessages,
+    };
+
+    let otherPlayer = "otherPlayer";
+
+    gameController = new GameController(server);
+    gameController.socketOfUser[otherPlayer] = otherPlayerSocket;
+
+    describe("checks for data", () => {
+      test("", () => {
+        let message = {
+          data: { status: "some_data", otherThings: { otherThings: "other_things" } },
+          message: "some_message"
+        };
+        thisPlayerMessages.push(message);
+        gameController.sendStuff(currentPlayerSocket, otherPlayer, response);
+        expect(currentPlayerSocket.emit).toBeCalledWith(message.message, message.data);
+      });
+    });
+
+    describe("checks for data", () => {
+      test("", () => {
+        let message = {
+          data: { status: "some_data", otherThings: { otherThings: "other_things" } },
+          message: "some_message"
+        };
+        thisPlayerMessages.push(message);
+        gameController.sendStuff(currentPlayerSocket, otherPlayer, response);
+        expect(currentPlayerSocket.emit.mock.calls.length).toEqual(2);
+      });
+    });
+
+    describe("checks for data.player", () => {
+      test("", () => {
+        currentPlayerSocket.to = jest.fn().mockImplementation((otherSocket) => {
+          expect(otherSocket).toBe(otherPlayerSocket);
+          return otherPlayerSocket;
+        });
+        let message = {
+          data: { status: "some_data", otherThings: { otherThings: "other_things" } },
+          message: "some_message"
+        };
+        response.otherPlayer = [message];
+        thisPlayerMessages.push(message);
+        gameController.sendStuff(currentPlayerSocket, otherPlayer, response);
+        expect(currentPlayerSocket.emit).toBeCalledWith(message.message, message.data);
+        expect(currentPlayerSocket.to).toBeCalledWith(otherPlayerSocket);
+        expect(otherPlayerSocket.emit).toBeCalledWith(message.message, message.data);
+      });
+    });
+
+    describe("checks for gameId for player", () => {
+
+    });
+
+    describe("checks for game for player", () => {
+
+    });
+
+    describe("everything OK", () => {
+
+    });
+
+  });
+
 });

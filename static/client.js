@@ -40,31 +40,28 @@ $(document).ready(function () {
     $('#errorName').text('.');
     if (lockName) {
       $('#errorName').text("Please Wait");
+      return;
     }
-    else {
-      let result = validateName($('#inptName').val());
-      if (result === 'OK') {
-        lockName = true;
-        socket.emit('addUser', { name: $('#inptName').val() });
-        $('#globalLoading').show();
-      }
-      else {
-        $('#errorName').text(result);
-      }
+    let result = validateName($('#inptName').val());
+    if (result != 'OK') {
+      $('#errorName').text(result);
+      return;
     }
+    lockName = true;
+    socket.emit('addUser', { name: $('#inptName').val() });
+    $('#globalLoading').show();
   });
 
   socket.on('userAdded', function (data) {
     $('#globalLoading').hide();
-    if (data.msg === 'OK') {
-      deleteElement('namePrompt');
-      $('#joinGame').show();
-      window.localStorage.setItem('username', data.name);
-    }
-    else {
+    if (data.msg != 'OK') {
       lockName = false;
       $('#errorName').text(data.msg);
+      return;
     }
+    deleteElement('namePrompt');
+    $('#joinGame').show();
+    window.localStorage.setItem('username', data.name);
   });
 
   function validateName(name) {
@@ -77,9 +74,7 @@ $(document).ready(function () {
     if (/^\w+$/.test(name)) {
       return "OK";
     }
-    else {
-      return "Please Choose alphabets, numbers or '_'";
-    }
+    return "Please Choose alphabets, numbers or '_'";
   }
 
   //========= JOIN
@@ -90,12 +85,11 @@ $(document).ready(function () {
     $('#errorJoin').text('.');
     if (lockJoin) {
       $('#errorJoin').text("Wait");
+      return;
     }
-    else {
-      lockJoin = true;
-      socket.emit('join', { player: username });
-      $('#globalLoading').show();
-    }
+    lockJoin = true;
+    socket.emit('join', { player: username });
+    $('#globalLoading').show();
   });
 
   socket.on('lockJoin', function (data) {
@@ -120,26 +114,30 @@ $(document).ready(function () {
     $('#errorReady').text('.');
     if (lockReady) {
       $('#errorReady').text("Wait");
+      return;
     }
-    else {
-      boardValid = boardIsValid();
-      if (boardValid) {
-        lockReady = true;
-        for (let shipType in locked) {
-          locked[shipType] = true;
-        }
-        let toSend = makeToSend();
-        socket.emit('boardMade', { player: username, shipPlacement: toSend });
-      }
-      else {
-        $('#errorReady').text('Invlid Board');
-      }
+    boardValid = boardIsValid();
+    if (!boardValid) {
+      $('#errorReady').text('Invlid Board');
+      return;
     }
+    lockReady = true;
+    for (let shipType in locked) {
+      if (!Object.prototype.hasOwnProperty.call(locked, shipType)) {
+        continue;
+      }
+      locked[shipType] = true;
+    }
+    let toSend = makeToSend();
+    socket.emit('boardMade', { player: username, shipPlacement: toSend });
   });
 
   function makeToSend() {
     let arrToSend = {};
     for (let shipType in pointsOfShip) {
+      if (!Object.prototype.hasOwnProperty.call(pointsOfShip, shipType)) {
+        continue;
+      }
       arrToSend[shipType] = {};
       let points = pointsOfShip[shipType];
       let z = points.keys();
@@ -147,14 +145,12 @@ $(document).ready(function () {
       while (!z.done) {
         let point = z.next();
         point = point.value;
-        if (point) {
-          point = JSON.parse(point);
-          arrToSend[shipType][i] = point;
-          i++;
-        }
-        else {
+        if (!point) {
           break;
         }
+        point = JSON.parse(point);
+        arrToSend[shipType][i] = point;
+        i++;
       }
     }
     return arrToSend;
@@ -162,6 +158,9 @@ $(document).ready(function () {
 
   function boardIsValid() {
     for (let shipType in pointsOfShip) {
+      if (!Object.prototype.hasOwnProperty.call(pointsOfShip, shipType)) {
+        continue;
+      }
       if (pointsOfShip[shipType].size !== lengthOfType[shipType]) {
         return false;
       }
@@ -189,13 +188,19 @@ $(document).ready(function () {
     }
   }
 
-  var playerBoard = new Array(null, null, null, null, null, null, null, null, null, null);
+  let playerBoard = new Array(10);
 
   for (let i = 0; i < 10; i++) {
-    playerBoard[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    playerBoard[i] = (new Array(10)).fill(0);
   }
 
-  var pointsOfShip = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
+  var pointsOfShip = {
+    A: new Set(),
+    B: new Set(),
+    C: new Set(),
+    D: new Set(),
+    E: new Set(),
+  };
 
   var hor = { A: false, B: false, C: false, D: false, E: false };
   var placedBefore = { A: false, B: false, C: false, D: false, E: false };
@@ -300,6 +305,9 @@ $(document).ready(function () {
       }
     }
     for (let shipType in pointsOfShip) {
+      if (!Object.prototype.hasOwnProperty.call(pointsOfShip, shipType)) {
+        continue;
+      }
       if (shipType != ship) {
 
         let intersection = new Set([...pointsOfShip[shipType]].filter(x => tempPoints.has(x)));
@@ -330,12 +338,8 @@ $(document).ready(function () {
       return;
     }
     hor[ship] = !hor[ship];
-    if (hor[ship]) {
-      $('#btnRotIndic' + ship).text("Currently Horizontal");
-    }
-    else {
-      $('#btnRotIndic' + ship).text("Currently Vertical");
-    }
+    let dir = hor[ship] ? "Horizontal" : "Vertical";
+    $('#btnRotIndic' + ship).text("Currently " + dir);
     choicesChanged(ship);
   });
 
@@ -346,40 +350,39 @@ $(document).ready(function () {
       $('#errorPlaceShip' + ship).text("Already Locked");
       return;
     }
+    if (placedBefore[ship]) {
+      this.classList.remove('btn-primary');
+      this.classList.add('btn-danger');
+      locked[ship] = true;
+    }
     else {
-      if (placedBefore[ship]) {
-        this.classList.remove('btn-primary');
-        this.classList.add('btn-danger');
-        locked[ship] = true;
-      }
-      else {
-        classInverser(ship, true);
-        $('#errorPlaceShip' + ship).text("Please Place before locking");
-      }
+      classInverser(ship, true);
+      $('#errorPlaceShip' + ship).text("Please Place before locking");
     }
   });
 
   function classInverser(ship, errorOn) {
+    let classToAdd = "label-default";
+    let classToRemove = "label-danger";
+
     if (errorOn) {
-      $('#errorPlaceShip' + ship).addClass("label-danger");
-      $('#errorPlaceShip' + ship).removeClass("label-default");
+      classToAdd = "label-danger";
+      classToRemove = "label-default";
     }
-    else {
-      $('#errorPlaceShip' + ship).removeClass("label-danger");
-      $('#errorPlaceShip' + ship).addClass("label-default");
-    }
+
+    $('#errorPlaceShip' + ship).removeClass(classToRemove);
+    $('#errorPlaceShip' + ship).addClass(classToAdd);
   }
 
   socket.on('wait', function (data) {
     if (data.status === "Error") {
       $('#errorReady').text(data.msg);
+      return;
     }
-    else {
-      $('#globalLoading').show();
-      cloneAndAppend();
-      deleteElement('choosePlacement');
-      $('#board').show();
-    }
+    $('#globalLoading').show();
+    cloneAndAppend();
+    deleteElement('choosePlacement');
+    $('#board').show();
   });
 
   function cloneAndAppend() {
@@ -409,11 +412,18 @@ $(document).ready(function () {
   //=========== GAMEPLAY
 
   var myShips = {};
-  var oppShips = { A: new Set(), B: new Set(), C: new Set(), D: new Set(), E: new Set() };
+  var oppShips = {
+    A: new Set(),
+    B: new Set(),
+    C: new Set(),
+    D: new Set(),
+    E: new Set(),
+  };
 
-  var otherPlayerBoard = [null, null, null, null, null, null, null, null, null, null];
+  let otherPlayerBoard = new Array(10);
+
   for (let i = 0; i < 10; i++) {
-    otherPlayerBoard[i] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    otherPlayerBoard[i] = (new Array(10)).fill(0);
   }
 
   var myTurn = false;
@@ -426,6 +436,9 @@ $(document).ready(function () {
       myTurn = true;
     }
     for (let shipType in pointsOfShip) {
+      if (!Object.prototype.hasOwnProperty.call(pointsOfShip, shipType)) {
+        continue;
+      }
       myShips[shipType] = new Set(pointsOfShip[shipType]);
     }
   });
@@ -499,21 +512,22 @@ $(document).ready(function () {
   });
 
   socket.on('oppMove', function (data) {
-    if (data.result === "Hit") {
-      myTurn = !myTurn;
-      $('#cell-' + data.point.x + data.point.y).addClass("hit");
-      if (data.extra.gameOver) {
-        //
-        deleteElement('board');
-        $('#globalLoading').hide();
-        $('#gameOver').show();
-        $('#gameOverWin').hide();
-
-      }
-    }
-    else if (data.result === "Miss") {
-      myTurn = !myTurn;
-      $('#cell-' + data.point.x + data.point.y).addClass("miss");
+    switch (data.result) {
+      case "Hit":
+        myTurn = !myTurn;
+        $('#cell-' + data.point.x + data.point.y).addClass("hit");
+        if (data.extra.gameOver) {
+          //
+          deleteElement('board');
+          $('#globalLoading').hide();
+          $('#gameOver').show();
+          $('#gameOverWin').hide();
+        }
+        break;
+      case "Miss":
+        myTurn = !myTurn;
+        $('#cell-' + data.point.x + data.point.y).addClass("miss");
+        break;
     }
     $('#globalLoading').hide();
   });

@@ -7,7 +7,8 @@ const Server = require("./server");
  * 
 */
 
-const app = Server.getExpressApp();
+const config = require("../config");
+const app = Server.getExpressApp(config);
 
 const server = http.Server(app);
 server.listen(process.env.PORT || 8080);
