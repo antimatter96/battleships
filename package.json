@@ -6,7 +6,7 @@
   "dependencies": {
     "express": "^4.15.2",
     "immutable": "^3.8.1",
-    "nunjucks": "^3.0.0",
+    "nunjucks": "^3.2.1",
     "serve-favicon": "^2.3.2 ",
     "socket.io": "^1.7.3",
     "uuid": "^3.0.1"
@@ -35,7 +35,7 @@
     "reporters": [
       "default"
     ],
-    "setupFiles": [	
+    "setupFiles": [
       "./tests/_not_used_/over-ride.js"
     ]
   }
