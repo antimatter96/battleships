@@ -4,13 +4,13 @@
   "description": "battleShips",
   "main": "server.js",
   "dependencies": {
-    "express": "^4.15.2",
-    "immutable": "^3.8.1",
+    "express": "^4.17.0",
+    "immutable": "^4.0.0-rc.12",
     "nunjucks": "^3.2.1",
     "rethinkdb": "^2.4.2",
-    "serve-favicon": "^2.3.2 ",
-    "socket.io": "^1.7.3",
-    "uuid": "^3.4.0"
+    "serve-favicon": "^2.5.0",
+    "socket.io": "^2.3.0",
+    "uuid": "^8.2.0"
   },
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/jest/bin/jest.js --silent=false --verbose=true --runInBand",
