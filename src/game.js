@@ -194,9 +194,9 @@ class Game {
 
   static jsonToSet(key, value) {
     if (key == "p1Ship" || key == "p2Ship") {
-      return JSON.parse(value, jsonToSet);
+      return JSON.parse(value, Game.jsonToSet);
     }
-    
+
     if (letters.has(key)) {
       let set = new Set();
       for(let i = 0; i < value.length; i++) {
@@ -215,7 +215,7 @@ class Game {
       p1BoardDone: this.p1BoardDone, p2BoardDone: this.p2BoardDone,
       p1Board: this.p1Board, p2Board: this.p2Board,
       p1Ship: JSON.stringify(this.p1Ship, Game.SetToJson), p2Ship: JSON.stringify(this.p2Ship, Game.setToJson)
-    }
+    };
   }
 
   static gameFromString(string) {
@@ -225,14 +225,14 @@ class Game {
 
     game.id = gameJSON["id"];
     game.turnOf = gameJSON["turnOf"];
-    game.p1BoardDone = gameJSON["p1BoardDone"]
-    game.p2BoardDone = gameJSON["p2BoardDone"]
+    game.p1BoardDone = gameJSON["p1BoardDone"];
+    game.p2BoardDone = gameJSON["p2BoardDone"];
 
-    game.p1Board = gameJSON["p1Board"]
-    game.p2Board = gameJSON["p2Board"]
+    game.p1Board = gameJSON["p1Board"];
+    game.p2Board = gameJSON["p2Board"];
 
-    game.p1Ship = gameJSON["p1Ship"]
-    game.p2Ship = gameJSON["p2Ship"]
+    game.p1Ship = gameJSON["p1Ship"];
+    game.p2Ship = gameJSON["p2Ship"];
 
     return game;
   }
