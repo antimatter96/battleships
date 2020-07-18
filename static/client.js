@@ -42,19 +42,21 @@ $(document).ready(function () {
       $('#errorName').text("Please Wait");
       return;
     }
-    let result = validateName($('#inptName').val());
+    username = $('#inptName').val();
+    let result = validateName(username);
     if (result != 'OK') {
       $('#errorName').text(result);
       return;
     }
     lockName = true;
-    socket.emit('addUser', { name: $('#inptName').val() });
+    socket.emit('addUser', { name: username });
     $('#globalLoading').show();
   });
 
   socket.on('userAdded', function (data) {
     $('#globalLoading').hide();
     if (data.msg != 'OK') {
+      username = null;
       lockName = false;
       $('#errorName').text(data.msg);
       return;
@@ -68,8 +70,8 @@ $(document).ready(function () {
     if (name.length < 5) {
       return "Too Short. Minimum 5 characters";
     }
-    if (name.length > 25) {
-      return "Too Long. Maximum 25 characters";
+    if (name.length > 255) {
+      return "Too Long. Maximum 255 characters";
     }
     if (/^\w+$/.test(name)) {
       return "OK";
