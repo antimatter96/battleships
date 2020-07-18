@@ -1,2 +1,4 @@
 node_modules
 coverage
+public/node_modules
+rethinkdb_data

@@ -1,0 +1,7 @@
+{
+  "editor.fontFamily": "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontSize": 13,
+  "search.exclude": {
+    "rethinkdb_data/**": true
+  }
+}
