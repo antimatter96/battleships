@@ -1,0 +1,9 @@
+node_modules
+public/node_modules
+tests
+coverage
+.github
+
+.gitignore
+
+*.md
