@@ -1,12 +1,13 @@
 $(document).ready(function () {
 
-  var hostname = window.location.hostname;
+  let hostname = window.location.hostname;
   if (hostname === "localhost") {
     hostname = "127.0.0.1" + ":" + window.location.port;
   }
 
-  var socket = io.connect(hostname);
-  var username = 'Not Choosen';
+  // eslint-disable-next-line no-undef
+  let socket = io.connect(hostname);
+  let username = 'Not Choosen';
 
   $('#globalLoading').hide();
   $('#namePrompt').hide();
@@ -34,7 +35,7 @@ $(document).ready(function () {
     $('#errorName').text('.');
   }
 
-  var lockName = false;
+  let lockName = false;
 
   $('#btnSubmitName').on('click', function () {
     $('#errorName').text('.');
@@ -81,7 +82,7 @@ $(document).ready(function () {
 
   //========= JOIN
 
-  var lockJoin = false;
+  let lockJoin = false;
 
   $('#btnJoin').click(function () {
     $('#errorJoin').text('.');
@@ -94,7 +95,7 @@ $(document).ready(function () {
     $('#globalLoading').show();
   });
 
-  socket.on('lockJoin', function (data) {
+  socket.on('lockJoin', function (_data) {
     $('#errorJoin').text('Wait');
     lockJoin = true;
   });
@@ -109,8 +110,8 @@ $(document).ready(function () {
 
   //========== BOARD INITIALIZATION
 
-  var lockReady = false;
-  var boardValid = false;
+  let lockReady = false;
+  let boardValid = false;
 
   $('#btnReady').click(function () {
     $('#errorReady').text('.');
@@ -173,17 +174,16 @@ $(document).ready(function () {
     return true;
   }
 
-  var lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
-  var arrOfI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  var arrOfJ = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+  let lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
+  let arrOfI = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+  let arrOfJ = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
   function addShipClass(type, i, j, horizontal) {
     if (horizontal) {
       for (let y = j; y < j + lengthOfType[type]; y++) {
         $('#cell-' + i + y).addClass('ship' + type);
       }
-    }
-    else {
+    } else {
       for (let x = i; x < i + lengthOfType[type]; x++) {
         $('#cell-' + x + j).addClass('ship' + type);
       }
@@ -196,7 +196,7 @@ $(document).ready(function () {
     playerBoard[i] = (new Array(10)).fill(0);
   }
 
-  var pointsOfShip = {
+  let pointsOfShip = {
     A: new Set(),
     B: new Set(),
     C: new Set(),
@@ -204,9 +204,9 @@ $(document).ready(function () {
     E: new Set(),
   };
 
-  var hor = { A: false, B: false, C: false, D: false, E: false };
-  var placedBefore = { A: false, B: false, C: false, D: false, E: false };
-  var locked = { A: false, B: false, C: false, D: false, E: false };
+  let hor = { A: false, B: false, C: false, D: false, E: false };
+  let placedBefore = { A: false, B: false, C: false, D: false, E: false };
+  let locked = { A: false, B: false, C: false, D: false, E: false };
 
   function addPointsToShip(type, i, j, horizontal) {
     let points = pointsOfShip[type];
@@ -215,8 +215,7 @@ $(document).ready(function () {
       for (let y = j; y < j + lengthOfType[type]; y++) {
         points.add(JSON.stringify({ 'x': i, 'y': y }));
       }
-    }
-    else {
+    } else {
       for (let x = i; x < i + lengthOfType[type]; x++) {
         points.add(JSON.stringify({ 'x': x, 'y': j }));
       }
@@ -232,8 +231,7 @@ $(document).ready(function () {
       if (points) {
         points = JSON.parse(points);
         $('#cell-' + points.x + points.y).removeClass('ship' + type);
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -260,18 +258,15 @@ $(document).ready(function () {
             placedBefore[ship] = true;
             addPointsToShip(ship, arrOfI.indexOf(valI), arrOfJ.indexOf(valJ), hor[ship]);
             addShipClass(ship, arrOfI.indexOf(valI), arrOfJ.indexOf(valJ), hor[ship]);
-          }
-          else {
+          } else {
             classInverser(ship, true);
             $('#errorPlaceShip' + ship).text("Overlapping Ships");
           }
-        }
-        else {
+        } else {
           classInverser(ship, true);
           $('#errorPlaceShip' + ship).text("Out of bounds");
         }
-      }
-      else {
+      } else {
         classInverser(ship, true);
         $('#errorPlaceShip' + ship).text("Inavlid Entries");
       }
@@ -283,8 +278,7 @@ $(document).ready(function () {
       if (arrOfJ.indexOf(valJ) + lengthOfType[ship] > 10) {
         return false;
       }
-    }
-    else {
+    } else {
       if (arrOfI.indexOf(valI) + lengthOfType[ship] > 10) {
         return false;
       }
@@ -300,8 +294,7 @@ $(document).ready(function () {
       for (let y = j; y < j + lengthOfType[ship]; y++) {
         tempPoints.add(JSON.stringify({ 'x': i, 'y': y }));
       }
-    }
-    else {
+    } else {
       for (let x = i; x < i + lengthOfType[ship]; x++) {
         tempPoints.add(JSON.stringify({ 'x': x, 'y': j }));
       }
@@ -356,8 +349,7 @@ $(document).ready(function () {
       this.classList.remove('btn-primary');
       this.classList.add('btn-danger');
       locked[ship] = true;
-    }
-    else {
+    } else {
       classInverser(ship, true);
       $('#errorPlaceShip' + ship).text("Please Place before locking");
     }
@@ -409,12 +401,12 @@ $(document).ready(function () {
     }
   }
 
-  //var se = setInterval(function(){console.log(pointsOfShip);},2000);
+  //let se = setInterval(function(){console.log(pointsOfShip);},2000);
 
   //=========== GAMEPLAY
 
-  var myShips = {};
-  var oppShips = {
+  let myShips = {};
+  let oppShips = {
     A: new Set(),
     B: new Set(),
     C: new Set(),
@@ -428,9 +420,10 @@ $(document).ready(function () {
     otherPlayerBoard[i] = (new Array(10)).fill(0);
   }
 
-  var myTurn = false;
+  let myTurn = false;
 
-  var lastMove = {};
+  let lastMove = {};
+
 
   socket.on('go', function (data) {
     if (data.start) {
@@ -459,18 +452,15 @@ $(document).ready(function () {
           socket.emit('makeMove', { player: username, move: { x: x, y: y } });
           lastMove.x = x;
           lastMove.y = y;
-        }
-        else {
+        } else {
           classInverserShoot(true);
           $('#errorShoot').text("Already");
         }
-      }
-      else {
+      } else {
         classInverserShoot(true);
         $('#errorShoot').text("Invlid Entry");
       }
-    }
-    else {
+    } else {
       classInverserShoot(true);
       $('#errorShoot').text("Please Wait For Your turn");
     }
@@ -480,8 +470,7 @@ $(document).ready(function () {
     if (errorOn) {
       $('#errorShoot').addClass("label-danger");
       $('#errorShoot').removeClass("label-default");
-    }
-    else {
+    } else {
       $('#errorShoot').removeClass("label-danger");
       $('#errorShoot').addClass("label-default");
     }
@@ -502,34 +491,32 @@ $(document).ready(function () {
           $('#gameOverLose').hide();
         }
       }
-    }
-    else if (data.result === "Miss") {
+    } else if (data.result === "Miss") {
       myTurn = !myTurn;
       otherPlayerBoard[lastMove.x][lastMove.y] = -1;
       $('#opp-cell-' + lastMove.x + lastMove.y).addClass("miss");
-    }
-    else {
+    } else {
       $('#errorShoot').text("Repeat");
     }
   });
 
   socket.on('oppMove', function (data) {
     switch (data.result) {
-      case "Hit":
-        myTurn = !myTurn;
-        $('#cell-' + data.point.x + data.point.y).addClass("hit");
-        if (data.extra.gameOver) {
-          //
-          deleteElement('board');
-          $('#globalLoading').hide();
-          $('#gameOver').show();
-          $('#gameOverWin').hide();
-        }
-        break;
-      case "Miss":
-        myTurn = !myTurn;
-        $('#cell-' + data.point.x + data.point.y).addClass("miss");
-        break;
+    case "Hit":
+      myTurn = !myTurn;
+      $('#cell-' + data.point.x + data.point.y).addClass("hit");
+      if (data.extra.gameOver) {
+        //
+        deleteElement('board');
+        $('#globalLoading').hide();
+        $('#gameOver').show();
+        $('#gameOverWin').hide();
+      }
+      break;
+    case "Miss":
+      myTurn = !myTurn;
+      $('#cell-' + data.point.x + data.point.y).addClass("miss");
+      break;
     }
     $('#globalLoading').hide();
   });
@@ -543,8 +530,7 @@ $(document).ready(function () {
       if (points) {
         points = JSON.parse(points);
         $('#opp-cell-' + points.x + points.y).addClass('ship' + type);
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -572,6 +558,6 @@ $(document).ready(function () {
     }
   }
 
-  let changeColorInterval = setInterval(changeColors, 1500);
+  let _changeColorInterval = setInterval(changeColors, 1500);
 
 });
