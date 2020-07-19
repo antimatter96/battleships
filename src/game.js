@@ -185,6 +185,17 @@ class Game {
    * Utility functions
   */
 
+  toJSON () {
+    return {
+      id: this.id,
+      p1: this.p1, p2: this.p2,
+      turnOf: this.turnOf,
+      p1BoardDone: this.p1BoardDone, p2BoardDone: this.p2BoardDone,
+      p1Board: this.p1Board, p2Board: this.p2Board,
+      p1Ship: JSON.stringify(this.p1Ship, Game.SetToJson), p2Ship: JSON.stringify(this.p2Ship, Game.setToJson)
+    };
+  }
+
   static setToJson(key, value) {
     if (typeof value === 'object' && value instanceof Set) {
       return [...value];
@@ -205,17 +216,6 @@ class Game {
       return set;
     }
     return value;
-  }
-
-  toJSON () {
-    return {
-      id: this.id,
-      p1: this.p1, p2: this.p2,
-      turnOf: this.turnOf,
-      p1BoardDone: this.p1BoardDone, p2BoardDone: this.p2BoardDone,
-      p1Board: this.p1Board, p2Board: this.p2Board,
-      p1Ship: JSON.stringify(this.p1Ship, Game.SetToJson), p2Ship: JSON.stringify(this.p2Ship, Game.setToJson)
-    };
   }
 
   static gameFromString(string) {
