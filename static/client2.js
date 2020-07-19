@@ -5,7 +5,6 @@ $(document).ready(function () {
     hostname = "127.0.0.1" + ":" + window.location.port;
   }
 
-  // eslint-disable-next-line no-undef
   let socket = io.connect(hostname);
   let username = 'Not Choosen';
 
@@ -32,8 +31,6 @@ $(document).ready(function () {
     });
     $('#globalLoading').show();
     $('#namePrompt').hide();
-    // deleteElement('namePrompt');
-    // $('#joinGame').show();
   } else {
     $('#namePrompt').show();
     $('#errorName').text('.');
@@ -69,6 +66,22 @@ $(document).ready(function () {
     deleteElement('namePrompt');
     $('#joinGame').show();
     window.localStorage.setItem('username', data.name);
+    window.localStorage.setItem("userjwt", data.token);
+  });
+
+  socket.on('socketUpdated', function (data) {
+    $('#globalLoading').hide();
+    deleteElement('namePrompt');
+    $('#joinGame').show();
+  });
+
+  socket.on('socketUpdateRejected', function (data) {
+    $('#globalLoading').hide();
+
+    window.localStorage.removeItem('username');
+    window.localStorage.removeItem('userjwt');
+
+    $('#namePrompt').show();
   });
 
   function validateName(name) {
