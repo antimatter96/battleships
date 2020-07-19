@@ -1,13 +1,23 @@
 const { List } = require('immutable');
+const SocketIO = require('socket.io');
+const jwt = require("jsonwebtoken");
+
 const Game = require('./game');
 
-const SocketIO = require('socket.io');
 
 class GameServer {
-  constructor(server) {
+  constructor(server, privateKey, publicKey) {
     if (!server || typeof (server.listeners) !== "function") {
       throw new Error("Server not present");
     }
+
+    if (!privateKey || !publicKey) {
+      throw new Error("Signing keys not present");
+    }
+
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
+
     this.io = SocketIO(server);
 
     /*
@@ -59,15 +69,25 @@ class GameServer {
     socket.username = data.name;
     this.socketOfUser[data.name] = socket.id;
     socket.emit('userAdded', {
-      msg: 'OK', name: data.name
+      msg: 'OK',
+      name: data.name,
+      token: jwt.sign(data.name, this.privateKey, { algorithm: 'RS256' })
     });
 
   }
 
   updateSocket(socket, data) {
     console.dir(data, { depth: null, colors: true });
+    let username = jwt.verify(data.token, this.publicKey, { algorithms : 'RS256' });
+
+    if (username != data.username) {
+      socket.emit("socketUpdateRejected");
+      return;
+    }
+
     this.socketOfUser[data.player] = socket.id;
     socket.username = data.player;
+    socket.emit("socketUpdated");
   }
 
   join(socket, data) {
@@ -82,6 +102,7 @@ class GameServer {
       socket.emit('lockJoin');
       return;
     }
+
     if (this.UsersInQueue.size <= 0) {
       this.UsersInQueue = this.UsersInQueue.push(player1);
       return;
@@ -174,6 +195,10 @@ class GameServer {
     }
     //console.log("rejectIfGameMissing: OK");
     callback(socket, player, game, data);
+  }
+
+  verifyJWT(socket, data) {
+    
   }
 }
 
