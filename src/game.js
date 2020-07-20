@@ -192,11 +192,11 @@ class Game {
       turnOf: this.turnOf,
       p1BoardDone: this.p1BoardDone, p2BoardDone: this.p2BoardDone,
       p1Board: this.p1Board, p2Board: this.p2Board,
-      p1Ship: JSON.stringify(this.p1Ship, Game.SetToJson), p2Ship: JSON.stringify(this.p2Ship, Game.setToJson)
+      p1Ship: JSON.stringify(this.p1Ship, Game.setToJson), p2Ship: JSON.stringify(this.p2Ship, Game.setToJson),
     };
   }
 
-  static setToJson(key, value) {
+  static setToJson(_key, value) {
     if (typeof value === 'object' && value instanceof Set) {
       return [...value];
     }
@@ -219,7 +219,7 @@ class Game {
   }
 
   static gameFromString(string) {
-    let gameJSON = JSON.parse(string, Game.JsonToSet);
+    let gameJSON = JSON.parse(string, Game.jsonToSet);
 
     let game = new Game(gameJSON.p1, gameJSON.p2);
 
