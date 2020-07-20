@@ -123,7 +123,6 @@ class GameServer {
 
   }
 
-    console.dir(data, { depth: null, colors: true });
   async boardMade(socket, player, game, data) {
     let shipPlacement = data.shipPlacement;
     if (shipPlacement == undefined) {
