@@ -14,7 +14,7 @@ async function run() {
   });
 
   let page = (await browser.pages())[0];
-  await page.goto("http://localhost:8080");
+  await page.goto("http://localhost:8000");
   await sleep(100 + 10 * (Math.random() * 100));
   let nameInputBox = await page.$("#inptName");
   await nameInputBox.type(uuid().toString().replace(/-/ig, ''));
