@@ -7,6 +7,18 @@ $(document).ready(function () {
 
   // eslint-disable-next-line no-undef
   let socket = io.connect(hostname);
+  let orginal = socket.emit.bind(socket);
+
+  socket.emit = function(msg, data) {
+    if (data != undefined) {
+      data.userToken = userToken;
+      data.gameToken = gameToken;
+      orginal(msg, data);
+    } else {
+      orginal(msg);
+    }
+  };
+
   let username = 'Not Choosen';
 
   $('#globalLoading').hide();
@@ -17,6 +29,8 @@ $(document).ready(function () {
   $('#gameOver').hide();
 
   let userToken = window.localStorage.getItem('userToken');
+  let gameToken = window.localStorage.getItem('gameToken');
+
   function deleteElement(id) {
     let toDelete = document.getElementById(id);
     let iskaParent = toDelete.parentNode;
