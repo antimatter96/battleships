@@ -15,5 +15,5 @@ server.listen(process.env.PORT || 8000);
 server.on("error", function(err) {
   console.log(err);
 });
-const gameController = new GameController(server);
+const gameController = new GameController(server, config.keys);
 gameController.Start();

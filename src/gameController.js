@@ -3,14 +3,17 @@ const Game = require('./game');
 
 const SocketIO = require('socket.io');
 const r = require('rethinkdb');
+const jwt = require("jsonwebtoken");
 
 class GameServer {
-  constructor(server) {
+  constructor(server, keys) {
     if (!server || typeof (server.listeners) !== "function") {
       throw new Error("Server not present");
     }
     this.io = SocketIO(server);
 
+    this.privateKey = keys.privateKey;
+    this.publicKey = keys.publicKey;
     /*
     =====================================
       Currently storing these in memory;
@@ -63,7 +66,12 @@ class GameServer {
     socket.username = data.name;
     this.socketOfUser[data.name] = socket.id;
     socket.emit('userAdded', {
-      msg: 'OK', name: data.name
+      msg: 'OK',
+      name: data.name,
+      userToken: jwt.sign({ name: data.name }, this.privateKey, {
+        "algorithm": "RS256",
+        "expiresIn": "12h",
+      })
     });
 
   }

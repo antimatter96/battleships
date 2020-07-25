@@ -16,6 +16,7 @@ $(document).ready(function () {
   $('#board').hide();
   $('#gameOver').hide();
 
+  let userToken = window.localStorage.getItem('userToken');
   function deleteElement(id) {
     let toDelete = document.getElementById(id);
     let iskaParent = toDelete.parentNode;
@@ -65,6 +66,9 @@ $(document).ready(function () {
     deleteElement('namePrompt');
     $('#joinGame').show();
     window.localStorage.setItem('username', data.name);
+    window.localStorage.setItem('userToken', data.userToken);
+
+    userToken = data.userToken;
   });
 
   function validateName(name) {
