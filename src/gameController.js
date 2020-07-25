@@ -77,9 +77,32 @@ class GameServer {
   }
 
   updateSocket(socket, data) {
-    console.dir(data, { depth: null, colors: true });
+    console.log("Updating socket", data);
+    if (!data.userToken) {
+      socket.emit('updateFailed');
+      return;
+    }
+
+    var decoded;
+    try {
+      decoded = jwt.verify(data.userToken, this.publicKey, {
+        "algorithm": "R256",
+      });
+    } catch (error) {
+      // Better to rate limit this user
+      socket.emit('updateFailed');
+      return;
+    }
+
+    if (decoded.name != data.player) {
+      socket.emit('updateFailed');
+      return;
+    }
+
     this.socketOfUser[data.player] = socket.id;
     socket.username = data.player;
+
+    socket.emit('updateSuccess');
   }
 
   async join(socket, data) {

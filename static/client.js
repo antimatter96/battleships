@@ -42,13 +42,25 @@ $(document).ready(function () {
   if (window.localStorage.getItem('username')) {
     username = window.localStorage.getItem('username');
     socket.emit('updateSocket', { player: username });
-    deleteElement('namePrompt');
-    $('#joinGame').show();
-  }
-  else {
+  } else {
     $('#namePrompt').show();
     $('#errorName').text('.');
   }
+
+  socket.on('updateFailed', function (_data) {
+    username = null;
+    userToken = null;
+    window.localStorage.removeItem("userToken");
+    window.localStorage.removeItem("username");
+    $('#namePrompt').show();
+    $('#errorName').text('.');
+  });
+
+  socket.on('updateSuccess', function (_data) {
+    deleteElement('namePrompt');
+    $('#joinGame').show();
+  });
+
 
   let lockName = false;
 
