@@ -23,7 +23,6 @@ class GameServer {
     this.socketOfUser = [];
 
     this.playerIsIn = [];
-    this.Games = {};
 
     r.connect({
       db: 'battleships'
@@ -110,7 +109,6 @@ class GameServer {
       content: JSON.stringify(newGame),
     }).run(this.db);
 
-    this.Games[newGame.id] = newGame;
     this.playerIsIn[player1] = newGame.id;
     this.playerIsIn[player2] = newGame.id;
 
