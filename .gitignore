@@ -2,3 +2,7 @@ node_modules
 coverage
 public/node_modules
 rethinkdb_data
+
+private.pem
+public.pem
+passphrase
