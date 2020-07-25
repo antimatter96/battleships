@@ -2,6 +2,7 @@ const { List } = require('immutable');
 const Game = require('./game');
 
 const SocketIO = require('socket.io');
+const r = require('rethinkdb');
 
 class GameServer {
   constructor(server) {
@@ -23,6 +24,10 @@ class GameServer {
 
     this.playerIsIn = [];
     this.Games = {};
+
+    r.connect({
+      db: 'battleships'
+    }, this.rethinkDBConnectionCallback.bind(this));
   }
 
   Start() {
@@ -70,8 +75,8 @@ class GameServer {
     socket.username = data.player;
   }
 
-  join(socket, data) {
-    console.dir(data, { depth: null, colors: true });
+  async join(socket, data) {
+    console.dir("Joining", data.player);
     let player1 = socket.username;
     if (player1 !== data.player) {
       this.updateSocket(socket, data);
@@ -82,6 +87,7 @@ class GameServer {
       socket.emit('lockJoin');
       return;
     }
+
     if (this.UsersInQueue.size <= 0) {
       this.UsersInQueue = this.UsersInQueue.push(player1);
       return;
@@ -96,6 +102,14 @@ class GameServer {
     this.UsersInQueue = this.UsersInQueue.shift();
 
     let newGame = new Game(player1, player2);
+
+    await r.table("games").insert({
+      id: newGame.id,
+      player1: player1,
+      player2: player2,
+      content: JSON.stringify(newGame),
+    }).run(this.db);
+
     this.Games[newGame.id] = newGame;
     this.playerIsIn[player1] = newGame.id;
     this.playerIsIn[player2] = newGame.id;
@@ -109,8 +123,7 @@ class GameServer {
 
   }
 
-  boardMade(socket, player, game, data) {
-    console.dir(data, { depth: null, colors: true });
+  async boardMade(socket, player, game, data) {
     let shipPlacement = data.shipPlacement;
     if (shipPlacement == undefined) {
       console.log("missing shipPlacement");
@@ -119,11 +132,13 @@ class GameServer {
 
     let res = game.playerReady(player, shipPlacement);
     console.log(res);
+    let status = await r.table("games").filter({id: game.id}).update({content: JSON.stringify(game)}).run(this.db);
+    console.log("Replaced", status["replaced"]);
     let otherPlayer = game.otherPlayer(player);
     this.sendStuff(socket, otherPlayer, res);
   }
 
-  move(socket, player, game, data) {
+  async move(socket, player, game, data) {
     console.dir(data, { depth: null, colors: true });
     let move = data.move;
     if (move == undefined) {
@@ -132,6 +147,8 @@ class GameServer {
 
     let res = game.makeMove(player, move);
     console.log(res);
+    let status = await r.table("games").filter({id: game.id}).update({content: JSON.stringify(game)}).run(this.db);
+    console.log("Replaced", status["replaced"]);
     let otherPlayer = game.otherPlayer(player);
     this.sendStuff(socket, otherPlayer, res);
   }
@@ -148,7 +165,7 @@ class GameServer {
     }
   }
 
-  rejectIfGameMissing(callback, socket, data) {
+  async rejectIfGameMissing(callback, socket, data) {
     //console.log("rejectIfGameMissing");
     if (data == null || typeof (data) !== "object" || Object.keys(data).length === 0) {
       //console.log("Error", "missing data");
@@ -167,13 +184,36 @@ class GameServer {
       return new Error("missing gameId");
     }
 
-    let game = this.Games[gameId];
+    let games = await r.table("games").filter({ id: gameId }).run(this.db);
+    let storedGame = null;
+    try {
+      storedGame = await games.next();
+    } catch (error) {
+      if (error.name != "ReqlDriverError") {
+        throw new Error("missing game");
+      }
+    }
+
+    if (storedGame == null) {
+      return new Error("missing game");
+    }
+
+    let game = Game.gameFromString(storedGame.content);
+
     if (game == null || typeof (game) !== "object" || Object.keys(game).length === 0) {
       //console.log("Error", "missing game");
       return new Error("missing game");
     }
     //console.log("rejectIfGameMissing: OK");
     callback(socket, player, game, data);
+  }
+
+  rethinkDBConnectionCallback(err, conn) {
+    if (err) {
+      throw new Error("Can not connect to DB");
+    }
+
+    this.db = conn;
   }
 }
 

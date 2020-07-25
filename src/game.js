@@ -1,4 +1,4 @@
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 /*
   5 ships
@@ -11,6 +11,11 @@ const uuid = require('uuid/v4');
 */
 
 const lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
+const lettersArray = ["A", "B", "C", "D", "E"];
+const letters = new Set();
+for (let i = 0; i < lettersArray.length; i++) {
+  letters.add(lettersArray[i]);
+}
 
 class Game {
   constructor(player1, player2) {
@@ -174,6 +179,62 @@ class Game {
         thisPlayer: [{ message: "yourMove", data: { status: "OK", result: "Repeat" } }],
       };
     }
+  }
+
+  /** 
+   * Utility functions
+  */
+
+  toJSON () {
+    return {
+      id: this.id,
+      p1: this.p1, p2: this.p2,
+      turnOf: this.turnOf,
+      p1BoardDone: this.p1BoardDone, p2BoardDone: this.p2BoardDone,
+      p1Board: this.p1Board, p2Board: this.p2Board,
+      p1Ship: JSON.stringify(this.p1Ship, Game.setToJson), p2Ship: JSON.stringify(this.p2Ship, Game.setToJson),
+    };
+  }
+
+  static setToJson(_key, value) {
+    if (typeof value === 'object' && value instanceof Set) {
+      return [...value];
+    }
+    return value;
+  }
+
+  static jsonToSet(key, value) {
+    if (key == "p1Ship" || key == "p2Ship") {
+      return JSON.parse(value, Game.jsonToSet);
+    }
+
+    if (letters.has(key)) {
+      let set = new Set();
+      for(let i = 0; i < value.length; i++) {
+        set.add(value[i]);
+      }
+      return set;
+    }
+    return value;
+  }
+
+  static gameFromString(string) {
+    let gameJSON = JSON.parse(string, Game.jsonToSet);
+
+    let game = new Game(gameJSON.p1, gameJSON.p2);
+
+    game.id = gameJSON["id"];
+    game.turnOf = gameJSON["turnOf"];
+    game.p1BoardDone = gameJSON["p1BoardDone"];
+    game.p2BoardDone = gameJSON["p2BoardDone"];
+
+    game.p1Board = gameJSON["p1Board"];
+    game.p2Board = gameJSON["p2Board"];
+
+    game.p1Ship = gameJSON["p1Ship"];
+    game.p2Ship = gameJSON["p2Ship"];
+
+    return game;
   }
 
 }

@@ -1,0 +1,2 @@
+docker build -t current_battleships .
+docker run -p 8080:8080 -t current_battleships
