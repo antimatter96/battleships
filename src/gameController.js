@@ -251,9 +251,12 @@ class GameServer {
 
     if (socket.username != data.player) {
       console.log(socket.username, data.player);
+      socket.emit('updateFailed');
+      return;
     }
 
-    if (decodedGame.id != data.gameId) {
+    if (decodedGame.gameId != data.gameId) {
+      console.log(decodedGame, data.gameId);
       socket.emit('updateFailed');
       return;
     }
