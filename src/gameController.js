@@ -1,12 +1,11 @@
 const { List } = require('immutable');
-const Game = require('./game');
 
 const SocketIO = require('socket.io');
 const r = require('rethinkdb');
 const jwt = require("jsonwebtoken");
 
 class GameServer {
-  constructor(server, keys) {
+  constructor(server, keys, dbName, gameClass) {
     if (!server || typeof (server.listeners) !== "function") {
       throw new Error("Server not present");
     }
@@ -28,8 +27,11 @@ class GameServer {
     this.playerIsIn = [];
 
     r.connect({
-      db: 'battleships'
+      db: dbName,
     }, this.rethinkDBConnectionCallback.bind(this));
+
+    this.Game = gameClass;
+  }
 
   rethinkDBConnectionCallback(err, conn) {
     if (err) {
@@ -50,9 +52,6 @@ class GameServer {
     socket.on('addUser', this.addUser.bind(this, socket));
     socket.on('updateSocket', this.updateSocket.bind(this, socket));
     socket.on('join', this.join.bind(this, socket));
-
-    socket.on('boardMade', this.rejectIfGameMissing.bind(this, this.boardMade.bind(this), socket));
-    socket.on('makeMove', this.rejectIfGameMissing.bind(this, this.move.bind(this), socket));
   }
 
   disconnect(_socket, _data) {
@@ -60,7 +59,7 @@ class GameServer {
   }
 
   addUser(socket, data) {
-    console.dir(data, { depth: null, colors: true });
+    console.log("Add user", data.username);
     //add gaurd
     if (this.Users.has(data.name)) {
       socket.emit('userAdded', {
@@ -138,7 +137,7 @@ class GameServer {
 
     this.UsersInQueue = this.UsersInQueue.shift();
 
-    let newGame = new Game(player1, player2);
+    let newGame = new this.Game(player1, player2);
 
     await r.table("games").insert({
       id: newGame.id,
@@ -168,36 +167,6 @@ class GameServer {
 
   }
 
-  async boardMade(socket, player, game, data) {
-    let shipPlacement = data.shipPlacement;
-    if (shipPlacement == undefined) {
-      console.log("missing shipPlacement");
-      return;
-    }
-
-    let res = game.playerReady(player, shipPlacement);
-    console.log(res);
-    let status = await r.table("games").filter({id: game.id}).update({content: JSON.stringify(game)}).run(this.db);
-    console.log("Replaced", status["replaced"]);
-    let otherPlayer = game.otherPlayer(player);
-    this.sendStuff(socket, otherPlayer, res);
-  }
-
-  async move(socket, player, game, data) {
-    console.dir(data, { depth: null, colors: true });
-    let move = data.move;
-    if (move == undefined) {
-      return;
-    }
-
-    let res = game.makeMove(player, move);
-    console.log(res);
-    let status = await r.table("games").filter({id: game.id}).update({content: JSON.stringify(game)}).run(this.db);
-    console.log("Replaced", status["replaced"]);
-    let otherPlayer = game.otherPlayer(player);
-    this.sendStuff(socket, otherPlayer, res);
-  }
-
   sendStuff(currentSocket, otherPlayer, res) {
     for (let message of res.thisPlayer) {
       currentSocket.emit(message.message, message.data);
@@ -213,19 +182,16 @@ class GameServer {
   async rejectIfGameMissing(callback, socket, data) {
     //console.log("rejectIfGameMissing");
     if (data == null || typeof (data) !== "object" || Object.keys(data).length === 0) {
-      //console.log("Error", "missing data");
       return new Error("missing data");
     }
 
     let player = data.player;
     if (typeof (player) !== "string" || player.trim() === "") {
-      //console.log("Error", "missing playerid");
       return new Error("missing playerId");
     }
 
     let gameId = this.playerIsIn[player];
     if (typeof (gameId) !== "string" || gameId.trim() === "") {
-      //console.log("Error", "missing gameId");
       return new Error("missing gameId");
     }
 
@@ -243,13 +209,12 @@ class GameServer {
       return new Error("missing game");
     }
 
-    let game = Game.gameFromString(storedGame.content);
+    let game = this.Game.gameFromString(storedGame.content);
 
     if (game == null || typeof (game) !== "object" || Object.keys(game).length === 0) {
-      //console.log("Error", "missing game");
       return new Error("missing game");
     }
-    //console.log("rejectIfGameMissing: OK");
+
     callback(socket, player, game, data);
   }
 

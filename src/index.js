@@ -1,6 +1,6 @@
 const http = require('http');
 
-const GameController = require('./gameController');
+const BattleshipsController = require("./battleshipController");
 const Server = require("./server");
 
 /**
@@ -15,5 +15,6 @@ server.listen(process.env.PORT || 8000);
 server.on("error", function(err) {
   console.log(err);
 });
-const gameController = new GameController(server, config.keys);
+
+const gameController = new BattleshipsController(server, config.keys, "battleships");
 gameController.Start();
