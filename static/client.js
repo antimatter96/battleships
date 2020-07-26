@@ -459,7 +459,6 @@ $(document).ready(function () {
 
   let lastMove = {};
 
-
   socket.on('go', function (data) {
     if (data.start) {
       $('#globalLoading').hide();
@@ -521,9 +520,7 @@ $(document).ready(function () {
         markShipDown(data.extra.partOf);
         if (data.extra.gameOver) {
           //
-          deleteElement('board');
-          $('#gameOver').show();
-          $('#gameOverLose').hide();
+          endGame(false);
         }
       }
     } else if (data.result === "Miss") {
@@ -542,10 +539,7 @@ $(document).ready(function () {
       $('#cell-' + data.point.x + data.point.y).addClass("hit");
       if (data.extra.gameOver) {
         //
-        deleteElement('board');
-        $('#globalLoading').hide();
-        $('#gameOver').show();
-        $('#gameOverWin').hide();
+        endGame(true);
       }
       break;
     case "Miss":
@@ -568,6 +562,22 @@ $(document).ready(function () {
       } else {
         break;
       }
+    }
+  }
+
+  function endGame(lost) {
+    gameToken = null;
+    gameId = null;
+    window.localStorage.removeItem("gameToken");
+
+    deleteElement('board');
+    $('#globalLoading').hide();
+    $('#gameOver').show();
+
+    if (lost) {
+      $('#gameOverWin').hide();
+    } else {
+      $('#gameOverLose').hide();
     }
   }
 
