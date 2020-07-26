@@ -30,6 +30,13 @@ class GameServer {
     r.connect({
       db: 'battleships'
     }, this.rethinkDBConnectionCallback.bind(this));
+
+  rethinkDBConnectionCallback(err, conn) {
+    if (err) {
+      throw new Error("Can not connect to DB");
+    }
+
+    this.db = conn;
   }
 
   Start() {
@@ -246,12 +253,47 @@ class GameServer {
     callback(socket, player, game, data);
   }
 
-  rethinkDBConnectionCallback(err, conn) {
-    if (err) {
-      throw new Error("Can not connect to DB");
+  async rejectIfTokenInvalid(callThis, callWith, socket, data) {
+    console.log(data);
+    if (!data.userToken) {
+      socket.emit('updateFailed');
+      return;
+    }
+    if (!data.gameToken) {
+      socket.emit('updateFailed');
+      return;
     }
 
-    this.db = conn;
+    var decodedUser;
+    var decodedGame;
+    try {
+      decodedUser = jwt.verify(data.userToken, this.publicKey, {
+        "algorithm": "R256",
+      });
+      decodedGame = jwt.verify(data.gameToken, this.publicKey, {
+        "algorithm": "R256",
+      });
+    } catch (error) {
+      // Better to rate limit this user
+      socket.emit('updateFailed');
+      return;
+    }
+
+    if (decodedUser.name != data.player) {
+      socket.emit('updateFailed');
+      return;
+    }
+
+    if (socket.username != data.player) {
+      console.log(socket.username, data.player);
+    }
+
+    if (decodedGame.id != data.gameId) {
+      socket.emit('updateFailed');
+      return;
+    }
+
+    callThis(callWith, socket, data);
   }
 }
 
