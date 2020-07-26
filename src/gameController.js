@@ -143,11 +143,20 @@ class GameServer {
     this.playerIsIn[player1] = newGame.id;
     this.playerIsIn[player2] = newGame.id;
 
+    let gameToken = jwt.sign({ gameId: newGame.id }, this.privateKey, {
+      "algorithm": "RS256",
+      "expiresIn": "12h",
+    });
+
     socket.emit('startGame', {
-      'otherPlayer': player2
+      'otherPlayer': player2,
+      'gameId': newGame.id,
+      'gameToken': gameToken,
     });
     socket.to(this.socketOfUser[player2]).emit('startGame', {
-      'otherPlayer': player1
+      'otherPlayer': player1,
+      'gameId': newGame.id,
+      'gameToken': gameToken,
     });
 
   }

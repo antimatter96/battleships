@@ -30,6 +30,7 @@ $(document).ready(function () {
 
   let userToken = window.localStorage.getItem('userToken');
   let gameToken = window.localStorage.getItem('gameToken');
+  let gameId = null;
 
   function deleteElement(id) {
     let toDelete = document.getElementById(id);
@@ -136,6 +137,10 @@ $(document).ready(function () {
     $('#globalLoading').hide();
     $('#choosePlacement').show();
     console.log('Player2 is' + data.otherPlayer);
+
+    window.localStorage.setItem('gameToken', data.gameToken);
+    gameToken = data.gameToken;
+    gameId = data.gameId;
   });
 
   //========== BOARD INITIALIZATION
