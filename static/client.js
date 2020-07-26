@@ -391,13 +391,8 @@ $(document).ready(function () {
   });
 
   function classInverser(ship, errorOn) {
-    let classToAdd = "label-default";
-    let classToRemove = "label-danger";
-
-    if (errorOn) {
-      classToAdd = "label-danger";
-      classToRemove = "label-default";
-    }
+    let classToAdd = errorOn ? "label-danger" : "label-default";
+    let classToRemove = errorOn ? "label-default" : "label-danger";
 
     $('#errorPlaceShip' + ship).removeClass(classToRemove);
     $('#errorPlaceShip' + ship).addClass(classToAdd);
@@ -501,13 +496,11 @@ $(document).ready(function () {
   });
 
   function classInverserShoot(errorOn) {
-    if (errorOn) {
-      $('#errorShoot').addClass("label-danger");
-      $('#errorShoot').removeClass("label-default");
-    } else {
-      $('#errorShoot').removeClass("label-danger");
-      $('#errorShoot').addClass("label-default");
-    }
+    let classToAdd = errorOn ? "label-danger" : "label-default";
+    let classToRemove = errorOn ? "label-default" : "label-danger";
+
+    $('#errorShoot').addClass(classToAdd);
+    $('#errorShoot').removeClass(classToRemove);
   }
 
   socket.on('yourMove', function (data) {
