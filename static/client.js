@@ -167,7 +167,7 @@ $(document).ready(function () {
       locked[shipType] = true;
     }
     let toSend = makeToSend();
-    socket.emit('boardMade', { player: username, shipPlacement: toSend });
+    socket.emit('boardMade', { player: username, shipPlacement: toSend, gameId: gameId });
   });
 
   function makeToSend() {
@@ -484,7 +484,7 @@ $(document).ready(function () {
         x = arrOfI.indexOf(x);
         if (otherPlayerBoard[x][y] === 0) {
           $('#globalLoading').show();
-          socket.emit('makeMove', { player: username, move: { x: x, y: y } });
+          socket.emit('makeMove', { player: username, move: { x: x, y: y }, gameId: gameId });
           lastMove.x = x;
           lastMove.y = y;
         } else {
