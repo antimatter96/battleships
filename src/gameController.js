@@ -196,12 +196,16 @@ class GameServer {
     }
 
     let games = await r.table("games").filter({ id: gameId }).run(this.db);
+    if (games.constructor.name != "Cursor") {
+      throw new Error("db error");
+    }
+
     let storedGame = null;
     try {
       storedGame = await games.next();
     } catch (error) {
       if (error.name != "ReqlDriverError") {
-        throw new Error("missing game");
+        return new Error("missing game");
       }
     }
 
