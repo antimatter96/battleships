@@ -87,7 +87,7 @@ describe("gameController.js", () => {
   describe("Start", () => {
     let gameController;
     beforeEach(() => {
-      gameController = new GameController(server);
+      gameController = new GameController(server, keys);
     });
 
     test("Calls io.connect with start server", () => {
@@ -104,7 +104,7 @@ describe("gameController.js", () => {
     let callback;
 
     beforeEach(() => {
-      gameController = new GameController(server);
+      gameController = new GameController(server, keys);
     });
 
     describe("checks for data", () => {
@@ -116,8 +116,8 @@ describe("gameController.js", () => {
         [{}],
         [""],
         [true],
-      ])("Testing table #%#", (data) => {
-        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+      ])("Testing table #%#", async (data) => {
+        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
         expect(returned).toEqual(err);
       });
     });
@@ -127,18 +127,19 @@ describe("gameController.js", () => {
 
       test.each([
         [{ one: "two" }],
-      ])("Testing table #%#", (data) => {
-        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+      ])("Testing table #%#", async (data) => {
+        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
         expect(returned).toEqual(err);
       });
+
       test.each([
         [null],
         [undefined],
         [{}],
         [""],
         [true],
-      ])("Testing table #%#", (data) => {
-        let returned = gameController.rejectIfGameMissing(callback, socket, { player: data });
+      ])("Testing table #%#", async (data) => {
+        let returned = await gameController.rejectIfGameMissing(callback, socket, { player: data });
         expect(returned).toEqual(err);
       });
     });
@@ -151,20 +152,21 @@ describe("gameController.js", () => {
 
       test.each([
         [{}],
-      ])("Testing table #%#", (tc) => {
+      ])("Testing table #%#", async (tc) => {
         gameController.playerIsIn = tc;
-        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
         expect(returned).toEqual(err);
       });
+
       test.each([
         [null],
         [undefined],
         [{}],
         [""],
         [true],
-      ])("Testing table #%#", (tc) => {
+      ])("Testing table #%#", async (tc) => {
         gameController.playerIsIn[playerId] = tc;
-        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
         expect(returned).toEqual(err);
       });
     });
@@ -182,20 +184,21 @@ describe("gameController.js", () => {
 
       test.each([
         [{}],
-      ])("Testing table #%#", (tc) => {
+      ])("Testing table #%#", async (tc) => {
         gameController.Games = tc;
-        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
         expect(returned).toEqual(err);
       });
+
       test.each([
         [null],
         [undefined],
         [{}],
         [""],
         [true],
-      ])("Testing table #%#", (tc) => {
+      ])("Testing table #%#", async (tc) => {
         gameController.Games[gameId] = tc;
-        let returned = gameController.rejectIfGameMissing(callback, socket, data);
+        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
         expect(returned).toEqual(err);
       });
     });
@@ -231,7 +234,7 @@ describe("gameController.js", () => {
 
     let otherPlayer = "otherPlayer";
 
-    gameController = new GameController(server);
+    gameController = new GameController(server, keys);
     gameController.socketOfUser[otherPlayer] = otherPlayerSocket;
 
     describe("checks for data", () => {
