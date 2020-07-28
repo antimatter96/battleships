@@ -2,11 +2,22 @@ const GameController = require("../src/gameController");
 const Game = require("../src/game");
 
 const http = require("http");
+const fs = require("fs");
+const path = require("path");
 const { List } = require('immutable');
 const SocketIO = require('socket.io');
+const r = require("rethinkdb");
 
+jest.mock("rethinkdb");
+jest.mock("../src/game");
 
 describe("gameController.js", () => {
+  let dbName = "dbName";
+  let keys = {
+    key: fs.readFileSync(path.join(__dirname, "../private.pem.sample")),
+    publicKey: fs.readFileSync(path.join(__dirname, "../public.pem.sample")),
+  };
+
   let server = http.Server();
   beforeEach(() => {
     server = http.Server();
@@ -16,46 +27,58 @@ describe("gameController.js", () => {
   });
 
   describe("constructor", () => {
-    test("Fails when server missing", () => {
-      expect(function () {
-        new GameController();
-      }).toThrow();
+
+    describe("server missing", () => {
+      test("Fails", () => {
+        expect(function () {
+          new GameController();
+        }).toThrow();
+      });
     });
 
-    test("Works", () => {
-      expect(function () {
-        new GameController(server);
-      }).not.toThrow();
+    describe("keys missing", () => {
+      test("Fails", () => {
+        expect(function () {
+          new GameController(server);
+        }).toThrow();
+      });
+    });
+
+    describe("server and keys present", () => {
+      test("Works", () => {
+        expect(function () {
+          new GameController(server, keys);
+        }).not.toThrow();
+      });
     });
 
     describe("Creates instance variables and stuff", () => {
-      let gameController = new GameController(server);
+      r.connect.mockClear();
+      let gameController = new GameController(server, keys);
 
-      test("", () => {
+      test("SocketIO", () => {
         expect(gameController.io).toBeInstanceOf(SocketIO);
       });
 
-      test("", () => {
+      test("List", () => {
         expect(gameController.UsersInQueue).toBeInstanceOf(List);
       });
 
-      test("", () => {
+      test("Users Set", () => {
         expect(gameController.Users).toBeInstanceOf(Set);
       });
 
-      test("", () => {
+      test("Socket user mapping", () => {
         expect(gameController.socketOfUser).toBeInstanceOf(Array);
       });
 
-      test("", () => {
-        expect(gameController.playerIsIn).toBeInstanceOf(Array);
+      test("Player game mapping", () => {
+        expect(gameController.playerIsIn).toBeInstanceOf(Object);
       });
 
-      test("", () => {
-        expect(gameController.Games).toBeInstanceOf(Object);
+      test("Calls database", () => {
+        expect(r.connect).toBeCalledWith("");
       });
-
-
 
     });
 

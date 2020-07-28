@@ -24,7 +24,7 @@ class GameServer {
     this.Users = new Set();
     this.socketOfUser = [];
 
-    this.playerIsIn = [];
+    this.playerIsIn = {};
 
     r.connect({
       db: dbName,
