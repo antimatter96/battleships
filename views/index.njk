@@ -84,7 +84,7 @@
 					<span class="col-md-1 boardInpt"><input id='{{i.st}}i' class="form-control inptXY" data-ship="{{i.st}}"
 							type="number" min="1" max="10" step="1" placeholder="0"></span>
 					<span class="col-md-1 boardInpt"><input id='{{i.st}}j' class="form-control inptXY" data-ship="{{i.st}}"
-							minlength="1" maxlength="1" placeholder="A"></span>
+							minlength="1" maxlength="1" placeholder="A" list="defaultNumbers"></span>
 					<span class="col-md-2 boardBtn"><button id='btnRot{{i.st}}' class="btn btn-info btnRot"
 							data-ship="{{i.st}}">Rotate</button></span>
 					<span class="col-md-4 boardBtn"><button id='btnRotIndic{{i.st}}' class="btn btn-block btn-default"
@@ -133,6 +133,11 @@
 			</div>
 		</div>
 
+		<datalist id="defaultNumbers">
+			{% for i in ['A','B','C','D','E','F','G','H','I','J'] -%}
+			<option value="{{i}}">
+			{%- endfor %}
+		</datalist>
 	</main>
 	<script src="/static/jquery.js"></script>
 	<script src="/static/jquery-migrate.js"></script>
