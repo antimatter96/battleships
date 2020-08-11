@@ -7,9 +7,10 @@ function sleep(ms) {
 
 async function run() {
   const browser = await puppeteer.launch({
-    executablePath: '/Users/arpitjain/Downloads/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
+    executablePath: '/Users/arpitjain/browserstack/Chromium.app/Contents/MacOS/Chromium',
     defaultViewport: null,
     headless: false,
+    //devtools: true,
     ignoreDefaultArgs: ['--enable-automation']
   });
 

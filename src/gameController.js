@@ -83,7 +83,7 @@ class GameServer {
   }
 
   updateSocket(socket, data) {
-    console.log("Updating socket", data);
+    //console.log("Updating socket", data);
     if (!data.userToken) {
       socket.emit('updateFailed');
       return;
@@ -182,17 +182,17 @@ class GameServer {
   async rejectIfGameMissing(callback, socket, data) {
     //console.log("rejectIfGameMissing");
     if (data == null || typeof (data) !== "object" || Object.keys(data).length === 0) {
-      return new Error("missing data");
+      throw new Error("missing data");
     }
 
     let player = data.player;
     if (typeof (player) !== "string" || player.trim() === "") {
-      return new Error("missing playerId");
+      throw new Error("missing playerId");
     }
 
     let gameId = this.playerIsIn[player];
     if (typeof (gameId) !== "string" || gameId.trim() === "") {
-      return new Error("missing gameId");
+      throw new Error("missing gameId");
     }
 
     let games = await r.table("games").filter({ id: gameId }).run(this.db);
@@ -205,25 +205,24 @@ class GameServer {
       storedGame = await games.next();
     } catch (error) {
       if (error.name != "ReqlDriverError") {
-        return new Error("missing game");
+        throw new Error("missing game");
       }
     }
 
     if (storedGame == null) {
-      return new Error("missing game");
+      throw new Error("missing game");
     }
 
     let game = this.Game.gameFromString(storedGame.content);
 
     if (game == null || typeof (game) !== "object" || Object.keys(game).length === 0) {
-      return new Error("missing game");
+      throw new Error("missing game");
     }
 
     callback(socket, player, game, data);
   }
 
   async rejectIfTokenInvalid(callThis, callWith, socket, data) {
-    console.log(data);
     if (!data.userToken) {
       socket.emit('updateFailed');
       return;

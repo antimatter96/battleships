@@ -1,12 +1,12 @@
-const GameController = require("../src/gameController");
-const Game = require("../src/game");
-
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { List } = require('immutable');
 const SocketIO = require('socket.io');
 const r = require("rethinkdb");
+
+const GameController = require("../src/gameController");
+const Game = require("../src/game");
 
 jest.mock("rethinkdb");
 jest.mock("../src/game");
@@ -26,7 +26,7 @@ describe("gameController.js", () => {
     server.close();
   });
 
-  describe("constructor", () => {
+  describe.skip("constructor", () => {
 
     describe("server missing", () => {
       test("Fails", () => {
@@ -84,7 +84,7 @@ describe("gameController.js", () => {
 
   });
 
-  describe("Start", () => {
+  describe.skip("Start", () => {
     let gameController;
     beforeEach(() => {
       gameController = new GameController(server, keys);
@@ -107,7 +107,7 @@ describe("gameController.js", () => {
       gameController = new GameController(server, keys);
     });
 
-    describe("checks for data", () => {
+    describe.skip("checks for data", () => {
       let err = new Error("missing data");
 
       test.each([
@@ -122,7 +122,7 @@ describe("gameController.js", () => {
       });
     });
 
-    describe("checks for data.player", () => {
+    describe.skip("checks for data.player", () => {
       let err = new Error("missing playerId");
 
       test.each([
@@ -144,7 +144,7 @@ describe("gameController.js", () => {
       });
     });
 
-    describe("checks for gameId for player", () => {
+    describe.skip("checks for gameId for player", () => {
       let playerId = "some_player_id";
       let data = { player: playerId };
 
@@ -176,34 +176,41 @@ describe("gameController.js", () => {
       let gameId = "some_game_id";
       let data = { player: playerId };
 
-      let err = new Error("missing game");
-
       beforeEach(() => {
         gameController.playerIsIn[playerId] = gameId;
       });
 
-      test.each([
-        [{}],
-      ])("Testing table #%#", async (tc) => {
-        gameController.Games = tc;
-        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
-        expect(returned).toEqual(err);
+      describe("throws error on db errors", () => {
+
+        let err = new Error("db error");
+
+        test.each([
+          [null],
+          [undefined],
+        ])("Testing table #%#", async (tc) => {
+          //gameController.Games[gameId] = tc;
+          let returned = await gameController.rejectIfGameMissing(callback, socket, data);
+          expect(returned).toEqual(err);
+        });
+
+        test(">>", async () => {
+          r.table = () => {
+            return { 
+              filter: (data) => {
+                console.log(data);
+                return { run: (db) => { return jest.fn().mockResolvedValue(r.Cursor); } };
+              }
+            };
+          };
+          let returned = await gameController.rejectIfGameMissing(callback, socket, data);
+          expect(returned).toEqual(err);
+        });
       });
 
-      test.each([
-        [null],
-        [undefined],
-        [{}],
-        [""],
-        [true],
-      ])("Testing table #%#", async (tc) => {
-        gameController.Games[gameId] = tc;
-        let returned = await gameController.rejectIfGameMissing(callback, socket, data);
-        expect(returned).toEqual(err);
-      });
+
     });
 
-    describe("everything OK", () => {
+    describe.skip("everything OK", () => {
       let playerId = "some_player_id";
       let gameId = "some_game_id";
       let data = { player: playerId };
@@ -221,7 +228,7 @@ describe("gameController.js", () => {
 
   });
 
-  describe("sendStuff", () => {
+  describe.skip("sendStuff", () => {
     let gameController;
     let currentPlayerSocket = {};
     currentPlayerSocket.emit = jest.fn();
