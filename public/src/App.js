@@ -5,9 +5,9 @@ import logo from './logo.svg';
 import './App.css';
 
 const STATE_NAME = 1;
-const STATE_JOIN = 1;
-const STATE_PLACE = 1;
-const STATE_PLAY = 1;
+const STATE_JOIN = 2;
+const STATE_PLACE = 3;
+const STATE_PLAY = 4;
 
 const rowHeaders = ['/', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const colStarts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -79,7 +79,7 @@ class Loader extends React.Component {
             <div id="_dot1" className="dot1"></div>
             <div id="_dot2" className="dot2"></div>
           </div>
-          <div className="globalLoading-text">{this.props.value}</div>
+          <div className="globalLoading-text">{this.props.text}</div>
         </div>
       </nav>
     );
@@ -92,20 +92,22 @@ class App extends React.Component {
     this.state = {
       state: STATE_NAME,
       loading: false,
-      userame: "",
+      username: "",
       displayError: "",
       lockName: false,
     };
 
     this.gameToken = "";
-    this.nameToken = "";
+    this.userToken = "";
 
     this.userToken = window.localStorage.getItem('userToken');
     this.gameToken = window.localStorage.getItem('gameToken');
     this.gameId = null;
 
-    this.username = 'Not Choosen';
+    this.username = "Not choosen";
+  }
 
+  componentDidMount() {
     this.setupSocketIO();
     this.name();
   }
@@ -118,37 +120,36 @@ class App extends React.Component {
 
     this.socket = socketIOClient.connect(hostname);
 
-    let orginal = this.socket.emit.bind(this.socket);
-    this.socket.emit = function (msg, data) {
-      if (data !== undefined) {
-        console.log(data);
-        data.userToken = this.userToken;
-        data.gameToken = this.gameToken;
-        orginal(msg, data);
-      } else {
-        orginal(msg);
-      }
+    this.socket.on("userAdded", this.onUserAdded.bind(this));
+  }
+
+  emit(msg, data) {
+    if (data !== undefined) {
+      this.socket.emit(msg, data);
+    } else {
+      this.socket.emit(msg);
     }
   }
 
   name() {
     let username = window.localStorage.getItem('username');
     if (username) {
-      this.setState({ userame: username });
-      this.socket.emit('updateSocket', { player: username });
-      this.setState({ state: STATE_JOIN });
+      this.setState({
+        username: username,
+        state: STATE_JOIN,
+      });
+      this.emit('updateSocket', { player: username });
     } else {
       this.nameDisplayError = "";
     }
   }
 
-  handleNameSubmit(event) {
+  handleNameSubmit() {
     let valid = validateName(this.temp_username);
     if (valid instanceof Error) {
-      this.setState({ displayError : valid.message });
+      this.setState({ displayError: valid.message });
     } else {
-      this.setState({lockName: true, loading: true});
-      console.log(this.state.username, this.temp_username);
+      this.setState({ lockName: true, loading: true });
       this.socket.emit('addUser', { name: this.temp_username })
     }
   }
@@ -160,9 +161,28 @@ class App extends React.Component {
     this.temp_username = value;
   }
 
+  onUserAdded(data) {
+    this.setState({ loading: false });
+
+    if (data.msg != 'OK') {
+      this.temp_username = null;
+      this.setState({ lockName: false, displayError: data.msg });
+      return;
+    }
+
+    this.setState({ state: STATE_JOIN })
+    window.localStorage.setItem('username', data.name);
+    window.localStorage.setItem('userToken', data.userToken);
+
+    this.userToken = data.userToken;
+    this.username = data.name;
+
+    this.temp_username = null;
+  }
+
   renderLoader() {
     return (
-      <Loader value={"Loading..."} />
+      <Loader text={"Loading..."} />
     );
   }
 
@@ -170,7 +190,12 @@ class App extends React.Component {
     this.main = ""
     if (this.state.state === STATE_NAME) {
       this.main = (
-        <NameSelector displayError={this.state.displayError} onClick={this.handleNameSubmit.bind(this)} username={this.state.username} changeFirstName={this.onUserNameChange.bind(this)}/>
+        <NameSelector
+          displayError={this.state.displayError}
+          onClick={this.handleNameSubmit.bind(this)}
+          username={this.state.username}
+          onUserNameChange={this.onUserNameChange.bind(this)}
+        />
       )
     }
 
@@ -185,7 +210,7 @@ class App extends React.Component {
       <datalist id="defaultNumbers">
         {
           rowHeaders.slice(1, 11).map((i) => {
-            return ( <option key={i} value={i} /> )
+            return (<option key={i} value={i} />)
           })
         }
       </datalist>
@@ -202,7 +227,6 @@ class App extends React.Component {
   }
 }
 
-
 class NameSelector extends React.Component {
   render() {
     this.displayError = "";
@@ -213,28 +237,31 @@ class NameSelector extends React.Component {
     }
 
     return (
-      <>
-        <div id="namePrompt" className="row">
-          <div className="col-md-4 col-md-offset-4 text-center">
-            <label className="form-label" htmlFor="inptName">Username</label>
-          </div>
 
-          <br />
-
-          <div className="col-md-4 col-md-offset-4 centered">
-            <input id="inptName" className="input-lg form-control" type="text" onChange={(event) => this.props.changeFirstName(event.target.value)} value={this.props.username} />
-          </div>
-
-          <div className="col-md-12 text-center">
-            <br />
-          </div>
-
-          <div className="col-md-4 col-md-offset-4 text-center">
-            <button id="btnSubmitName" className="btn btn-primary btn-block" onClick={this.props.onClick}>Submit</button>
-            {this.displayError}
-          </div>
+      <div id="namePrompt" className="row">
+        <div className="col-md-4 col-md-offset-4 text-center">
+          <label className="form-label" htmlFor="inptName">Username</label>
         </div>
-      </>
+
+        <br />
+
+        <div className="col-md-4 col-md-offset-4 centered">
+          <input
+            className="input-lg form-control"
+            type="text"
+            onChange={(event) => { this.props.onUserNameChange(event.target.value) }}
+          />
+        </div>
+
+        <div className="col-md-12 text-center">
+          <br />
+        </div>
+
+        <div className="col-md-4 col-md-offset-4 text-center">
+          <button className="btn btn-primary btn-block" onClick={this.props.onClick}>Submit</button>
+          {this.displayError}
+        </div>
+      </div>
     );
   }
 }
