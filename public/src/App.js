@@ -1,66 +1,16 @@
 import React from 'react';
 import socketIOClient from "socket.io-client";
 
-import logo from './logo.svg';
 import './App.css';
+import { validateName, rowHeaders } from './Utils'
+import Loader from './loader'
+import JoinButton from './join_button'
 
+const STATE_UPDATE = 0.5
 const STATE_NAME = 1;
 const STATE_JOIN = 2;
 const STATE_PLACE = 3;
 const STATE_PLAY = 4;
-
-const rowHeaders = ['/', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-const colStarts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-class Board extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: null,
-    };
-  }
-
-  render() {
-    this.headers = rowHeaders.map((number) => {
-      return (
-        <span
-          key={number.toString()}
-          className="board-cell-info btn"
-          data-info={number}
-        >
-        </span>
-      )
-    });
-
-    this.body = colStarts.map((i) => {
-      return (
-        <div key={i} className="board-row" >
-          <span className="board-cell-info btn" data-info={i + 1}></span>
-          {
-            colStarts.map((j) => {
-              return (
-                <span key={j} className="board-cell btn" id={`cell-${i}${j}`}></span>
-              )
-            })
-          }
-        </div>
-      )
-    });
-
-    return (
-      <>
-        <div id="chooseBoard" className="col-md-5 col-md-offset-1">
-          <div className="board-row">
-            {this.headers}
-          </div>
-
-          {this.body}
-
-        </div>
-      </>
-    );
-  }
-}
 
 class Square extends React.Component {
   render() {
@@ -70,31 +20,16 @@ class Square extends React.Component {
   }
 }
 
-class Loader extends React.Component {
-  render() {
-    return (
-      <nav id="globalLoading" className="navbar navbar-default navbar-fixed-top">
-        <div className="container-fluid">
-          <div className="spinner">
-            <div id="_dot1" className="dot1"></div>
-            <div id="_dot2" className="dot2"></div>
-          </div>
-          <div className="globalLoading-text">{this.props.text}</div>
-        </div>
-      </nav>
-    );
-  }
-}
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      state: STATE_NAME,
+      state: -1,
       loading: false,
-      username: "",
-      displayError: "",
+      username: null,
+      displayError: null,
       lockName: false,
+      lockJoin: false,
     };
 
     this.gameToken = "";
@@ -104,7 +39,7 @@ class App extends React.Component {
     this.gameToken = window.localStorage.getItem('gameToken');
     this.gameId = null;
 
-    this.username = "Not choosen";
+    this.username = null;
   }
 
   componentDidMount() {
@@ -118,12 +53,22 @@ class App extends React.Component {
       hostname = "127.0.0.1:8000";
     }
 
-    this.socket = socketIOClient.connect(hostname);
+    this.socket = socketIOClient(hostname);
 
     this.socket.on("userAdded", this.onUserAdded.bind(this));
+    this.socket.on("updateFailed", this.onUpdateFailed.bind(this));
+    this.socket.on("updateSuccess", this.onUpdateSuccess.bind(this));
   }
 
   emit(msg, data) {
+    if (!this.socket.connected) {
+      setTimeout(() => {
+        console.log("Waiting");
+        this.emit(msg, data);
+      }, 1000)
+      return;
+    }
+    console.log("Emiting", msg, data);
     if (data !== undefined) {
       this.socket.emit(msg, data);
     } else {
@@ -133,24 +78,56 @@ class App extends React.Component {
 
   name() {
     let username = window.localStorage.getItem('username');
-    if (username) {
+    if (username !== null && username !== undefined) {
+      this.temp_username = username;
       this.setState({
-        username: username,
-        state: STATE_JOIN,
+        loading: true,
+        state: STATE_UPDATE,
       });
-      this.emit('updateSocket', { player: username });
+      this.emit("updateSocket", { "player": username, userToken: this.userToken });
     } else {
-      this.nameDisplayError = "";
+      this.setState({
+        state: STATE_NAME,
+      });
     }
+  }
+
+  onUpdateFailed() {
+    this.temp_username = null;
+    this.userToken = null;
+
+    this.setState({
+      loading: false,
+      state: STATE_NAME,
+    });
+
+    window.localStorage.removeItem("userToken");
+    window.localStorage.removeItem("username");
+  }
+
+  onUpdateSuccess() {
+    this.setState({
+      username: this.temp_username,
+      loading: false,
+      state: STATE_JOIN,
+    }, () => {
+      this.temp_username = null;
+    });
   }
 
   handleNameSubmit() {
     let valid = validateName(this.temp_username);
     if (valid instanceof Error) {
-      this.setState({ displayError: valid.message });
+      this.setState({
+        displayError: valid.message
+      });
     } else {
-      this.setState({ lockName: true, loading: true });
-      this.socket.emit('addUser', { name: this.temp_username })
+      this.setState({
+        lockName: true,
+        loading: true,
+        displayError: null
+      });
+      this.emit('addUser', { name: this.temp_username });
     }
   }
 
@@ -162,22 +139,67 @@ class App extends React.Component {
   }
 
   onUserAdded(data) {
-    this.setState({ loading: false });
+    this.setState({
+      loading: false
+    });
 
-    if (data.msg != 'OK') {
+    if (data.msg !== 'OK') {
       this.temp_username = null;
-      this.setState({ lockName: false, displayError: data.msg });
+      this.setState({
+        lockName: false,
+        lockJoin: false,
+        displayError: data.msg
+      });
       return;
     }
 
-    this.setState({ state: STATE_JOIN })
+    this.temp_username = null;
+
+    this.setState({
+      state: STATE_JOIN,
+      username: data.name,
+      userToken: data.userToken,
+      displayError: null,
+      loading: false,
+    });
     window.localStorage.setItem('username', data.name);
     window.localStorage.setItem('userToken', data.userToken);
+  }
 
-    this.userToken = data.userToken;
-    this.username = data.name;
+  handleJoin() {
+    if (this.state.lockJoin) {
+      this.setState({
+        displayError: "Wait"
+      });
+      return;
+    }
+    this.setState({
+      lockJoin: true,
+      loading: true,
+      displayError: null
+    });
+    this.emit('join', { player: this.state.username });
+  }
 
-    this.temp_username = null;
+  onLockJoin(_data) {
+    this.setState({
+      displayError: "Wait",
+      lockName: true,
+      loading: true
+    });
+  }
+
+  onStartGame(data) {
+    this.setState({
+      displayError: null,
+      lockName: false,
+      loading: false,
+      state: STATE_PLACE
+    });
+
+    window.localStorage.setItem('gameToken', data.gameToken);
+    this.gameToken = data.gameToken;
+    this.gameId = data.gameId;
   }
 
   renderLoader() {
@@ -188,7 +210,9 @@ class App extends React.Component {
 
   render() {
     this.main = ""
-    if (this.state.state === STATE_NAME) {
+    if (this.state.state === STATE_UPDATE) {
+      
+    } else if (this.state.state === STATE_NAME) {
       this.main = (
         <NameSelector
           displayError={this.state.displayError}
@@ -197,12 +221,19 @@ class App extends React.Component {
           onUserNameChange={this.onUserNameChange.bind(this)}
         />
       )
+    } else if (this.state.state === STATE_JOIN) {
+      this.main = (
+        <JoinButton
+          displayError={this.state.displayError}
+          onClick={this.handleJoin.bind(this)}
+        />
+      )
     }
 
     this.loader = "";
     if (this.state.loading) {
       this.loader = (
-        <div> {this.renderLoader()} </div>
+        <div> { this.renderLoader() } </div>
       )
     }
 
@@ -238,7 +269,7 @@ class NameSelector extends React.Component {
 
     return (
 
-      <div id="namePrompt" className="row">
+      <div className="row">
         <div className="col-md-4 col-md-offset-4 text-center">
           <label className="form-label" htmlFor="inptName">Username</label>
         </div>
@@ -247,15 +278,14 @@ class NameSelector extends React.Component {
 
         <div className="col-md-4 col-md-offset-4 centered">
           <input
+            name="inptName"
             className="input-lg form-control"
             type="text"
             onChange={(event) => { this.props.onUserNameChange(event.target.value) }}
           />
         </div>
 
-        <div className="col-md-12 text-center">
-          <br />
-        </div>
+        <div className="col-md-12 text-center"><br /></div>
 
         <div className="col-md-4 col-md-offset-4 text-center">
           <button className="btn btn-primary btn-block" onClick={this.props.onClick}>Submit</button>
@@ -266,21 +296,5 @@ class NameSelector extends React.Component {
   }
 }
 
+
 export default App;
-
-
-function validateName(name) {
-  if (name == undefined || name == null) {
-    return new Error("Too Short. Minimum 5 characters");
-  }
-  if (name.length < 5) {
-    return new Error("Too Short. Minimum 5 characters");
-  }
-  if (name.length > 255) {
-    return new Error("Too Long. Maximum 255 characters");
-  }
-  if (/^\w+$/.test(name)) {
-    return true;
-  }
-  return new Error("Please Choose alphabets, numbers or '_'");
-}
