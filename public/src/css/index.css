@@ -1,4 +1,4 @@
-@import "bootstrap.css";
+@import "../static/bootstrap.css";
 
 body {
   padding-top: 75px;
@@ -108,7 +108,7 @@ body {
   background: red;
   top: 0px;
   left: 0px;
-  background: url("1.png");
+  background: url("../static/1.png");
 }
 
 .board-cell-info::before {
@@ -168,11 +168,11 @@ body {
 }
 
 .board-cell.shot {
-  background: url("1.png");
+  background: url("../static/1.png");
 }
 
 .board-cell.miss::before {
-  background: url("miss.png");
+  background: url("../static/miss.png");
   background-position: -5px -7px;
 }
 

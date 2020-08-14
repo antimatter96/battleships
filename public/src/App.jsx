@@ -1,7 +1,7 @@
 import React from 'react';
 import socketIOClient from "socket.io-client";
 
-import './App.css';
+import './css/App.css';
 import { validateName, rowHeaders } from './Utils'
 import Loader from './loader'
 import JoinButton from './join_button'
