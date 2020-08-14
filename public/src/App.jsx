@@ -5,6 +5,8 @@ import './App.css';
 import { validateName, rowHeaders } from './Utils'
 import Loader from './loader'
 import JoinButton from './join_button'
+import NameSelector from './name_selector'
+import ShipPLacement from './ship_placement'
 
 const STATE_UPDATE = 0.5
 const STATE_NAME = 1;
@@ -25,17 +27,21 @@ class App extends React.Component {
     super(props);
     this.state = {
       state: -1,
+
       loading: false,
+
       username: null,
+      userToken: null,
+      gameToken: null,
+      gameId: null,
+
       displayError: null,
+
       lockName: false,
       lockJoin: false,
     };
 
-    this.gameToken = "";
-    this.userToken = "";
-
-    this.userToken = window.localStorage.getItem('userToken');
+    this.temp_userToken = window.localStorage.getItem('userToken');
     this.gameToken = window.localStorage.getItem('gameToken');
     this.gameId = null;
 
@@ -58,6 +64,7 @@ class App extends React.Component {
     this.socket.on("userAdded", this.onUserAdded.bind(this));
     this.socket.on("updateFailed", this.onUpdateFailed.bind(this));
     this.socket.on("updateSuccess", this.onUpdateSuccess.bind(this));
+    this.socket.on("startGame", this.onStartGame.bind(this));
   }
 
   emit(msg, data) {
@@ -78,44 +85,55 @@ class App extends React.Component {
 
   name() {
     let username = window.localStorage.getItem('username');
-    if (username !== null && username !== undefined) {
+    if ( typeof username === "string" ) {
       this.temp_username = username;
       this.setState({
         loading: true,
         state: STATE_UPDATE,
       });
-      this.emit("updateSocket", { "player": username, userToken: this.userToken });
+      this.emit("updateSocket", { "player": username, userToken: this.temp_userToken });
     } else {
       this.setState({
+        loading: false,
         state: STATE_NAME,
+        displayError: null,
       });
     }
   }
 
   onUpdateFailed() {
     this.temp_username = null;
-    this.userToken = null;
+    this.temp_userToken = null;
+
+    window.localStorage.removeItem("userToken");
+    window.localStorage.removeItem("username");
 
     this.setState({
       loading: false,
       state: STATE_NAME,
+      displayError: null,
     });
-
-    window.localStorage.removeItem("userToken");
-    window.localStorage.removeItem("username");
   }
 
   onUpdateSuccess() {
     this.setState({
       username: this.temp_username,
+      userToken: this.temp_userToken,
       loading: false,
       state: STATE_JOIN,
     }, () => {
       this.temp_username = null;
+      this.temp_userToken = null;
     });
   }
 
   handleNameSubmit() {
+    if (this.state.lockName) {
+      this.setState({
+        displayError: "Please Wait"
+      });
+      return;
+    }
     let valid = validateName(this.temp_username);
     if (valid instanceof Error) {
       this.setState({
@@ -161,6 +179,8 @@ class App extends React.Component {
       userToken: data.userToken,
       displayError: null,
       loading: false,
+      lockJoin: false,
+      lockName: false,
     });
     window.localStorage.setItem('username', data.name);
     window.localStorage.setItem('userToken', data.userToken);
@@ -194,18 +214,12 @@ class App extends React.Component {
       displayError: null,
       lockName: false,
       loading: false,
-      state: STATE_PLACE
+      state: STATE_PLACE,
+      gameId: data.gameId,
+      gameToken: data.gameToken,
     });
 
     window.localStorage.setItem('gameToken', data.gameToken);
-    this.gameToken = data.gameToken;
-    this.gameId = data.gameId;
-  }
-
-  renderLoader() {
-    return (
-      <Loader text={"Loading..."} />
-    );
   }
 
   render() {
@@ -228,12 +242,18 @@ class App extends React.Component {
           onClick={this.handleJoin.bind(this)}
         />
       )
-    }
+    } else if (this.state.state === STATE_PLACE) {
+    this.main = (
+      <ShipPLacement/>
+    )
+  }
 
     this.loader = "";
     if (this.state.loading) {
       this.loader = (
-        <div> { this.renderLoader() } </div>
+        <div>
+          <Loader text={"Loading..."}/>
+        </div>
       )
     }
 
@@ -258,43 +278,6 @@ class App extends React.Component {
   }
 }
 
-class NameSelector extends React.Component {
-  render() {
-    this.displayError = "";
-    if (this.props.displayError) {
-      this.displayError = (
-        <label id="errorName">{this.props.displayError}</label>
-      );
-    }
-
-    return (
-
-      <div className="row">
-        <div className="col-md-4 col-md-offset-4 text-center">
-          <label className="form-label" htmlFor="inptName">Username</label>
-        </div>
-
-        <br />
-
-        <div className="col-md-4 col-md-offset-4 centered">
-          <input
-            name="inptName"
-            className="input-lg form-control"
-            type="text"
-            onChange={(event) => { this.props.onUserNameChange(event.target.value) }}
-          />
-        </div>
-
-        <div className="col-md-12 text-center"><br /></div>
-
-        <div className="col-md-4 col-md-offset-4 text-center">
-          <button className="btn btn-primary btn-block" onClick={this.props.onClick}>Submit</button>
-          {this.displayError}
-        </div>
-      </div>
-    );
-  }
-}
 
 
 export default App;

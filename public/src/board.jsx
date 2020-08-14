@@ -1,34 +1,58 @@
 import React from 'react';
-import { rowHeaders, colStarts } from './Utils'
+import { rowHeaders, colStarts, lengthOfType, arrOfI, arrOfJ } from './Utils'
+import Cell from './cell'
+
+const infoSet = new Set(["board-cell-info"]);
+const btnSet = new Set(["board-cell"]);
 
 class Board extends React.Component {
   constructor(props) {
     super(props);
+
+    let pointsOfShip = {
+      A: new Set(),
+      B: new Set(),
+      C: new Set(),
+      D: new Set(),
+      E: new Set(),
+    };
+
+    let playerBoard = new Array(10);
+    for (let i = 0; i < 10; i++) {
+      playerBoard[i] = (new Array(10)).fill(0);
+    }
+
     this.state = {
-      value: null,
+      pointsOfShip: pointsOfShip,
+      playerBoard: playerBoard,
     };
   }
 
   render() {
     this.headers = rowHeaders.map((number) => {
       return (
-        <span
-          key={number.toString()}
-          className="board-cell-info btn"
-          data-info={number}
-        >
-        </span>
+        <Cell
+          key={ number.toString() }
+          dataInfo={ number }
+          classes={ [...infoSet] }
+        />
       )
     });
 
     this.body = colStarts.map((i) => {
       return (
-        <div key={i} className="board-row" >
-          <span className="board-cell-info btn" data-info={i + 1}></span>
+        <div key={ i } className="board-row" >
+          <Cell classes={ [...infoSet] } dataInfo={ i + 1 }/>
           {
             colStarts.map((j) => {
               return (
-                <span key={j} className="board-cell btn" id={`cell-${i}${j}`}></span>
+                <Cell
+                  key={ j }
+
+                  i={ i }
+                  j={ j }
+                  classes={ [...btnSet] }
+                />
               )
             })
           }
@@ -37,18 +61,15 @@ class Board extends React.Component {
     });
 
     return (
-      <>
-        <div id="chooseBoard" className="col-md-5 col-md-offset-1">
-          <div className="board-row">
-            {this.headers}
-          </div>
-
-          {this.body}
-
+      <div className="col-md-5 col-md-offset-1">
+        <div className="board-row">
+          { this.headers }
         </div>
-      </>
+        { this.body }
+      </div>
     );
   }
+
 }
 
 export default Board;
