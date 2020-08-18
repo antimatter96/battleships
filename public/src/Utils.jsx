@@ -16,6 +16,24 @@ function validateName(name) {
   return new Error("Please Choose alphabets, numbers or '_'");
 }
 
+function joinSets(setA, setB) {
+  let a = [...setA];
+  let b = [...setB];
+
+  a.push(...b);
+  return a;
+}
+
+function setIntersection(setA, setB) {
+  let _intersection = new Set()
+  for (let elem of setB) {
+    if (setA.has(elem)) {
+      _intersection.add(elem)
+    }
+  }
+  return _intersection
+}
+
 const ships = [
   { st: 'A', name: 'Carrier (5)' },
   { st: 'B', name: 'Submarine (4)' },
@@ -39,4 +57,6 @@ export {
   arrOfI,
   arrOfJ,
   ships,
+  joinSets,
+  setIntersection,
 }

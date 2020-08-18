@@ -1,7 +1,6 @@
 import React from 'react';
 import Board from './board';
-import { rowHeaders, colStarts, lengthOfType, arrOfI, arrOfJ, ships } from './Utils'
-
+import { rowHeaders, colStarts, lengthOfType, arrOfI, arrOfJ, ships, setIntersection } from './Utils'
 
 class ShipPLacement extends Board {
   constructor(props) {
@@ -12,6 +11,30 @@ class ShipPLacement extends Board {
     let locked = { A: false, B: false, C: false, D: false, E: false };
     let shipErrors = { A: null, B: null, C: null, D: null, E: null }
 
+    let pointsOfShip = {
+      A: new Set(),
+      B: new Set(),
+      C: new Set(),
+      D: new Set(),
+      E: new Set(),
+    };
+
+    let playerBoardClasses = new Array(10);
+    for (let i = 0; i < 10; i++) {
+      playerBoardClasses[i] = (new Array(10)).fill(0);
+    }
+
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        playerBoardClasses[i][j] = new Set();
+      }
+    }
+
+    let playerBoard = new Array(10);
+    for (let i = 0; i < 10; i++) {
+      playerBoard[i] = (new Array(10)).fill(0);
+    }
+
     this.state = {
       lockReady: false,
       boardValid: false,
@@ -20,7 +43,23 @@ class ShipPLacement extends Board {
       locked: locked,
       displayError: null,
       shipErrors: shipErrors,
+      pointsOfShip: pointsOfShip,
+      playerBoardClasses: playerBoardClasses,
+      playerBoard: playerBoard,
+
+      _tempXShipA: null,
+      _tempYShipA: null,
+      _tempXShipB: null,
+      _tempYShipB: null,
+      _tempXShipC: null,
+      _tempYShipC: null,
+      _tempXShipD: null,
+      _tempYShipD: null,
+      _tempXShipE: null,
+      _tempYShipE: null,
     };
+
+    //this.inputRefs = [];
   }
 
   boardIdValid() {
@@ -38,13 +77,9 @@ class ShipPLacement extends Board {
     return true;
   }
 
-  addShipClass(type, i, j, horizontal) {
-
-  }
-
   checkOverlap(valI, valJ, ship, horizontal) {
-    let j = arrOfJ.indexOf(valJ);
-    let i = arrOfI.indexOf(valI);
+    let j = arrOfJ.indexOf(valJ.toString());
+    let i = arrOfI.indexOf(valI.toString());
     let tempPoints = new Set();
 
     if (horizontal) {
@@ -62,54 +97,215 @@ class ShipPLacement extends Board {
         continue;
       }
       if (shipType != ship) {
-        let intersection = new Set([...this.state.pointsOfShip[shipType]].filter(x => tempPoints.has(x)));
+        let intersection = setIntersection(this.state.pointsOfShip[shipType], tempPoints);
         if (intersection.size > 0) {
-          return false;
+          return true;
         }
       }
     }
 
-    return true;
+    return false;
   }
 
   onClickFunction(e) {
     let ship = e.target.dataset["ship"];
+    let shipErrors = this.state.shipErrors;
+
     if (this.state.locked[ship]) {
-      // classInverter(ship, true);
-      let shipErrors = this.state.shipErrors;
       shipErrors[ship] = "Locked";
       this.setState({ shipErrors: shipErrors });
       return;
     }
-    // choicesChanged(ship);
-    console.log(e.target);
+
+    if (e.target.value.trim() === "") {
+      shipErrors[ship] = null;
+      this.setState({ shipErrors: shipErrors });
+      return;
+    }
+
+    let callback = () => { this.choicesChanged(ship) };
+
+    let coordinate = e.target.dataset["coordinate"];
+    let variable = `_temp${coordinate}Ship${ship}`;
+    if (coordinate == 'X') {
+      let val = parseInt(e.target.value);
+      if (val > 9 && val < 0) {
+        shipErrors[ship] = "Invalid Entries";
+        this.setState({ shipErrors: shipErrors });
+        return;
+      }
+      this.setState({
+        [variable]: val,
+      }, callback);
+    } else {
+      let val = e.target.value.toUpperCase();
+      if (val.length != "1" || !val.match(/[A-J]/)) {
+        shipErrors[ship] = "Invalid Entries";
+        this.setState({ shipErrors: shipErrors });
+        return;
+      }
+      this.setState({
+        [variable]: val,
+      }, callback);
+    }
+  }
+
+  choicesChanged(ship) {
+    let shipErrors = this.state.shipErrors;
+
+    shipErrors[ship] = null;
+
+    let valI = this.state[`_tempXShip${ship}`];
+    let valJ = this.state[`_tempYShip${ship}`];
+
+    let possibleBounds = true;
+    let possibleOverlap = true;
+
+    if (valI && valJ) {
+      if (arrOfI.indexOf(valI.toString()) > -1 && arrOfJ.indexOf(valJ) > -1) {
+        possibleBounds = ShipPLacement.checkBounds(valI, valJ, ship, this.state.hor[ship]);
+        if (possibleBounds) {
+          possibleOverlap = this.checkOverlap(valI, valJ, ship, this.state.hor[ship]);
+          if (!possibleOverlap) {
+            let placedBefore = this.state.placedBefore;
+
+            let callback = () => {
+              placedBefore[ship] = true;
+              this.setState({ placedBefore: placedBefore });
+
+              this.addPointsToShip(ship, arrOfI.indexOf(valI.toString()), arrOfJ.indexOf(valJ), this.state.hor[ship]);
+              this.addShipClass(ship, arrOfI.indexOf(valI.toString()), arrOfJ.indexOf(valJ), this.state.hor[ship]);
+            };
+
+            if (placedBefore[ship]) {
+              this.removeShip(ship, callback);
+            } else {
+              callback();
+            }
+
+            return;
+          } else {
+            shipErrors[ship] = "Overlapping ships";
+            this.setState({ shipErrors: shipErrors });
+            return;
+          }
+        } else {
+          shipErrors[ship] = "Out of bounds";
+          this.setState({ shipErrors: shipErrors });
+          return;
+        }
+      } else {
+        shipErrors[ship] = "Invalid entries";
+        this.setState({ shipErrors: shipErrors });
+        return;
+      }
+    }
+  }
+
+  removeShip(type, cb) {
+    console.log("removeShip", type);
+    let playerBoard = this.state.playerBoard;
+    let pointsOfShip = this.state.pointsOfShip;
+    let playerBoardClasses = this.state.playerBoardClasses;
+
+    let points = pointsOfShip[type];
+
+    let it = points.keys();
+
+    while (!it.done) {
+      let point = it.next().value;
+      console.log(point);
+      //point = point.value;
+      if (point) {
+        let pointJSON = JSON.parse(point);
+        let x = pointJSON.x;
+        let y = pointJSON.y;
+
+        console.log(playerBoardClasses[x][y]);
+        playerBoardClasses[x][y].delete(`ship${type}`);
+        playerBoard[x][y] = 0;
+      } else {
+        break;
+      }
+    }
+
+    pointsOfShip[type] = new Set();
+
+    this.setState({
+      pointsOfShip: pointsOfShip,
+      playerBoardClasses: playerBoardClasses,
+      playerBoard: playerBoard,
+    }, cb);
+  }
+
+  addPointsToShip(type, i, j, horizontal) {
+    let playerBoard = this.state.playerBoard;
+
+    let pointsOfShip = this.state.pointsOfShip;
+    let points = pointsOfShip[type];
+
+    points.clear();
+    if (horizontal) {
+      for (let y = j; y < j + lengthOfType[type]; y++) {
+        playerBoard[i][y] = 1;
+        points.add(JSON.stringify({ 'x': i, 'y': y }));
+      }
+    } else {
+      for (let x = i; x < i + lengthOfType[type]; x++) {
+        playerBoard[x][j] = 1;
+        points.add(JSON.stringify({ 'x': x, 'y': j }));
+      }
+    }
+
+    pointsOfShip[type] = points;
+    this.setState({
+      pointsOfShip: pointsOfShip,
+      playerBoard: playerBoard,
+    });
+  }
+
+  addShipClass(type, i, j, horizontal) {
+    // console.log(type, i, j);
+    let playerBoardClasses = this.state.playerBoardClasses;
+    // console.log(playerBoardClasses);
+    if (horizontal) {
+      for (let y = j; y < j + lengthOfType[type]; y++) {
+        playerBoardClasses[i][y].add(`ship${type}`);
+      }
+    } else {
+      for (let x = i; x < i + lengthOfType[type]; x++) {
+        // console.log(x, j);
+        playerBoardClasses[x][j].add(`ship${type}`);
+      }
+    }
+
+    this.setState({
+      playerBoardClasses: playerBoardClasses,
+    });
   }
 
   btnRot(e) {
     let ship = e.target.dataset["ship"];
     if (this.state.locked[ship]) {
-      // classInverter(ship, true);
       let shipErrors = this.state.shipErrors;
       shipErrors[ship] = "Locked";
       this.setState({ shipErrors: shipErrors });
       return;
     }
-    console.log(e.target);
+
     let hor = this.state.hor;
     hor[ship] = !hor[ship]
 
-    this.setState({ hor: hor });
+    let callback = () => { this.choicesChanged(ship) };
 
-    let dir = hor[ship] ? "Horizontal" : "Vertical";
-    //$('#btnRotIndic' + ship).text("Currently " + dir);
-    //choicesChanged(ship);
+    this.setState({
+      hor: hor,
+    }, callback);
   }
-
 
   btnDrop(e) {
     let ship = e.target.dataset["ship"];
     if (this.state.locked[ship]) {
-      // classInverter(ship, true);
       let shipErrors = this.state.shipErrors;
       shipErrors[ship] = "Already Locked";
       this.setState({ shipErrors: shipErrors });
@@ -117,15 +313,13 @@ class ShipPLacement extends Board {
     }
 
     if (this.state.placedBefore[ship]) {
-      this.classList.remove('btn-primary');
-      this.classList.add('btn-danger');
+      e.target.classList.remove('btn-primary');
+      e.target.classList.add('btn-danger');
 
       let locked = this.state.locked;
       locked[ship] = true;
       this.setState({ locked: locked });
-
     } else {
-      // classInverter(ship, true);
       let shipErrors = this.state.shipErrors;
       shipErrors[ship] = "Please Place before locking";
       this.setState({ shipErrors: shipErrors });
@@ -152,16 +346,16 @@ class ShipPLacement extends Board {
           <label>Place {`${ship.name}`}</label>
           <br />
           <span className="col-md-1 boardInpt">
-            <input id={`${ship.st}i`} className="form-control inptXY" data-ship={`${ship.st}`} type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onClickFunction.bind(this)} />
+            <input className="form-control inptXY" data-ship={`${ship.st}`} data-coordinate={`X`} type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onClickFunction.bind(this)} />
           </span>
           <span className="col-md-1 boardInpt">
-            <input id={`${ship.st}j`} className="form-control inptXY" data-ship={`${ship.st}`} minLength="1" maxLength="1" placeholder="A" list="defaultNumbers" onChange={this.onClickFunction.bind(this)} />
+            <input className="form-control inptXY" data-ship={`${ship.st}`} data-coordinate={`Y`} minLength="1" maxLength="1" placeholder="A" list="defaultNumbers" onChange={this.onClickFunction.bind(this)} />
           </span>
           <span className="col-md-2 boardBtn">
             <button id={`btnRot${ship.st}`} className="btn btn-info btnRot" data-ship={`${ship.st}`} onClick={this.btnRot.bind(this)}>Rotate</button>
           </span>
           <span className="col-md-4 boardBtn">
-            <button id={`btnRotIndic${ship.st}`} className="btn btn-block btn-default" disabled>Currently Vertical</button>
+            <button id={`btnRotIndic${ship.st}`} className="btn btn-block btn-default" disabled>Currently {this.state[ship.st] ? "Horizontal" : "Vertical"}</button>
           </span>
           <span className="col-md-2 col-md-offset-1 boardBtn">
             <button className="btn btn-primary btn-block btnDrop" data-ship={`${ship.st}`} onClick={this.btnDrop.bind(this)}>Drop</button>
@@ -187,7 +381,10 @@ class ShipPLacement extends Board {
         <div className="col-md-6 col-md-offset-3 text-center">
           <h3>Place your ships</h3>
         </div>
-        <Board />
+        <Board
+          playerBoardClasses={this.state.playerBoardClasses}
+          playerBoard={this.state.playerBoard}
+        />
         <div id="placementControls" className="col-md-6 container">
           <div className="row">
             <div className="col-md-12">

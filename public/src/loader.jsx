@@ -12,7 +12,7 @@ const colorArrLength = colorArr.length;
 class Loader extends React.Component {
   constructor() {
     super()
-    this.state ={
+    this.state = {
       c1: colorArr[0],
       c2: colorArr[0],
     };
@@ -42,8 +42,8 @@ class Loader extends React.Component {
       <nav id="globalLoading" className="navbar navbar-default navbar-fixed-top">
         <div className="container-fluid">
           <div className="spinner">
-            <div id="_dot1" className="dot1" style={{"backgroundColor" : this.state.c1}}></div>
-            <div id="_dot2" className="dot2" style={{"backgroundColor" : this.state.c2}}></div>
+            <div id="_dot1" className="dot1" style={{ "backgroundColor": this.state.c1 }}></div>
+            <div id="_dot2" className="dot2" style={{ "backgroundColor": this.state.c2 }}></div>
           </div>
           <div className="globalLoading-text">{this.props.text}</div>
         </div>
