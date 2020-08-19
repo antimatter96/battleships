@@ -5,7 +5,7 @@ class NameSelector extends React.Component {
     this.displayError = "";
     if (this.props.displayError) {
       this.displayError = (
-        <label id="errorName">{ this.props.displayError }</label>
+        <label id="errorName">{this.props.displayError}</label>
       );
     }
 
@@ -29,8 +29,8 @@ class NameSelector extends React.Component {
         <div className="col-md-12 text-center"><br /></div>
 
         <div className="col-md-4 col-md-offset-4 text-center">
-          <button className="btn btn-primary btn-block" onClick={ this.props.onClick }>Submit</button>
-          { this.displayError }
+          <button className="btn btn-primary btn-block" onClick={this.props.onClick}>Submit</button>
+          {this.displayError}
         </div>
       </div>
     );

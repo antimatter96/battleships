@@ -300,14 +300,14 @@ class App extends React.Component {
     } else if (this.state.state === STATE_PLAY) {
       this.main = (
         <>
-        <Board
-          playerBoardClasses={this.state.playerBoardClasses}
-          playerBoard={this.state.playerBoard}
-        />
-        <Board
-          playerBoardClasses={this.state.oppBoardClasses}
-          playerBoard={this.state.oppBoard}
-        />
+          <Board
+            playerBoardClasses={this.state.playerBoardClasses}
+            playerBoard={this.state.playerBoard}
+          />
+          <Board
+            playerBoardClasses={this.state.oppBoardClasses}
+            playerBoard={this.state.oppBoard}
+          />
         </>
       )
     }
