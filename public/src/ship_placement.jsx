@@ -337,7 +337,7 @@ class ShipPLacement extends Board {
     let boardValid = this.boardIsValid();
     if (!boardValid) {
       this.setState({
-        displayError: "Wait",
+        displayError: "Invalid Board",
       })
       return;
     }
@@ -356,6 +356,37 @@ class ShipPLacement extends Board {
       locked: locked,
       lockReady: true,
     });
+
+    let toSend = this.makeToSend();
+    this.props.onChosen(toSend, {
+      playerBoard: this.state.playerBoard,
+      playerBoardClasses: this.state.playerBoardClasses,
+    });
+    //console.log(toSend);
+  }
+
+  makeToSend() {
+    let arrToSend = {};
+    for (let shipType in this.state.pointsOfShip) {
+      if (!Object.prototype.hasOwnProperty.call(this.state.pointsOfShip, shipType)) {
+        continue;
+      }
+      arrToSend[shipType] = {};
+      let points = this.state.pointsOfShip[shipType];
+      let z = points.keys();
+      let i = 0;
+      while (!z.done) {
+        let point = z.next();
+        point = point.value;
+        if (!point) {
+          break;
+        }
+        point = JSON.parse(point);
+        arrToSend[shipType][i] = point;
+        i++;
+      }
+    }
+    return arrToSend;
   }
 
   static checkBounds(valI, valJ, ship, horizontal) {
@@ -387,7 +418,7 @@ class ShipPLacement extends Board {
             <button id={`btnRot${ship.st}`} className="btn btn-info btnRot" data-ship={`${ship.st}`} onClick={this.btnRot.bind(this)}>Rotate</button>
           </span>
           <span className="col-md-4 boardBtn">
-            <button id={`btnRotIndic${ship.st}`} className="btn btn-block btn-default" disabled>Currently {this.state[ship.st] ? "Horizontal" : "Vertical"}</button>
+            <button id={`btnRotIndic${ship.st}`} className="btn btn-block btn-default" disabled>Currently {this.state.hor[ship.st] ? "Horizontal" : "Vertical"}</button>
           </span>
           <span className="col-md-2 col-md-offset-1 boardBtn">
             <button className="btn btn-primary btn-block btnDrop" data-ship={`${ship.st}`} onClick={this.btnDrop.bind(this)}>Drop</button>

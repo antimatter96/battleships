@@ -7,6 +7,7 @@ import Loader from './loader'
 import JoinButton from './join_button'
 import NameSelector from './name_selector'
 import ShipPLacement from './ship_placement'
+import Board from './board';
 
 const STATE_UPDATE = 0.5
 const STATE_NAME = 1;
@@ -39,6 +40,14 @@ class App extends React.Component {
 
       lockName: false,
       lockJoin: false,
+
+      myTurn: false,
+
+      playerBoardClasses: null,
+      playerBoard: null,
+
+      oppBoardClasses: null,
+      oppBoard: null,
     };
 
     this.temp_userToken = window.localStorage.getItem('userToken');
@@ -65,6 +74,8 @@ class App extends React.Component {
     this.socket.on("updateFailed", this.onUpdateFailed.bind(this));
     this.socket.on("updateSuccess", this.onUpdateSuccess.bind(this));
     this.socket.on("startGame", this.onStartGame.bind(this));
+    this.socket.on("wait", this.onWait.bind(this));
+    this.socket.on("go", this.onGo.bind(this));
   }
 
   emit(msg, data) {
@@ -85,7 +96,7 @@ class App extends React.Component {
 
   name() {
     let username = window.localStorage.getItem('username');
-    if ( typeof username === "string" ) {
+    if (typeof username === "string") {
       this.temp_username = username;
       this.setState({
         loading: true,
@@ -222,10 +233,50 @@ class App extends React.Component {
     window.localStorage.setItem('gameToken', data.gameToken);
   }
 
+  chosen(toSend, internalData) {
+    this.emit('boardMade', {
+      gameId: this.state.gameId,
+      shipPlacement: toSend,
+      player: this.state.username,
+      userToken: this.state.userToken,
+      gameToken: this.state.gameToken
+    });
+
+    this.setState({
+      playerBoard: internalData.playerBoard,
+      playerBoardClasses: internalData.playerBoardClasses,
+    })
+  }
+
+
+  onWait(data) {
+    if (data.status === "Error") {
+      this.setState({
+        displayError: data.msg
+      });
+
+      return;
+    }
+
+    this.setState({
+      loading: true,
+      state: STATE_PLAY
+    });
+  }
+
+  onGo(data) {
+    if (data.start) {
+      this.setState({
+        loading: false,
+        myTurn: true
+      });
+    }
+  }
+
   render() {
     this.main = ""
     if (this.state.state === STATE_UPDATE) {
-      
+
     } else if (this.state.state === STATE_NAME) {
       this.main = (
         <NameSelector
@@ -243,16 +294,29 @@ class App extends React.Component {
         />
       )
     } else if (this.state.state === STATE_PLACE) {
-    this.main = (
-      <ShipPLacement/>
-    )
-  }
+      this.main = (
+        <ShipPLacement onChosen={this.chosen.bind(this)} />
+      )
+    } else if (this.state.state === STATE_PLAY) {
+      this.main = (
+        <>
+        <Board
+          playerBoardClasses={this.state.playerBoardClasses}
+          playerBoard={this.state.playerBoard}
+        />
+        <Board
+          playerBoardClasses={this.state.oppBoardClasses}
+          playerBoard={this.state.oppBoard}
+        />
+        </>
+      )
+    }
 
     this.loader = "";
     if (this.state.loading) {
       this.loader = (
         <div>
-          <Loader text={"Loading..."}/>
+          <Loader text={"Loading..."} />
         </div>
       )
     }
