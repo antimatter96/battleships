@@ -62,7 +62,7 @@ class ShipPLacement extends Board {
     //this.inputRefs = [];
   }
 
-  boardIdValid() {
+  boardIsValid() {
     for (let shipType in this.state.pointsOfShip) {
       if (!Object.prototype.hasOwnProperty.call(this.state.pointsOfShip, shipType)) {
         continue;
@@ -326,13 +326,45 @@ class ShipPLacement extends Board {
     }
   }
 
+  ready() {
+    if (this.state.lockReady) {
+      this.setState({
+        displayError: "Wait",
+      })
+      return;
+    }
+
+    let boardValid = this.boardIsValid();
+    if (!boardValid) {
+      this.setState({
+        displayError: "Wait",
+      })
+      return;
+    }
+
+    let locked = this.state.locked;
+
+    for (let shipType in locked) {
+      if (!Object.prototype.hasOwnProperty.call(locked, shipType)) {
+        continue;
+      }
+      locked[shipType] = true;
+    }
+
+    this.setState({
+      displayError: null,
+      locked: locked,
+      lockReady: true,
+    });
+  }
+
   static checkBounds(valI, valJ, ship, horizontal) {
     if (horizontal) {
-      if (arrOfJ.indexOf(valJ) + lengthOfType[ship] > 10) {
+      if (arrOfJ.indexOf(valJ.toString()) + lengthOfType[ship] > 10) {
         return false;
       }
     } else {
-      if (arrOfI.indexOf(valI) + lengthOfType[ship] > 10) {
+      if (arrOfI.indexOf(valI.toString()) + lengthOfType[ship] > 10) {
         return false;
       }
     }
@@ -394,7 +426,7 @@ class ShipPLacement extends Board {
           {this.main}
         </div>
         <div className="col-md-4 col-md-offset-4 text-center">
-          <button id="btnReady" className="btn btn-primary btn-block">Ready</button>
+          <button id="btnReady" className="btn btn-primary btn-block" onClick={this.ready.bind(this)}>Ready</button>
           {this.displayError}
         </div>
       </div>
