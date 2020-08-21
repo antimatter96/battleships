@@ -12,7 +12,11 @@ class JoinButton extends React.Component {
     return (
       <div className="row">
         <div className="col-md-4 col-md-offset-4 text-center">
-          <button className="btn btn-primary btn-block" onClick={this.props.onClick}>Join Game</button>
+          <button
+            id="btnJoin"
+            className="btn btn-primary btn-block"
+            onClick={this.props.onClick}
+          >Join Game</button>
           {this.displayError}
         </div>
       </div>

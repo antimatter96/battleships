@@ -48,6 +48,12 @@ class App extends React.Component {
 
       oppBoardClasses: null,
       oppBoard: null,
+
+      shootingX: null,
+      shootingY: null,
+
+      lastX: null,
+      lastY: null,
     };
 
     this.temp_userToken = window.localStorage.getItem('userToken');
@@ -258,9 +264,25 @@ class App extends React.Component {
       return;
     }
 
+    let playerBoard = new Array(10);
+    for (let i = 0; i < 10; i++) {
+      playerBoard[i] = (new Array(10)).fill(0);
+    }
+
+    let playerBoardClasses = new Array(10);
+
+    for (let i = 0; i < 10; i++) {
+      playerBoardClasses[i] = (new Array(10)).fill(0);
+      for (let j = 0; j < 10; j++) {
+        playerBoardClasses[i][j] = new Set();
+      }
+    }
+
     this.setState({
       loading: true,
-      state: STATE_PLAY
+      state: STATE_PLAY,
+      oppBoardClasses: playerBoardClasses,
+      oppBoard: playerBoard,
     });
   }
 
@@ -272,6 +294,13 @@ class App extends React.Component {
       });
     }
   }
+
+  handleShoot() {
+
+
+  }
+
+  on
 
   render() {
     this.main = ""
@@ -299,16 +328,40 @@ class App extends React.Component {
       )
     } else if (this.state.state === STATE_PLAY) {
       this.main = (
-        <>
-          <Board
-            playerBoardClasses={this.state.playerBoardClasses}
-            playerBoard={this.state.playerBoard}
-          />
-          <Board
-            playerBoardClasses={this.state.oppBoardClasses}
-            playerBoard={this.state.oppBoard}
-          />
-        </>
+        <div id="board" class="row container">
+          <div id="battleBoard" class="row">
+            <div className="col-md-5 col-md-offset-1 centered-i">
+              <h4>You</h4>
+
+            </div>
+            <div className="col-md-5 col-md-offset-1 centered-i">
+              <h4>Opponent</h4>
+
+            </div>
+            <Board
+              playerBoardClasses={this.state.playerBoardClasses}
+              playerBoard={this.state.playerBoard}
+            />
+            <Board
+              playerBoardClasses={this.state.oppBoardClasses}
+              playerBoard={this.state.oppBoard}
+            />
+          </div>
+          <div class="row">
+            <span class="col-md-1 boardInpt col-md-offset-8">
+              <input id="shoti" class="form-control shotInptXY" type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onChangeFunction.bind(this)}/>
+            </span>
+            <span class="col-md-1 boardInpt">
+              <input id="shotj" class="form-control shotInptXY" minlength="1" maxlength="1" placeholder="A" list="defaultNumbers" onChange={this.onChangeFunction.bind(this)}/>
+            </span>
+            <span class="col-md-2 boardBtn">
+              <button id="btnShoot" class="btn btn-primary btn-block btnShoot">Shoot!</button>
+            </span>
+            <span class="col-md-2 col-md-offset-10 centered-i boardBtn">
+              <label id="errorShoot" class="label label-default">.</label>
+            </span>
+          </div>
+        </div>
       )
     }
 

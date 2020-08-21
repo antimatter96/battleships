@@ -20,6 +20,7 @@ class NameSelector extends React.Component {
         <div className="col-md-4 col-md-offset-4 centered">
           <input
             name="inptName"
+            id="inptName"
             className="input-lg form-control"
             type="text"
             onChange={(event) => { this.props.onUserNameChange(event.target.value) }}
@@ -29,7 +30,12 @@ class NameSelector extends React.Component {
         <div className="col-md-12 text-center"><br /></div>
 
         <div className="col-md-4 col-md-offset-4 text-center">
-          <button className="btn btn-primary btn-block" onClick={this.props.onClick}>Submit</button>
+          <button
+            id="btnSubmitName"
+            className="btn btn-primary btn-block"
+            onClick={this.props.onClick}
+          >Submit
+          </button>
           {this.displayError}
         </div>
       </div>

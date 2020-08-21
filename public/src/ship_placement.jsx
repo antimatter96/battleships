@@ -107,7 +107,7 @@ class ShipPLacement extends Board {
     return false;
   }
 
-  onClickFunction(e) {
+  onChangeFunction(e) {
     let ship = e.target.dataset["ship"];
     let shipErrors = this.state.shipErrors;
 
@@ -409,10 +409,10 @@ class ShipPLacement extends Board {
           <label>Place {`${ship.name}`}</label>
           <br />
           <span className="col-md-1 boardInpt">
-            <input className="form-control inptXY" data-ship={`${ship.st}`} data-coordinate={`X`} type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onClickFunction.bind(this)} />
+            <input id={`${ship.st}i`} className="form-control inptXY" data-ship={`${ship.st}`} data-coordinate={`X`} type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onChangeFunction.bind(this)} />
           </span>
           <span className="col-md-1 boardInpt">
-            <input className="form-control inptXY" data-ship={`${ship.st}`} data-coordinate={`Y`} minLength="1" maxLength="1" placeholder="A" list="defaultNumbers" onChange={this.onClickFunction.bind(this)} />
+            <input id={`${ship.st}j`} className="form-control inptXY" data-ship={`${ship.st}`} data-coordinate={`Y`} minLength="1" maxLength="1" placeholder="A" list="defaultNumbers" onChange={this.onChangeFunction.bind(this)} />
           </span>
           <span className="col-md-2 boardBtn">
             <button id={`btnRot${ship.st}`} className="btn btn-info btnRot" data-ship={`${ship.st}`} onClick={this.btnRot.bind(this)}>Rotate</button>
