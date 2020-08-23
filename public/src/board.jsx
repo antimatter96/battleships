@@ -1,6 +1,6 @@
 import React from 'react';
-import { rowHeaders, colStarts, joinSets } from './Utils'
-import Cell from './cell'
+import { rowHeaders, colStarts, joinSets } from './Utils';
+import Cell from './cell';
 
 const infoSet = new Set(["board-cell-info"]);
 const btnSet = new Set(["board-cell"]);
@@ -38,7 +38,7 @@ class Board extends React.Component {
       }
     }
 
-    let playerBoardClasses
+    let playerBoardClasses;
     if (props.playerBoardClasses) {
       playerBoardClasses = props.playerBoardClasses;
     } else {
@@ -66,14 +66,14 @@ class Board extends React.Component {
     let status = this.state.playerBoard[i][j];
     let toAdd = this.props.playerBoardClasses[i][j];
 
-    let toRet = []
+    let toRet = [];
 
     switch (status) {
       case 1:
         toRet = joinSets(btnSet, toAdd);
         break;
       default:
-        toRet = [...btnSet]
+        toRet = [...btnSet];
         break;
     }
 
@@ -88,7 +88,7 @@ class Board extends React.Component {
           dataInfo={number}
           classes={[...infoSet]}
         />
-      )
+      );
     });
 
     this.body = colStarts.map((i) => {
@@ -104,11 +104,11 @@ class Board extends React.Component {
                   j={j}
                   classes={this.getClassName(i, j)}
                 />
-              )
+              );
             })
           }
         </div>
-      )
+      );
     });
 
     return (

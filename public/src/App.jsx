@@ -2,26 +2,18 @@ import React from 'react';
 import socketIOClient from "socket.io-client";
 
 import './css/App.css';
-import { validateName, rowHeaders } from './Utils'
-import Loader from './loader'
-import JoinButton from './join_button'
-import NameSelector from './name_selector'
-import ShipPLacement from './ship_placement'
+import { validateName, rowHeaders } from './Utils';
+import Loader from './loader';
+import JoinButton from './join_button';
+import NameSelector from './name_selector';
+import ShipPLacement from './ship_placement';
 import Board from './board';
 
-const STATE_UPDATE = 0.5
+const STATE_UPDATE = 0.5;
 const STATE_NAME = 1;
 const STATE_JOIN = 2;
 const STATE_PLACE = 3;
 const STATE_PLAY = 4;
-
-class Square extends React.Component {
-  render() {
-    return (
-      <button className="square"> {this.props.value} </button>
-    );
-  }
-}
 
 class App extends React.Component {
   constructor(props) {
@@ -49,8 +41,8 @@ class App extends React.Component {
       oppBoardClasses: null,
       oppBoard: null,
 
-      shootingX: null,
-      shootingY: null,
+      shoti: null,
+      shotj: null,
 
       lastX: null,
       lastY: null,
@@ -89,7 +81,7 @@ class App extends React.Component {
       setTimeout(() => {
         console.log("Waiting");
         this.emit(msg, data);
-      }, 1000)
+      }, 1000);
       return;
     }
     console.log("Emiting", msg, data);
@@ -251,7 +243,7 @@ class App extends React.Component {
     this.setState({
       playerBoard: internalData.playerBoard,
       playerBoardClasses: internalData.playerBoardClasses,
-    })
+    });
   }
 
 
@@ -295,15 +287,29 @@ class App extends React.Component {
     }
   }
 
-  handleShoot() {
+  onShoot() {
+    let x = this.state.shoti;
+    let y = this.state.shotj;
 
-
+    let valX = parseInt(x);
+    let valY = y.toUpperCase();
+    if (valX > 9 || valX < 0 || valY.length != "1" || !valY.match(/[A-J]/)) {
+      this.setState({ displayError: "Invalid Entries" });
+      return;
+    }
   }
 
-  on
+  onChangeFunction(e) {
+    console.log(e.target.value);
+    console.log(e.target.id);
+
+    this.setState({
+      [e.target.id]: e.target.value
+    });
+  }
 
   render() {
-    this.main = ""
+    this.main = "";
     if (this.state.state === STATE_UPDATE) {
 
     } else if (this.state.state === STATE_NAME) {
@@ -314,22 +320,22 @@ class App extends React.Component {
           username={this.state.username}
           onUserNameChange={this.onUserNameChange.bind(this)}
         />
-      )
+      );
     } else if (this.state.state === STATE_JOIN) {
       this.main = (
         <JoinButton
           displayError={this.state.displayError}
           onClick={this.handleJoin.bind(this)}
         />
-      )
+      );
     } else if (this.state.state === STATE_PLACE) {
       this.main = (
         <ShipPLacement onChosen={this.chosen.bind(this)} />
-      )
+      );
     } else if (this.state.state === STATE_PLAY) {
       this.main = (
-        <div id="board" class="row container">
-          <div id="battleBoard" class="row">
+        <div id="board" className="row container">
+          <div id="battleBoard" className="row">
             <div className="col-md-5 col-md-offset-1 centered-i">
               <h4>You</h4>
 
@@ -347,22 +353,24 @@ class App extends React.Component {
               playerBoard={this.state.oppBoard}
             />
           </div>
-          <div class="row">
-            <span class="col-md-1 boardInpt col-md-offset-8">
-              <input id="shoti" class="form-control shotInptXY" type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onChangeFunction.bind(this)}/>
+          <div className="row">
+            <span className="col-md-1 boardInpt col-md-offset-8">
+              <input id="shoti" className="form-control shotInptXY" type="number" min="1" max="10" step="1" placeholder="0" onChange={this.onChangeFunction.bind(this)} />
             </span>
-            <span class="col-md-1 boardInpt">
-              <input id="shotj" class="form-control shotInptXY" minlength="1" maxlength="1" placeholder="A" list="defaultNumbers" onChange={this.onChangeFunction.bind(this)}/>
+            <span className="col-md-1 boardInpt">
+              <input id="shotj" className="form-control shotInptXY" minLength="1" maxLength="1" placeholder="A" list="defaultNumbers" onChange={this.onChangeFunction.bind(this)} />
             </span>
-            <span class="col-md-2 boardBtn">
-              <button id="btnShoot" class="btn btn-primary btn-block btnShoot">Shoot!</button>
+            <span className="col-md-2 boardBtn">
+              <button id="btnShoot" className="btn btn-primary btn-block btnShoot" onClick={this.onShoot.bind(this)}>Shoot!</button>
             </span>
-            <span class="col-md-2 col-md-offset-10 centered-i boardBtn">
-              <label id="errorShoot" class="label label-default">.</label>
-            </span>
+            {
+              this.state.displayError ? (<span className="col-md-2 col-md-offset-10 centered-i boardBtn">
+                <label id="errorShoot" className="label label-danger">{this.state.displayError}</label>
+              </span>) : ""
+            }
           </div>
         </div>
-      )
+      );
     }
 
     this.loader = "";
@@ -371,14 +379,14 @@ class App extends React.Component {
         <div>
           <Loader text={"Loading..."} />
         </div>
-      )
+      );
     }
 
     this.dataList = (
       <datalist id="defaultNumbers">
         {
           rowHeaders.slice(1, 11).map((i) => {
-            return (<option key={i} value={i} />)
+            return (<option key={i} value={i} />);
           })
         }
       </datalist>

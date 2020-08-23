@@ -25,13 +25,13 @@ function joinSets(setA, setB) {
 }
 
 function setIntersection(setA, setB) {
-  let _intersection = new Set()
+  let _intersection = new Set();
   for (let elem of setB) {
     if (setA.has(elem)) {
-      _intersection.add(elem)
+      _intersection.add(elem);
     }
   }
-  return _intersection
+  return _intersection;
 }
 
 const ships = [
@@ -40,7 +40,7 @@ const ships = [
   { st: 'C', name: 'Destroyer (3)' },
   { st: 'D', name: 'Cruiser (3)' },
   { st: 'E', name: 'Patrol (2)' }
-]
+];
 
 const lengthOfType = { A: 5, B: 4, C: 3, D: 3, E: 2 };
 const rowHeaders = ['/', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
@@ -59,4 +59,4 @@ export {
   ships,
   joinSets,
   setIntersection,
-}
+};

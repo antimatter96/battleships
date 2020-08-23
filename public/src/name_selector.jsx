@@ -23,7 +23,7 @@ class NameSelector extends React.Component {
             id="inptName"
             className="input-lg form-control"
             type="text"
-            onChange={(event) => { this.props.onUserNameChange(event.target.value) }}
+            onChange={(event) => { this.props.onUserNameChange(event.target.value); }}
           />
         </div>
 

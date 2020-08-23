@@ -9,7 +9,7 @@ class Cell extends React.Component {
         id={`cell-${this.props.i}${this.props.j}`}
         data-info={this.props.dataInfo}
       ></span>
-    )
+    );
   }
 }
 

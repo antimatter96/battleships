@@ -1,6 +1,6 @@
 import React from 'react';
 import Board from './board';
-import { rowHeaders, colStarts, lengthOfType, arrOfI, arrOfJ, ships, setIntersection } from './Utils'
+import { rowHeaders, colStarts, lengthOfType, arrOfI, arrOfJ, ships, setIntersection } from './Utils';
 
 class ShipPLacement extends Board {
   constructor(props) {
@@ -9,7 +9,7 @@ class ShipPLacement extends Board {
     let hor = { A: false, B: false, C: false, D: false, E: false };
     let placedBefore = { A: false, B: false, C: false, D: false, E: false };
     let locked = { A: false, B: false, C: false, D: false, E: false };
-    let shipErrors = { A: null, B: null, C: null, D: null, E: null }
+    let shipErrors = { A: null, B: null, C: null, D: null, E: null };
 
     let pointsOfShip = {
       A: new Set(),
@@ -123,13 +123,13 @@ class ShipPLacement extends Board {
       return;
     }
 
-    let callback = () => { this.choicesChanged(ship) };
+    let callback = () => { this.choicesChanged(ship); };
 
     let coordinate = e.target.dataset["coordinate"];
     let variable = `_temp${coordinate}Ship${ship}`;
     if (coordinate == 'X') {
       let val = parseInt(e.target.value);
-      if (val > 9 && val < 0) {
+      if (val > 9 || val < 0) {
         shipErrors[ship] = "Invalid Entries";
         this.setState({ shipErrors: shipErrors });
         return;
@@ -294,9 +294,9 @@ class ShipPLacement extends Board {
     }
 
     let hor = this.state.hor;
-    hor[ship] = !hor[ship]
+    hor[ship] = !hor[ship];
 
-    let callback = () => { this.choicesChanged(ship) };
+    let callback = () => { this.choicesChanged(ship); };
 
     this.setState({
       hor: hor,
@@ -330,7 +330,7 @@ class ShipPLacement extends Board {
     if (this.state.lockReady) {
       this.setState({
         displayError: "Wait",
-      })
+      });
       return;
     }
 
@@ -338,7 +338,7 @@ class ShipPLacement extends Board {
     if (!boardValid) {
       this.setState({
         displayError: "Invalid Board",
-      })
+      });
       return;
     }
 
@@ -429,7 +429,7 @@ class ShipPLacement extends Board {
             }
           </span>
         </div>
-      )
+      );
     });
 
     this.displayError = "";
@@ -461,7 +461,7 @@ class ShipPLacement extends Board {
           {this.displayError}
         </div>
       </div>
-    )
+    );
   }
 }
 

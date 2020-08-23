@@ -24,4 +24,4 @@ class JoinButton extends React.Component {
   }
 }
 
-export default JoinButton
+export default JoinButton;

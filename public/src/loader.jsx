@@ -11,7 +11,7 @@ const colorArrLength = colorArr.length;
 
 class Loader extends React.Component {
   constructor() {
-    super()
+    super();
     this.state = {
       c1: colorArr[0],
       c2: colorArr[0],
@@ -26,7 +26,7 @@ class Loader extends React.Component {
     this.setState({
       c1: colorArr[this.rand()],
       c2: colorArr[this.rand()],
-    })
+    });
   }
 
   componentDidMount() {
@@ -52,4 +52,4 @@ class Loader extends React.Component {
   }
 }
 
-export default Loader
+export default Loader;
