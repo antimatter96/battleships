@@ -55,11 +55,11 @@ class GameServer {
   }
 
   disconnect(_socket, _data) {
-    console.log("_____client disconnected_____");
+    console.log("_____client disconnected_____", _socket.username);
   }
 
   addUser(socket, data) {
-    console.log("Add user", data.username);
+    console.log("Add user", data.name);
     //add gaurd
     if (this.Users.has(data.name)) {
       socket.emit('userAdded', {
@@ -83,8 +83,9 @@ class GameServer {
   }
 
   updateSocket(socket, data) {
-    //console.log("Updating socket", data);
+    console.log("Updating socket", data);
     if (!data.userToken) {
+      console.log(data.player, "no token");
       socket.emit('updateFailed');
       return;
     }
@@ -96,11 +97,13 @@ class GameServer {
       });
     } catch (error) {
       // Better to rate limit this user
+      console.log(data.player, "token fail", error);
       socket.emit('updateFailed');
       return;
     }
 
     if (decoded.name != data.player) {
+      console.log(data.player, "player not matching");
       socket.emit('updateFailed');
       return;
     }

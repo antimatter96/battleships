@@ -63,24 +63,15 @@ class Board extends React.Component {
   }
 
   getClassName(i, j) {
-    let status = this.state.playerBoard[i][j];
     let toAdd = this.props.playerBoardClasses[i][j];
 
-    let toRet = [];
-
-    switch (status) {
-      case 1:
-        toRet = joinSets(btnSet, toAdd);
-        break;
-      default:
-        toRet = [...btnSet];
-        break;
-    }
+    let toRet = joinSets(btnSet, toAdd);
 
     return [...toRet];
   }
 
   render() {
+    //cconsole.log(this.state.playerBoardClasses);
     this.headers = rowHeaders.map((number) => {
       return (
         <Cell

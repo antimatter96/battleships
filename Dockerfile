@@ -1,21 +1,22 @@
-FROM node:lts-alpine3.12 as base_image
+FROM node:lts-alpine3.12 as build
 
-RUN mkdir /src
-WORKDIR /src
+COPY --chown=node:node package.json package-lock.json ./
 
-COPY package.json .
-RUN npm install
+RUN npm ci
+COPY --chown=node:node src ./src
+COPY --chown=node:node views/*  ./views/
+COPY --chown=node:node static/*  ./static/
+COPY --chown=node:node config.js ./config.js
 
-FROM base_image
+FROM node:lts-alpine3.12
+COPY --chown=node:node --from=build package.json package-lock.json ./
+COPY --chown=node:node --from=build node_modules ./node_modules
+COPY --chown=node:node --from=build src ./src
+COPY --chown=node:node --from=build views ./views
+COPY --chown=node:node --from=build config.js ./config.js
 
-COPY src/*  ./src/
-COPY views/*  ./views/
-COPY static/*  ./static/
-COPY config.js ./config.js
-
-# COPY public/*  /src/
-COPY config.js src/config.js
+RUN npm prune --production
 
 EXPOSE 8080
 
-ENTRYPOINT ["npm", "start"]
+CMD [ "node", "src/index.js" ]

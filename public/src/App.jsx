@@ -2,7 +2,7 @@ import React from 'react';
 import socketIOClient from "socket.io-client";
 
 import './css/App.css';
-import { validateName, rowHeaders } from './Utils';
+import { validateName, rowHeaders, arrOfI, arrOfJ } from './Utils';
 import Loader from './loader';
 import JoinButton from './join_button';
 import NameSelector from './name_selector';
@@ -74,6 +74,8 @@ class App extends React.Component {
     this.socket.on("startGame", this.onStartGame.bind(this));
     this.socket.on("wait", this.onWait.bind(this));
     this.socket.on("go", this.onGo.bind(this));
+    this.socket.on("yourMove", this.onYourMove.bind(this));
+    this.socket.on("oppMove", this.onOppMove.bind(this));
   }
 
   emit(msg, data) {
@@ -246,7 +248,6 @@ class App extends React.Component {
     });
   }
 
-
   onWait(data) {
     if (data.status === "Error") {
       this.setState({
@@ -275,6 +276,14 @@ class App extends React.Component {
       state: STATE_PLAY,
       oppBoardClasses: playerBoardClasses,
       oppBoard: playerBoard,
+    }, () => {
+      if (this.state.loading) {
+        if (this.myTurn && this.state.lastX == null && this.state.lastY == null) {
+          this.setState({
+            loading: false,
+          });
+        }
+      }
     });
   }
 
@@ -288,24 +297,116 @@ class App extends React.Component {
   }
 
   onShoot() {
+    if (!this.state.myTurn) {
+      this.setState({ displayError: "Please wait for your turn" });
+      return;
+    }
+
     let x = this.state.shoti;
     let y = this.state.shotj;
 
     let valX = parseInt(x);
     let valY = y.toUpperCase();
-    if (valX > 9 || valX < 0 || valY.length != "1" || !valY.match(/[A-J]/)) {
+    if (valX > 10 || valX < 1 || valY.length != "1" || !valY.match(/[A-J]/)) {
+      console.log("invalid")
+      this.setState({ displayError: "Invalid Entries" });
+      return;
+    }
+
+    console.log(x, y);
+    console.log(arrOfI, arrOfI.indexOf((x).toString()), arrOfJ, arrOfJ.indexOf(y));
+
+    if (arrOfI.indexOf(x.toString()) > -1 && arrOfJ.indexOf(y) > -1) {
+      y = arrOfJ.indexOf(y);
+      x = arrOfI.indexOf(x.toString());
+      if (this.state.oppBoard[x][y] === 0) {
+        this.emit('makeMove', {
+          gameId: this.state.gameId,
+          player: this.state.username,
+          userToken: this.state.userToken,
+          gameToken: this.state.gameToken,
+          move: { x: x, y: y },
+        });
+        this.setState({
+          lastX: x,
+          lastY: y,
+          loading: true,
+          displayError: null,
+          myTurn: false,
+        });
+      } else {
+        this.setState({
+          displayError : "Already"
+        });
+      }
+    } else {
       this.setState({ displayError: "Invalid Entries" });
       return;
     }
   }
 
   onChangeFunction(e) {
-    console.log(e.target.value);
-    console.log(e.target.id);
-
+    console.log(e.target.id, ":", e.target.value);
     this.setState({
       [e.target.id]: e.target.value
+    }, () => {
+      console.log(this.state.shoti, this.state.shotj);
     });
+  }
+
+  onOppMove(data) {
+    let playerBoardClasses = this.state.playerBoardClasses;
+
+    let x = data.point.x;
+    let y = data.point.y
+    if (data.result == "Hit") {
+      playerBoardClasses[x][y].add("hit")
+      // if (data.extra.gameOver) {
+      //   //
+      //   endGame(true);
+      // }
+    } else {
+      playerBoardClasses[x][y].add("miss")
+    }
+
+    this.setState({
+      loading: false,
+      myTurn: true,
+      playerBoardClasses: playerBoardClasses,
+      displayError: null,
+    })
+    console.log("opp", data);
+  }
+
+  onYourMove(data) {
+    let oppBoardClasses = this.state.oppBoardClasses;
+
+    let x = this.state.lastX;
+    let y = this.state.lastY
+    if (data.result == "Hit") {
+      console.log(data);
+      oppBoardClasses[x][y].add("hit")
+      if (data.extra && data.extra.shipDown) {
+        oppBoardClasses[x][y].add(data.extra.partOf);
+      }
+      // if (data.extra.gameOver) {
+      //   //
+      //   //endGame(true);
+      // }
+    } else if (data.result == "Miss"){
+      oppBoardClasses[x][y].add("miss")
+    } else {
+      this.setState({
+        displayError: "Repeat",
+      })
+    }
+
+    this.setState({
+      loading: false,
+      myTurn: true,
+      oppBoardClasses: oppBoardClasses
+    })
+    console.log("your", data);
   }
 
   render() {
@@ -342,7 +443,6 @@ class App extends React.Component {
             </div>
             <div className="col-md-5 col-md-offset-1 centered-i">
               <h4>Opponent</h4>
-
             </div>
             <Board
               playerBoardClasses={this.state.playerBoardClasses}
@@ -402,7 +502,5 @@ class App extends React.Component {
     );
   }
 }
-
-
 
 export default App;
